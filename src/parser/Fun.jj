@@ -1,0 +1,78 @@
+/**
+ * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
+ */
+options
+{
+  static = false; //Nao criara metodos estaticos
+}
+
+PARSER_BEGIN(Fun)
+package parser;
+
+public class Fun
+{
+  public static void main(String args []) throws ParseException
+  {
+    Fun parser = new Fun(System.in);
+    try
+    {
+      parser.program();
+      System.out.println("Sucesso!");
+    }
+    catch (ParseException e)
+    {
+      System.out.println(e);
+    }
+    catch (TokenMgrError e)
+    {
+      System.out.println(e);
+    }
+  }
+}
+
+PARSER_END(Fun)
+
+SKIP :
+{
+  " "
+| "\r"
+| "\t"
+| "\n"
+}
+
+TOKEN : /* OPERATORS */
+{
+  < PLUS : "+" >
+| < MINUS : "-" >
+| < MULTIPLY : "*" >
+| < DIVIDE : "/" >
+}
+
+TOKEN :
+{
+  < CONSTANT : (< DIGIT >)+ >
+| < #DIGIT : [ "0"-"9" ] >
+}
+
+void program() :
+{}
+{
+  (
+    < PLUS >
+    {
+      System.out.println("Reconheceu PLUS");
+    }
+  | < MINUS >
+    {
+      System.out.println("Reconheceu MINUS");
+    }
+  | < MULTIPLY >
+    {
+      System.out.println("Reconheceu MULTIPLY");
+    }
+  | < DIVIDE >
+    {
+      System.out.println("Reconheceu DIVIDE");
+    }
+  )*
+}
