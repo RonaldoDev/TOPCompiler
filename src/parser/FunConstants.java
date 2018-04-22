@@ -11,20 +11,118 @@ public interface FunConstants {
   /** End of File. */
   int EOF = 0;
   /** RegularExpression Id. */
-  int PLUS = 5;
+  int PLUS = 6;
   /** RegularExpression Id. */
-  int MINUS = 6;
+  int MINUS = 7;
   /** RegularExpression Id. */
-  int MULTIPLY = 7;
+  int MULTIPLY = 8;
   /** RegularExpression Id. */
-  int DIVIDE = 8;
+  int DIVIDE = 9;
   /** RegularExpression Id. */
-  int CONSTANT = 9;
+  int ASSIGN = 10;
   /** RegularExpression Id. */
-  int DIGIT = 10;
+  int GT = 11;
+  /** RegularExpression Id. */
+  int LT = 12;
+  /** RegularExpression Id. */
+  int EQ = 13;
+  /** RegularExpression Id. */
+  int LE = 14;
+  /** RegularExpression Id. */
+  int GE = 15;
+  /** RegularExpression Id. */
+  int NEQ = 16;
+  /** RegularExpression Id. */
+  int REM = 17;
+  /** RegularExpression Id. */
+  int NOT = 18;
+  /** RegularExpression Id. */
+  int AND = 19;
+  /** RegularExpression Id. */
+  int OR = 20;
+  /** RegularExpression Id. */
+  int XOR = 21;
+  /** RegularExpression Id. */
+  int BREAK = 22;
+  /** RegularExpression Id. */
+  int CLASS = 23;
+  /** RegularExpression Id. */
+  int CONSTRUCTOR = 24;
+  /** RegularExpression Id. */
+  int ELSE = 25;
+  /** RegularExpression Id. */
+  int EXTENDS = 26;
+  /** RegularExpression Id. */
+  int FOR = 27;
+  /** RegularExpression Id. */
+  int IF = 28;
+  /** RegularExpression Id. */
+  int INT = 29;
+  /** RegularExpression Id. */
+  int NEW = 30;
+  /** RegularExpression Id. */
+  int PRINT = 31;
+  /** RegularExpression Id. */
+  int READ = 32;
+  /** RegularExpression Id. */
+  int RETURN = 33;
+  /** RegularExpression Id. */
+  int STRING = 34;
+  /** RegularExpression Id. */
+  int SUPER = 35;
+  /** RegularExpression Id. */
+  int FLOAT = 36;
+  /** RegularExpression Id. */
+  int BOOLEAN = 37;
+  /** RegularExpression Id. */
+  int CHAR = 38;
+  /** RegularExpression Id. */
+  int LPAREN = 39;
+  /** RegularExpression Id. */
+  int RPAREN = 40;
+  /** RegularExpression Id. */
+  int LBRACE = 41;
+  /** RegularExpression Id. */
+  int RBRACE = 42;
+  /** RegularExpression Id. */
+  int LBRACKET = 43;
+  /** RegularExpression Id. */
+  int RBRACKET = 44;
+  /** RegularExpression Id. */
+  int SEMICOLON = 45;
+  /** RegularExpression Id. */
+  int COMMA = 46;
+  /** RegularExpression Id. */
+  int DOT = 47;
+  /** RegularExpression Id. */
+  int int_constant = 48;
+  /** RegularExpression Id. */
+  int float_constant = 49;
+  /** RegularExpression Id. */
+  int string_constant = 50;
+  /** RegularExpression Id. */
+  int null_constant = 51;
+  /** RegularExpression Id. */
+  int char_constant = 52;
+  /** RegularExpression Id. */
+  int boolean_constant = 53;
+  /** RegularExpression Id. */
+  int IDENT = 54;
+  /** RegularExpression Id. */
+  int LETTER = 55;
+  /** RegularExpression Id. */
+  int DIGIT = 56;
+  /** RegularExpression Id. */
+  int INVALID_LEXICAL = 63;
+  /** RegularExpression Id. */
+  int INVALID_CONST = 64;
 
   /** Lexical state. */
   int DEFAULT = 0;
+  /** Lexical state. */
+  int multilinecomment = 1;
+  /** Lexical state. */
+  int singlelinecomment = 2;
 
   /** Literal token values. */
   String[] tokenImage = {
@@ -33,12 +131,66 @@ public interface FunConstants {
     "\"\\r\"",
     "\"\\t\"",
     "\"\\n\"",
+    "\"\\f\"",
     "\"+\"",
     "\"-\"",
     "\"*\"",
     "\"/\"",
-    "<CONSTANT>",
+    "\"=\"",
+    "\">\"",
+    "\"<\"",
+    "\"==\"",
+    "\"<=\"",
+    "\">=\"",
+    "\"!=\"",
+    "\"%\"",
+    "\"not\"",
+    "\"and\"",
+    "\"or\"",
+    "\"xor\"",
+    "\"break\"",
+    "\"class\"",
+    "\"constructor\"",
+    "\"else\"",
+    "\"extends\"",
+    "\"for\"",
+    "\"if\"",
+    "\"int\"",
+    "\"new\"",
+    "\"print\"",
+    "\"read\"",
+    "\"return\"",
+    "\"string\"",
+    "\"super\"",
+    "\"float\"",
+    "\"boolean\"",
+    "\"char\"",
+    "\"(\"",
+    "\")\"",
+    "\"{\"",
+    "\"}\"",
+    "\"[\"",
+    "\"]\"",
+    "\";\"",
+    "\",\"",
+    "\".\"",
+    "<int_constant>",
+    "<float_constant>",
+    "<string_constant>",
+    "\"null\"",
+    "<char_constant>",
+    "<boolean_constant>",
+    "<IDENT>",
+    "<LETTER>",
     "<DIGIT>",
+    "\"/*\"",
+    "\"*/\"",
+    "<token of kind 59>",
+    "\"//\"",
+    "<token of kind 61>",
+    "<token of kind 62>",
+    "<INVALID_LEXICAL>",
+    "<INVALID_CONST>",
   };
 
 }
