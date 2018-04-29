@@ -55,67 +55,69 @@ public interface FunConstants {
   /** RegularExpression Id. */
   int FOR = 27;
   /** RegularExpression Id. */
-  int IF = 28;
+  int WHILE = 28;
   /** RegularExpression Id. */
-  int INT = 29;
+  int IF = 29;
   /** RegularExpression Id. */
-  int NEW = 30;
+  int INT = 30;
   /** RegularExpression Id. */
-  int PRINT = 31;
+  int NEW = 31;
   /** RegularExpression Id. */
-  int READ = 32;
+  int PRINT = 32;
   /** RegularExpression Id. */
-  int RETURN = 33;
+  int READ = 33;
   /** RegularExpression Id. */
-  int STRING = 34;
+  int RETURN = 34;
   /** RegularExpression Id. */
-  int SUPER = 35;
+  int STRING = 35;
   /** RegularExpression Id. */
-  int FLOAT = 36;
+  int SUPER = 36;
   /** RegularExpression Id. */
-  int BOOLEAN = 37;
+  int FLOAT = 37;
   /** RegularExpression Id. */
-  int CHAR = 38;
+  int BOOLEAN = 38;
   /** RegularExpression Id. */
-  int LPAREN = 39;
+  int CHAR = 39;
   /** RegularExpression Id. */
-  int RPAREN = 40;
+  int LPAREN = 40;
   /** RegularExpression Id. */
-  int LBRACE = 41;
+  int RPAREN = 41;
   /** RegularExpression Id. */
-  int RBRACE = 42;
+  int LBRACE = 42;
   /** RegularExpression Id. */
-  int LBRACKET = 43;
+  int RBRACE = 43;
   /** RegularExpression Id. */
-  int RBRACKET = 44;
+  int LBRACKET = 44;
   /** RegularExpression Id. */
-  int SEMICOLON = 45;
+  int RBRACKET = 45;
   /** RegularExpression Id. */
-  int COMMA = 46;
+  int SEMICOLON = 46;
   /** RegularExpression Id. */
-  int DOT = 47;
+  int COMMA = 47;
   /** RegularExpression Id. */
-  int int_constant = 48;
+  int DOT = 48;
   /** RegularExpression Id. */
-  int float_constant = 49;
+  int int_constant = 49;
   /** RegularExpression Id. */
-  int string_constant = 50;
+  int float_constant = 50;
   /** RegularExpression Id. */
-  int null_constant = 51;
+  int string_constant = 51;
   /** RegularExpression Id. */
-  int char_constant = 52;
+  int null_constant = 52;
   /** RegularExpression Id. */
-  int boolean_constant = 53;
+  int char_constant = 53;
   /** RegularExpression Id. */
-  int IDENT = 54;
+  int boolean_constant = 54;
   /** RegularExpression Id. */
-  int LETTER = 55;
+  int IDENT = 55;
   /** RegularExpression Id. */
-  int DIGIT = 56;
+  int LETTER = 56;
   /** RegularExpression Id. */
-  int INVALID_LEXICAL = 63;
+  int DIGIT = 57;
   /** RegularExpression Id. */
-  int INVALID_CONST = 64;
+  int INVALID_LEXICAL = 64;
+  /** RegularExpression Id. */
+  int INVALID_CONST = 65;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -154,6 +156,7 @@ public interface FunConstants {
     "\"else\"",
     "\"extends\"",
     "\"for\"",
+    "\"while\"",
     "\"if\"",
     "\"int\"",
     "\"new\"",
@@ -185,10 +188,10 @@ public interface FunConstants {
     "<DIGIT>",
     "\"/*\"",
     "\"*/\"",
-    "<token of kind 59>",
+    "<token of kind 60>",
     "\"//\"",
-    "<token of kind 61>",
     "<token of kind 62>",
+    "<token of kind 63>",
     "<INVALID_LEXICAL>",
     "<INVALID_CONST>",
   };
