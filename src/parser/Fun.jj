@@ -3,7 +3,7 @@
  */
 options
 {
-  static = false; //Nao criara metodos estaticos
+  static = false; //Nao criará metodos estaticos
 }
 
 PARSER_BEGIN(Fun)
@@ -13,12 +13,12 @@ import java.io.*;
 public class Fun
 {
   final static String Version = "X++ Compiler - Version 1.0 - 2018";
-  boolean Menosshort = false; //saÃ­da resumida == falso;
+  boolean Menosshort = false; //saída resumida == falso;
 
   //define o metodo "main" da classe langX.
   public static void main(String args []) throws ParseException
   {
-    String filename = "C:/Users/Ronaldo/Downloads/Eclipse/top.txt"; //nome do arquivo a ser analisado
+    String filename = "C:/Users/Vitor/Downloads/Eclipse/top.txt"; //nome do arquivo a ser analisado
     Fun parser; //analisador lexico/sintatico
     System.out.println(Version);
     //le do arquivo    
@@ -127,7 +127,7 @@ TOKEN : //palavras reservadas
 | < CHAR : "char" >
 }
 
-/* SÃƒÂ­mbolos especiais */
+/* Símbolos especiais */
 TOKEN :
 {
   < LPAREN : "(" >
@@ -146,7 +146,7 @@ TOKEN :
 TOKEN :
 {
   < tipo_INT :
-    ( // nÃƒÂºmeros decimais, octais, hexadecimais ou binÃƒÂ¡rios
+    ( // números decimais, octais, hexadecimais ou binários
       (
         [ "0"-"9" ] ([ "0"-"9" ])*
       )
@@ -210,7 +210,7 @@ TOKEN :
 | < FINAL : "final" >
 }
 
-/* ComentÃƒÂ¡rios */
+/* Comentários */
 
 SKIP :
 {
@@ -241,7 +241,7 @@ SKIP :
 | < ~[ ] >
 }
 
-/* Trata erros lÃƒÂ©xicos */
+/* Trata erros léxicos */
 
 SPECIAL_TOKEN :
 {
@@ -293,8 +293,7 @@ SPECIAL_TOKEN :
     "\'" (~[ "\n", "\r", "\'" ]) (~[ "\n", "\r", "\'" ])+ "\'" 
   >
   {
-    System.err.println("Linha " + input_stream.getEndLine() + 
-    " - Erro de char. " + image);
+    System.err.println("Linha " + input_stream.getEndLine() + " - Erro de char. " + image);
     countLexError++;
   }
   /*|  
@@ -329,7 +328,13 @@ JAVACODE void program()
       System.out.println(st.image + "  " + im(st.kind) + " " + st.kind);
       else
       {
-        System.out.println("Linha: " + st.beginLine + " Coluna: " + st.beginColumn + " -> " + st.image + " " + im(st.kind));
+        if (im(st.kind) == "<INVALID_LEXICAL>" || im(st.kind) == "<INVALID_CONST>" || im(st.kind) == "<INVALID_CHAR>" || im(st.kind) == "<INVALID_FLOAT>")
+        {
+        }
+        else
+        {
+          System.out.println("Linha: " + st.beginLine + " Coluna: " + st.beginColumn + " -> " + st.image + " " + im(st.kind));
+        }
       }
       st = st.next;
     }
