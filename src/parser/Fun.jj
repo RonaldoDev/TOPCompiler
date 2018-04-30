@@ -22,14 +22,14 @@ public class Fun
     Fun parser; //analisador lexico/sintatico
     System.out.println(Version);
     //le do arquivo    
-    System.out.println("Lendo do arquivo" + filename);
+    System.out.println("Lendo do arquivo" + filename + "\n");
     try
     {
       parser = new Fun(new java.io.FileInputStream(filename));
     }
     catch (java.io.FileNotFoundException e)
     {
-      System.out.println("Arquivo " + filename + " n\u00e3o encontrado.");
+      System.out.println("Arquivo " + filename + " não encontrado.");
       return;
     }
     parser.Menosshort = false;
@@ -37,7 +37,7 @@ public class Fun
     //verifica se houve erro lexico
     if (parser.token_source.foundLexError() != 0)
     {
-      System.out.println(parser.token_source.foundLexError() + " erros l\u00e9xicos encontrados");
+      System.out.println(parser.token_source.foundLexError() + " erros léxicos encontrados");
     }
     else
     {
@@ -125,6 +125,7 @@ TOKEN : //palavras reservadas
 | < FLOAT : "float" >
 | < BOOLEAN : "boolean" >
 | < CHAR : "char" >
+| < FUNCTION : "function" >
 }
 
 /* Símbolos especiais */
@@ -204,7 +205,7 @@ TOKEN :
 
 TOKEN :
 {
-  < PUBLIC : "public" >
+  < PUBLIC : "public" >    
 | < PROTECTED : "protected" >
 | < PRIVATE : "private" >
 | < FINAL : "final" >
