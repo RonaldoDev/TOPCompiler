@@ -13,12 +13,11 @@ import java.io.*;
 public class Fun
 {
   final static String Version = "X++ Compiler - Version 1.0 - 2018";
-  boolean Menosshort = false; //saida resumida == falso;
 
   //define o metodo "main" da classe langX.
   public static void main(String args []) throws ParseException
   {
-    String filename = "C:/Users/Vitor/Downloads/UFSC/top.txt"; //nome do arquivo a ser analisado
+    String filename = "C:/Users/Vitor/Downloads/UFSC/Tokens_aceitos.txt"; //nome do arquivo a ser analisado
     Fun parser; //analisador lexico/sintatico
     System.out.println(Version);
     //le do arquivo    
@@ -32,7 +31,6 @@ public class Fun
       System.out.println("Arquivo " + filename + " nao encontrado.");
       return;
     }
-    parser.Menosshort = false;
     parser.program(); //chama o metodo que faz a analise
     //verifica se houve erro lexico
     if (parser.token_source.foundLexError() != 0)
@@ -153,27 +151,6 @@ TOKEN :
         [ "0"-"9" ] ([ "0"-"9" ])* //um ou mais digidos
       )
     ) >
-    |
-    < tipo_OCTAL :
-    (
-      (
-        [ "0"-"7" ] ([ "0"-"7" ])* [ "o", "O" ] //um ou mais digitos de 0 a 7, seguidos de um o minusculo ou maiusculo
-      )
-    )>
-    |
-    < tipo_HEXADECIMAL :
-    (     
-      (
-       // [ "0"-"9" ] ([ "0"-"7", "A"-"F", "a"-"f" ])* [ "h", "H" ]
-        ([ "0"-"9", "A"-"F", "a"-"f" ])+ [ "h", "H" ] //um ou mais digitos de 0 a 9 ou de A a F em qualquer ordem, terminando com h maiusculo ou minusculo
-      | ["0"]["x"]([ "0"-"9", "A"-"F", "a"-"f" ])*
-      )
-    )>
-    | 
-    <  tipo_BINARIO :
-      (
-        [ "0"-"1" ] ([ "0"-"1" ])* [ "b", "B" ] // digitos de 0 a 1 em qualquer ordem, terminando com b maiusculo ou minusculo
-    ) >
 | 
   < tipo_FLOAT :
     ( // floats
@@ -190,7 +167,9 @@ TOKEN :
 | < tipo_BOOLEAN :
     (
       "true"
+    | "TRUE"
     | "false"
+    | "FALSE"
     ) 
   >
 }
@@ -198,11 +177,7 @@ TOKEN :
 TOKEN : //identificadores
 {
   < tipo_Identificador : //qualquer combinacao de letras e numeros que comece com uma letra
-    < LETTER >
-    (
-      < LETTER >
-    | < DIGIT >
-    )* >
+    < LETTER > (< LETTER >|< DIGIT >)* >
 | 
   < #LETTER : [ "A"-"Z", "a"-"z" ] >
 | 
@@ -213,12 +188,6 @@ SKIP : //comentarios
 {
   "/*" : multilinecomment
 }
-
-/*
-TOKEN: {
-    < WHILE: "while" > : WHILEMODE
-}
-*/
 
 < multilinecomment >
 SKIP :
@@ -276,34 +245,22 @@ SPECIAL_TOKEN : //trata erros lexicos
     countLexError++;
   }
 | 
-  < INVALID_CONST : 
+  < INVALID_STRING : 
     "\"" (~[ "\n", "\r", "\"" ])* [ "\n", "\r" ] >
   {
-    System.err.println("Linha " + input_stream.getEndLine() + " - A constante possui uma quebra de linha inesperada: " + image);
+    System.err.println("Linha " + input_stream.getEndLine() + " - A string possui uma quebra de linha inesperada: " + image);
     countLexError++;
   }
 | 
   < INVALID_CHAR :
-    "\'" (~[ "\n", "\r", "\'" ])* [ "\n", "\r" ]
+    "\'" (~[ "\n", "\r", "\'" ])* [ "\n", "\r" ] //char com quebra de linha
   | 
-    "\'" (~[ "\n", "\r", "\'" ]) (~[ "\n", "\r", "\'" ])+ "\'" 
+    "\'" (~[ "\n", "\r", "\'" ]) (~[ "\n", "\r", "\'" ])+ "\'" //char com mais de um caractere
+  |
+    "\'" "\'" //char vazio 
   >
   {
-    System.err.println("Linha " + input_stream.getEndLine() + " - Erro de char. " + image);
-    countLexError++;
-  }
-| 
-  < INVALID_FLOAT :
-    (
-      ([ "0"-"9" ])+ ([ "." ])+ (([ "0"-"9" ])+ ([ "." ])+)+ //15.15.
-    | ([ "0"-"9" ])+ ([ "." ])+ ([ "0"-"9" ])+ ([ "." ] ([ "0"-"9" ])+)+ //15.15.15
-    | ([ "." ])+ ([ "0"-"9" ])+ ([ "." ])+ //.15.
-    | ([ "." ])+ ([ "0"-"9" ])+ (([ "." ])+ ([ "0"-"9" ])+)+ //.15.15
-    | ([ "." ])+ ([ "0"-"9" ])+(([ "." ])+ ([ "0"-"9" ])+ ([ "." ])+)+ //.15.15.
-    | ([ "0"-"9" ])+ [ "." ] ([ "." ])+ ([ "0"-"9" ])+ //15..15    ) 
-  >
-  {
-    System.err.println("Linha " + input_stream.getEndLine() + " - FLOAT INVALIDO: " + image);
+    System.err.println("Linha " + input_stream.getEndLine() + " - Erro de char: " + image);
     countLexError++;
   }
 }
@@ -313,35 +270,31 @@ JAVACODE void program()
   Token t;
   do
   {
-    t = getNextToken();
-    Token st = t;
-    boolean error = false;
-    while (st.specialToken != null)
+    t = getNextToken(); //token t recebe o próximo token
+    Token st = t; //token st recebe o valor de t
+    boolean error = false; //criado para previnir que o analisador pule o proximo token ao encontrar um erro
+    while (st.specialToken != null) //se token st for um special token, entra no loop
     {
-      st = st.specialToken;
+      st = st.specialToken; //token st recebe o special token atual
       error = true;
     }
     do
     {
-      if (Menosshort) 
-      System.out.println(st.image + "  " + im(st.kind) + " " + st.kind);
-      else
-      {
-        if (im(st.kind) == "<INVALID_LEXICAL>" || im(st.kind) == "<INVALID_CONST>" || im(st.kind) == "<INVALID_CHAR>" || im(st.kind) == "<INVALID_FLOAT>")
-        {
+        if (im(st.kind) == "<INVALID_LEXICAL>" || im(st.kind) == "<INVALID_STRING>" || im(st.kind) == "<INVALID_CHAR>" || im(st.kind) == "<INVALID_FLOAT>")
+        {//Caso encontre algum dos erros acima, nao fazer nada, pois a mensagem de erro ja está implementada na propria verificacao de special tokens invalidos
         }
         else
         {
           System.out.println("Linha: " + st.beginLine + " Coluna: " + st.beginColumn + " -> " + st.image + " " + im(st.kind));
         }
-      }
-      st = st.next;
+      
+      st = st.next; //st recebe o próximo token não especial
     }
-    while (st != t.next);
+    while (st != t.next); //verifica se o valor recebido no token st é igual ao próximo token a ser lido
     if (error)
-    {
+    {//imprime o valor do token que sucede um erro léxico encontrado
       System.out.println("Linha: " + t.beginLine + " Coluna: " + t.beginColumn + " -> " + t.image + " " + im(t.kind));
     }
   }
-  while (t.kind != FunConstants.EOF);
+  while (t.kind != FunConstants.EOF);//enquanto não chegar no final do arquivo
 }
