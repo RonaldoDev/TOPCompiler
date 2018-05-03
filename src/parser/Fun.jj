@@ -163,7 +163,7 @@ TOKEN :
     "\"" (~[ "\"", "\n", "\r" ])* "\"" > //aspas seguidas por qualquer coisa que nao seja aspas ou quebra de linha, terminando com aspas. Pode nao ter nada entre as aspas
 | < tipo_NULL : "null" > //constante null
 | < tipo_CHAR : // constante CHAR como 'a'
-    "\'" (~[ "\'", "\n", "\r", " "]) "\'" > //aspas simples seguidas por qualquer digito unico que nao seja aspas simples ou quebra de linha, terminando com as pas simples.
+    "\'" (~[ "\'", "\n", "\r"]) "\'" > //aspas simples seguidas por qualquer digito unico que nao seja aspas simples ou quebra de linha, terminando com as pas simples.
 | < tipo_BOOLEAN :
     (
       "true"
@@ -258,8 +258,6 @@ SPECIAL_TOKEN : //trata erros lexicos
     "\'" (~[ "\n", "\r", "\'" ]) (~[ "\n", "\r", "\'" ])+ "\'" //char com mais de um caractere
   |
     "\'" "\'" //char vazio
-  |
-    "\'" " " "\'" //char com espaço
   
   >
   {
