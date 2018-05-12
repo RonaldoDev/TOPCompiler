@@ -17,7 +17,7 @@ public class Fun
   //define o metodo "main" da classe langX.
   public static void main(String args []) throws ParseException
   {
-    String filename = "C:/Users/Vitor/Downloads/Tokens_aceitos.txt"; //nome do arquivo a ser analisado
+    String filename = "C:/Users/Vitor/Downloads/entradatestevalido.txt"; //nome do arquivo a ser analisado
     Fun parser; //analisador lexico/sintatico
     System.out.println(Version);
     //le do arquivo    
@@ -99,7 +99,6 @@ TOKEN : //operadores
 | < AND : "and" >
 | < OR : "or" >
 | < XOR : "xor" >
-| < PWR : "^" >
 }
 
 TOKEN : //palavras reservadas
@@ -123,11 +122,6 @@ TOKEN : //palavras reservadas
 | < FLOAT : "float" >
 | < BOOLEAN : "boolean" >
 | < CHAR : "char" >
-| < FUNCTION : "function" >
-| < PUBLIC : "public" >
-| < PROTECTED : "protected" >
-| < PRIVATE : "private" >
-| < FINAL : "final" >
 }
 
 TOKEN : //simbolos especiais
@@ -163,7 +157,7 @@ TOKEN :
     "\"" (~[ "\"", "\n", "\r" ])* "\"" > //aspas seguidas por qualquer coisa que nao seja aspas ou quebra de linha, terminando com aspas. Pode nao ter nada entre as aspas
 | < tipo_NULL : "null" > //constante null
 | < tipo_CHAR : // constante CHAR como 'a'
-    "\'" (~[ "\'", "\n", "\r"]) "\'" > //aspas simples seguidas por qualquer digito unico que nao seja aspas simples ou quebra de linha, terminando com as pas simples.
+    "\'" (~["\\"]) "\'"  | "\'" ("\\n"| "\\r"| "\\t"| "\\\""| "\\\'"| "\\\\") "\'"> //aspas simples seguidas por qualquer digito unico que nao seja aspas simples ou quebra de linha, terminando com as pas simples.
 | < tipo_BOOLEAN :
     (
       "true"
@@ -258,6 +252,8 @@ SPECIAL_TOKEN : //trata erros lexicos
     "\'" (~[ "\n", "\r", "\'" ]) (~[ "\n", "\r", "\'" ])+ "\'" //char com mais de um caractere
   |
     "\'" "\'" //char vazio
+  |
+  	"\'" "\\" "\'" //char do tipo '\'
   
   >
   {
