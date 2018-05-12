@@ -185,6 +185,15 @@ public class Fun implements FunConstants {
       case tipo_Identificador:
         jj_consume_token(tipo_Identificador);
         break;
+      case CHAR:
+        jj_consume_token(CHAR);
+        break;
+      case FLOAT:
+        jj_consume_token(FLOAT);
+        break;
+      case BOOLEAN:
+        jj_consume_token(BOOLEAN);
+        break;
       default:
         jj_la1[3] = jj_gen;
         jj_consume_token(-1);
@@ -258,6 +267,15 @@ public class Fun implements FunConstants {
       case tipo_Identificador:
         jj_consume_token(tipo_Identificador);
         break;
+      case CHAR:
+        jj_consume_token(CHAR);
+        break;
+      case FLOAT:
+        jj_consume_token(FLOAT);
+        break;
+      case BOOLEAN:
+        jj_consume_token(BOOLEAN);
+        break;
       default:
         jj_la1[7] = jj_gen;
         jj_consume_token(-1);
@@ -322,6 +340,9 @@ public class Fun implements FunConstants {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case INT:
         case STRING:
+        case FLOAT:
+        case BOOLEAN:
+        case CHAR:
         case tipo_Identificador:
           ;
           break;
@@ -355,6 +376,9 @@ public class Fun implements FunConstants {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case INT:
       case STRING:
+      case FLOAT:
+      case BOOLEAN:
+      case CHAR:
       case tipo_Identificador:
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case INT:
@@ -365,6 +389,15 @@ public class Fun implements FunConstants {
           break;
         case tipo_Identificador:
           jj_consume_token(tipo_Identificador);
+          break;
+        case CHAR:
+          jj_consume_token(CHAR);
+          break;
+        case FLOAT:
+          jj_consume_token(FLOAT);
+          break;
+        case BOOLEAN:
+          jj_consume_token(BOOLEAN);
           break;
         default:
           jj_la1[12] = jj_gen;
@@ -405,6 +438,15 @@ public class Fun implements FunConstants {
             break;
           case tipo_Identificador:
             jj_consume_token(tipo_Identificador);
+            break;
+          case CHAR:
+            jj_consume_token(CHAR);
+            break;
+          case FLOAT:
+            jj_consume_token(FLOAT);
+            break;
+          case BOOLEAN:
+            jj_consume_token(BOOLEAN);
             break;
           default:
             jj_la1[15] = jj_gen;
@@ -655,6 +697,9 @@ public class Fun implements FunConstants {
       case RETURN:
       case STRING:
       case SUPER:
+      case FLOAT:
+      case BOOLEAN:
+      case CHAR:
       case LBRACE:
       case SEMICOLON:
       case tipo_Identificador:
@@ -1012,7 +1057,16 @@ public class Fun implements FunConstants {
     jj_scanpos = xsp;
     if (jj_scan_token(35)) {
     jj_scanpos = xsp;
-    if (jj_scan_token(55)) { if (!jj_rescan) trace_return("vardecl(LOOKAHEAD FAILED)"); return true; }
+    if (jj_scan_token(55)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(39)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(37)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(38)) { if (!jj_rescan) trace_return("vardecl(LOOKAHEAD FAILED)"); return true; }
+    }
+    }
+    }
     }
     }
     if (jj_scan_token(tipo_Identificador)) { if (!jj_rescan) trace_return("vardecl(LOOKAHEAD FAILED)"); return true; }
@@ -1078,7 +1132,7 @@ public class Fun implements FunConstants {
       jj_la1_0 = new int[] {0x800000,0x800000,0x4000000,0x40000000,0x0,0x0,0x0,0x40000000,0x0,0x800000,0x1000000,0x40000000,0x40000000,0x0,0x0,0x40000000,0x0,0x40000000,0x28400000,0x800000c0,0xc0,0x2000000,0x0,0xc0,0x0,0x68400000,0x0,0x0,0x0,0x40000000,0x0,0x40000000,0x1f800,0x1f800,0xc0,0xc0,0x20300,0x20300,0xc0,0xc0,0x0,0x0,0xc0,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0x0,0x0,0x800008,0x1000,0x8000,0x2000,0x800008,0x2000,0x0,0x0,0x800008,0x800008,0x2000,0x8000,0x800008,0x2000,0x800008,0x804417,0x9a0100,0x9a0100,0x0,0x800000,0x9a0100,0x800000,0x80441f,0x11000,0x100,0x11000,0x800008,0x1000,0x800008,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x9a0100,0x8000,0x9a0100,};
+      jj_la1_1 = new int[] {0x0,0x0,0x0,0x8000e8,0x1000,0x8000,0x2000,0x8000e8,0x2000,0x0,0x0,0x8000e8,0x8000e8,0x2000,0x8000,0x8000e8,0x2000,0x8000e8,0x804417,0x9a0100,0x9a0100,0x0,0x800000,0x9a0100,0x800000,0x8044ff,0x11000,0x100,0x11000,0x800008,0x1000,0x800008,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x9a0100,0x8000,0x9a0100,};
    }
    private static void jj_la1_init_2() {
       jj_la1_2 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};

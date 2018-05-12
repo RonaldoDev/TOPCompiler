@@ -372,7 +372,7 @@ void vardecl() :
 {
 }
 {
-	( <INT> | <STRING> | <tipo_Identificador> )
+	( <INT> | <STRING> | <tipo_Identificador> | < CHAR > | < FLOAT > | < BOOLEAN >)
 	<tipo_Identificador> ( <LBRACKET> <RBRACKET>)*
 	(<COMMA> <tipo_Identificador> ( <RBRACKET> <LBRACKET>)* )*
 }
@@ -388,7 +388,7 @@ void methoddecl() :
 {
 }
 {
-  (< INT > | <STRING > | <tipo_Identificador >) (< RBRACKET >  <LBRACKET >)*
+  (< INT > | <STRING > | <tipo_Identificador >  | < CHAR > | < FLOAT > | < BOOLEAN >) (< RBRACKET >  <LBRACKET >)*
   < tipo_Identificador > methodbody()
     
 }
@@ -418,8 +418,8 @@ void paramlist() :
 }
 {
   [
-  (< INT > | < STRING > | <tipo_Identificador >) < tipo_Identificador > (< RBRACKET >  <LBRACKET >)*
-  (< COMMA > (< INT > | < STRING > |  < tipo_Identificador >) < tipo_Identificador > (< RBRACKET > <LBRACKET >)*
+  (< INT > | < STRING > | <tipo_Identificador > | < CHAR > | < FLOAT > | < BOOLEAN >) < tipo_Identificador > (< RBRACKET >  <LBRACKET >)*
+  (< COMMA > (< INT > | < STRING > |  < tipo_Identificador > | < CHAR > | < FLOAT > | < BOOLEAN >) < tipo_Identificador > (< RBRACKET > <LBRACKET >)*
   )*
     ]
 }
