@@ -4,6 +4,7 @@
 options
 {
   static = false; //Nao criara metodos estaticos
+  DEBUG_LOOKAHEAD = true;
 }
 
 PARSER_BEGIN(Fun)
@@ -12,54 +13,121 @@ import java.io.*;
 
 public class Fun
 {
-  final static String Version = "X++ Compiler - Version 1.0 - 2018";
-  boolean Menosshort = false; //saÃ­da resumida == falso;
+  final static String Version = "Top Compiler - Version 1.0 - 2018";
+  int contadorDeErrosSintaticos = 0;	
 
-  //define o metodo "main" da classe langX.
+  final static String CaminhoDoArquivo = "C:/Users/Ronaldo/Downloads/entradatestevalido.txt";
+
   public static void main(String args []) throws ParseException
   {
-    String filename = "C:/Users/Ronaldo/Downloads/Eclipse/top.txt"; //nome do arquivo a ser analisado
-    Fun parser; //analisador lexico/sintatico
+    boolean debug = false;
+    String nomeArquivo = CaminhoDoArquivo;
+    Fun analisador = leArquivo(nomeArquivo);
     System.out.println(Version);
-    //le do arquivo    
-    System.out.println("Lendo do arquivo" + filename);
+    desabilitaVerboseDoAS(analisador, debug);
     try
     {
-      parser = new Fun(new java.io.FileInputStream(filename));
+      analisador.program();
+      //executaParser(analisador);
     }
-    catch (java.io.FileNotFoundException e)
+    catch (ParseException e)
     {
-      System.out.println("Arquivo " + filename + " n\u00e3o encontrado.");
-      return;
+      System.err.println(e.getMessage());
+      analisador.contadorDeErrosSintaticos++;
     }
-    parser.Menosshort = false;
-    parser.program(); //chama o metodo que faz a analise
-    //verifica se houve erro lexico
-    if (parser.token_source.foundLexError() != 0)
+    finally
     {
-      System.out.println(parser.token_source.foundLexError() + " erros l\u00e9xicos encontrados");
+      System.out.println(analisador.token_source.foundLexError() + ": Erros Lexicos encontrados");
+      System.out.println(analisador.contadorDeErrosSintaticos + ": Erros Sintaticos encontratos");
     }
-    else
+    if (temErros(analisador) == false)
     {
       System.out.println("Programa analisado com sucesso!");
     }
   } //main
 
-  static public String im(int x) //metodo auxiliar
+  public static void desabilitaVerboseDoAS(Fun analisador, boolean debug)
   {
-    int k;
-    String s;
-    s = tokenImage [x];
-    k = s.lastIndexOf("\"");
+    if (!debug)
+    {
+      analisador.disable_tracing();
+    }
+  }
+
+  public static boolean temErros(Fun analisador)
+  {
+    if (analisador.token_source.foundLexError() != 0)
+    {
+      System.out.println(analisador.token_source.foundLexError() + " erros lexicos encontrados");
+    }
+    return false;
+  }
+
+  public static Fun leArquivo(String nomeArquivo)
+  {
     try
     {
-      s = s.substring(1, k);
+      System.out.println("Lendo do arquivo " + nomeArquivo + "\n");
+      return new Fun(new java.io.FileInputStream(nomeArquivo));
+    }
+    catch (java.io.FileNotFoundException e)
+    {
+      System.out.println("Arquivo " + nomeArquivo + " nao encontrado.");
+      return null;
+    }
+  }
+
+  public static void executaParser(Fun analisador)
+  {
+    analisador.Program();
+  }
+
+  static public String imagemToken(int x) //metodo auxiliar
+  {
+    int index;
+    String strToken;
+    strToken = tokenImage [x];
+    index = strToken.lastIndexOf("\"");
+    try
+    {
+      strToken = strToken.substring(1, index);
     }
     catch (StringIndexOutOfBoundsException e)
     {
     }
-    return s;
+    return strToken;
   }
+
+  public static Token geraTokenManipulacao(Token token)
+  {
+    token = getNextToken();
+  }
+
+  final public void classdecl() throws ParseException
+  {
+    trace_call("classdecl");
+    try
+    {
+      jj_consume_token(CLASS);
+      jj_consume_token(tipo_Identificador);
+      switch ((jj_ntk == - 1) ? jj_ntk() : jj_ntk)
+      {
+        case EXTENDS : 
+        jj_consume_token(EXTENDS);
+        jj_consume_token(tipo_Identificador);
+        break;
+        default : 
+        jj_la1 [1] = jj_gen;
+        ;
+      }
+      classbody();
+    }
+    finally
+    {
+      trace_return("classdecl");
+    }
+  }
+  
 } // Fun
 
 PARSER_END(Fun)
@@ -83,7 +151,7 @@ SKIP :
 | "\f"
 }
 
-TOKEN : /* OPERATORS */
+TOKEN : //operadores
 {
   < PLUS : "+" >
 | < MINUS : "-" >
@@ -101,7 +169,6 @@ TOKEN : /* OPERATORS */
 | < AND : "and" >
 | < OR : "or" >
 | < XOR : "xor" >
-| < PWR : "^" >
 }
 
 TOKEN : //palavras reservadas
@@ -127,8 +194,7 @@ TOKEN : //palavras reservadas
 | < CHAR : "char" >
 }
 
-/* SÃƒÂ­mbolos especiais */
-TOKEN :
+TOKEN : //simbolos especiais
 {
   < LPAREN : "(" >
 | < RPAREN : ")" >
@@ -141,54 +207,50 @@ TOKEN :
 | < DOT : "." >
 }
 
-/* constantes */
-
 TOKEN :
 {
   < tipo_INT :
-    ( // nÃƒÂºmeros decimais, octais, hexadecimais ou binÃƒÂ¡rios
+    ( // numeros decimais, octais, hexadecimais ou binarios
       (
-        [ "0"-"9" ] ([ "0"-"9" ])*
-      )
-    |
-      (
-        [ "0"-"7" ] ([ "0"-"7" ])* [ "o", "O" ]
-      )
-    |
-      (
-        [ "0"-"9" ] ([ "0"-"7", "A"-"F", "a"-"f" ])* [ "h", "H" ]
-      )
-    |
-      (
-        [ "0"-"1" ] ([ "0"-"1" ])* [ "b", "B" ]
+        [ "0"-"9" ] ([ "0"-"9" ])* //um ou mais digidos
       )
     ) >
 | 
   < tipo_FLOAT :
     ( // floats
       (
-        ([ "0"-"9" ])+ [ "." ] ([ "0"-"9" ])+
+        ([ "0"-"9" ])+ [ "." ] ([ "0"-"9" ])+ //pelo menos um digito de 0 a 9, seguido por um unico ponto e pelo menos mais um digito de 0 a 9
       )
     ) >
 | 
-  < tipo_STRING : // constante string como "abcd bcda"
-    "\"" (~[ "\"", "\n", "\r" ])* "\"" >
+  < tipo_STRING : // constante string como "ab cd"
+    "\"" (~[ "\"", "\n", "\r" ])* "\"" > //aspas seguidas por qualquer coisa que nao seja aspas ou quebra de linha, terminando com aspas. Pode nao ter nada entre as aspas
 | < tipo_NULL : "null" > //constante null
 | < tipo_CHAR : // constante CHAR como 'a'
-    "\'" (~[ "\'", "\n", "\r" ]) "\'" >
+    "\'" (~[ "\\" ]) "\'"
+  | "\'"
+    (
+      "\\n"
+    | "\\r"
+    | "\\t"
+    | "\\\""
+    | "\\\'"
+    | "\\\\"
+    )
+    "\'" > //aspas simples seguidas por qualquer digito unico que nao seja aspas simples ou quebra de linha, terminando com as pas simples.
 | < tipo_BOOLEAN :
     (
       "true"
+    | "TRUE"
     | "false"
+    | "FALSE"
     ) 
   >
 }
 
-/* Identificadores */
-
-TOKEN :
+TOKEN : //identificadores
 {
-  < tipo_Identificador :
+  < tipo_Identificador : //qualquer combinacao de letras e numeros que comece com uma letra
     < LETTER >
     (
       < LETTER >
@@ -200,28 +262,11 @@ TOKEN :
   < #DIGIT : [ "0"-"9" ] >
 }
 
-/* Qualificadores */
-
-TOKEN :
-{
-  < PUBLIC : "public" >
-| < PROTECTED : "protected" >
-| < PRIVATE : "private" >
-| < FINAL : "final" >
-}
-
-/* ComentÃƒÂ¡rios */
-
-SKIP :
+SKIP : //comentarios
 {
   "/*" : multilinecomment
 }
 
-/*
-TOKEN: {
-    < WHILE: "while" > : WHILEMODE
-}
-*/
 < multilinecomment >
 SKIP :
 {
@@ -241,9 +286,7 @@ SKIP :
 | < ~[ ] >
 }
 
-/* Trata erros lÃƒÂ©xicos */
-
-SPECIAL_TOKEN :
+SPECIAL_TOKEN : //trata erros lexicos
 {
   < INVALID_LEXICAL : 
     (~[ "a"-"z", 
@@ -276,68 +319,318 @@ SPECIAL_TOKEN :
     "\f" 
     ])+ >
   {
-    System.err.println("Linha " + input_stream.getEndLine() + " - Elemento inv\u00e1lido encontrado: " + image);
+    System.err.println("Linha " + input_stream.getEndLine() + " - Elemento invalido encontrado: " + image);
     countLexError++;
   }
 | 
-  < INVALID_CONST : 
+  < INVALID_STRING : 
     "\"" (~[ "\n", "\r", "\"" ])* [ "\n", "\r" ] >
   {
-    System.err.println("Linha " + input_stream.getEndLine() + " - A constante possui uma quebra de linha inesperada: " + image);
+    System.err.println("Linha " + input_stream.getEndLine() + " - A string possui uma quebra de linha inesperada: " + image);
     countLexError++;
   }
 | 
   < INVALID_CHAR :
-    "\'" (~[ "\n", "\r", "\'" ])* [ "\n", "\r" ]
+    "\'" (~[ "\n", "\r", "\'" ])* [ "\n", "\r" ] //char com quebra de linha
   | 
-    "\'" (~[ "\n", "\r", "\'" ]) (~[ "\n", "\r", "\'" ])+ "\'" 
+    "\'" (~[ "\n", "\r", "\'" ]) (~[ "\n", "\r", "\'" ])+ "\'" //char com mais de um caractere
+  | 
+    "\'" "\'" //char vazio
+  | 
+    "\'" "\\" "\'" //char do tipo '\'
   >
   {
-    System.err.println("Linha " + input_stream.getEndLine() + 
-    " - Erro de char. " + image);
+    System.err.println("Linha " + input_stream.getEndLine() + " - Char invalido: " + image);
     countLexError++;
   }
-  /*|  
-  < INVALID_FLOAT : 
-      [ "0"-"9" ] [ "." ]
-   	| [ "." ] ([ "0"-"9" ]+)
-   	| ([ "0"-"9" ]+ [ "." ])+
-   	| [ "0"-"9" ] [ "." ] ([ "a"-"z", "A" - "Z"])
-     >
-  {
-    System.err.println("Linha " + input_stream.getEndLine() + " - FLOAT INVALIDO " + image);
-    countLexError++;
-  }*/
 }
 
-JAVACODE void program()
+
+
+void program() :
 {
-  Token t;
-  do
-  {
-    t = getNextToken();
-    Token st = t;
-    boolean error = false;
-    while (st.specialToken != null)
-    {
-      st = st.specialToken;
-      error = true;
-    }
-    do
-    {
-      if (Menosshort) 
-      System.out.println(st.image + "  " + im(st.kind) + " " + st.kind);
-      else
-      {
-        System.out.println("Linha: " + st.beginLine + " Coluna: " + st.beginColumn + " -> " + st.image + " " + im(st.kind));
-      }
-      st = st.next;
-    }
-    while (st != t.next);
-    if (error)
-    {
-      System.out.println("Linha: " + t.beginLine + " Coluna: " + t.beginColumn + " -> " + t.image + " " + im(t.kind));
-    }
-  }
-  while (t.kind != FunConstants.EOF);
 }
+{
+  [ classlist() ] < EOF >
+}
+
+void classlist() :
+{
+}
+{
+  classdecl() [ classlist() ]
+}
+
+void classdecl() :
+{
+}
+{
+  < CLASS > < tipo_Identificador > [ < EXTENDS > < tipo_Identificador > ] classbody()
+}
+
+void vardecl() :
+{
+}
+{
+	( <INT> | <STRING> | <tipo_Identificador> )
+	<tipo_Identificador> ( <LBRACKET> <RBRACKET>)*
+	(<COMMA> <tipo_Identificador> ( <RBRACKET> <LBRACKET>)* )*
+}
+
+void contructdecl() :
+{
+}
+{
+	<CONSTRUCTOR> methodbody()
+}
+
+void methoddecl() :
+{
+}
+{
+  (< INT > | <STRING > | <tipo_Identificador >) (< RBRACKET >  <LBRACKET >)*
+  < tipo_Identificador > methodbody()
+    
+}
+
+void classbody() :
+{
+}
+{
+  < LBRACE >
+  [classlist()]
+  (LOOKAHEAD(3) vardecl() < SEMICOLON >)*
+  (contructdecl())*
+  (methoddecl())*
+  < RBRACE >
+}
+
+void methodbody() :
+{
+}
+{
+  < LPAREN > paramlist() < RPAREN > statement()
+    
+}
+
+void paramlist() : 
+{
+}
+{
+  [
+  (< INT > | < STRING > | <tipo_Identificador >) < tipo_Identificador > (< RBRACKET >  <LBRACKET >)*
+  (< COMMA > (< INT > | < STRING > |  < tipo_Identificador >) < tipo_Identificador > (< RBRACKET > <LBRACKET >)*
+  )*
+    ]
+}
+
+void statement() :
+{
+}
+{
+  LOOKAHEAD(2)
+  vardecl()
+| 
+  atribstat() < SEMICOLON >
+| 
+  printstat() < SEMICOLON >
+| 
+  readstat() < SEMICOLON >
+| 
+  returnstat() < SEMICOLON >
+| 
+  superstat() < SEMICOLON >
+| 
+  ifstat()
+| 
+  forstat()
+| 
+  < LBRACE > statlist() < RBRACE >
+| 
+  < BREAK >< SEMICOLON >
+| 
+  < SEMICOLON >
+  
+}
+
+
+void atribstat() :
+{
+}
+{
+  lvalue() < ASSIGN > (alocexpression() | expression())
+}
+
+
+void printstat() :
+{
+}
+{
+  < PRINT > expression()
+}
+
+
+void readstat() :
+{
+}
+{
+  < READ > lvalue()
+}
+
+
+void returnstat() :
+{
+}
+{
+  < RETURN > [expression()]
+}
+
+
+void superstat() :
+{
+}
+{
+  < SUPER > <LPAREN > arglist() < RPAREN >
+}
+
+
+void ifstat():
+{
+}
+{
+  < IF > <LPAREN > expression() < RPAREN > statement()
+  [LOOKAHEAD(1) < ELSE > statement()]
+}
+
+
+void forstat() :
+{
+}
+{
+  < FOR > <LPAREN > [atribstat()] <SEMICOLON >
+  [expression()] <SEMICOLON >
+  [atribstat()] <RPAREN >
+  statement()
+}
+
+
+void statlist():
+{
+}
+{
+  statement() [statlist()]
+}
+
+
+void lvalue():
+{
+}
+{
+  < tipo_Identificador > (
+    		< LBRACKET > expression() < RBRACKET > |
+    		< DOT > <tipo_Identificador > [<LPAREN > arglist() < RPAREN >]
+    		)*
+}
+
+
+void alocexpression():
+{
+}
+{
+  < NEW > (
+    		LOOKAHEAD(2) < tipo_Identificador > <LPAREN > arglist() < RPAREN > |
+    		(< INT > | < STRING > | < tipo_Identificador >)
+    		(< LBRACKET > expression() < RBRACKET >)+
+    	  )
+}
+
+
+
+
+
+void expression():
+{
+}
+{
+  numexpr() [( < LT > | < GT > | < LE > | < GE > | < EQ > | < NEQ >) numexpr()]
+}
+
+
+void numexpr():
+{
+}
+{
+  term() ((< PLUS > | < MINUS >) term())*
+}
+
+
+void term():
+{
+}
+{
+  unaryexpr() ((< MULTIPLY > | < DIVIDE > | < REM >) unaryexpr())*
+}
+
+
+void unaryexpr():
+{
+}
+{
+  [(< PLUS > | < MINUS >)] factor()
+}
+
+
+void factor():
+{
+}
+{
+  (
+    < tipo_INT  > |
+    < tipo_STRING  > |
+    < tipo_NULL > |
+    lvalue() |
+    < LPAREN > expression() < RPAREN >)
+}
+
+void arglist():
+{
+}
+{
+  [expression() (< COMMA > expression())*]
+}
+
+
+//JAVACODE void program()
+//{
+//  Token token;
+//  do
+//  {
+//    token = getNextToken();
+//    Token tokenEspecial = token;
+//    boolean isEstadoErro = false;
+//    while (tokenEspecial.specialToken != null)
+//    {
+//      tokenEspecial = tokenEspecial.specialToken;
+//      isEstadoErro = true;
+//    }
+//    do
+//    {
+//      if (imagemToken(tokenEspecial.kind) == "<INVALID_LEXICAL>" || imagemToken(tokenEspecial.kind) == "<INVALID_STRING>" || imagemToken(tokenEspecial.kind) == "<INVALID_CHAR>" || imagemToken(tokenEspecial.kind) == "<INVALID_FLOAT>")
+//      { //Caso encontre algum dos erros acima, nao fazer nada, pois a mensagem de erro ja está implementada na propria verificacao de special tokens invalidos
+//      }
+//      else
+//      {
+//        System.out.println("Linha: " + tokenEspecial.beginLine + " Coluna: " + tokenEspecial.beginColumn + " -> " + tokenEspecial.image + " " + imagemToken(tokenEspecial.kind));
+//      }
+//      tokenEspecial = tokenEspecial.next; //st recebe o próximo token não especial
+//    }
+//    while (tokenEspecial != token.next); //verifica se o valor recebido no token st é igual ao próximo token a ser lido
+//    if (isEstadoErro)
+//    { //imprime o valor do token que sucede um erro léxico encontrado
+//      System.out.println("Linha: " + token.beginLine + " Coluna: " + token.beginColumn + " -> " + token.image + " " + imagemToken(token.kind));
+//    }
+//  }
+//  while (token.kind != FunConstants.EOF); //enquanto não chegar no final do arquivo
+//  
+//}
+
