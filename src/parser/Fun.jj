@@ -165,10 +165,10 @@ TOKEN : //operadores
 | < GE : ">=" >
 | < NEQ : "!=" >
 | < REM : "%" >
-| < NOT : "not" >
-| < AND : "and" >
-| < OR : "or" >
-| < XOR : "xor" >
+//| < NOT : "not" >
+//| < AND : "and" >
+//| < OR : "or" >
+//| < XOR : "xor" >
 }
 
 TOKEN : //palavras reservadas
@@ -246,6 +246,18 @@ TOKEN :
     | "FALSE"
     ) 
   >
+}
+
+TOKEN : //operadores logicos
+{
+  < tipo_Logico  :
+  (
+    < NOT >| < AND > | < OR > | < XOR >)>
+|
+  < #NOT : "not" >
+| < #AND : "and" >
+| < #OR : "or" >
+| < #XOR : "xor" >  
 }
 
 TOKEN : //identificadores
@@ -556,14 +568,11 @@ void alocexpression():
 }
 
 
-
-
-
 void expression():
 {
 }
 {
-  numexpr() [( < LT > | < GT > | < LE > | < GE > | < EQ > | < NEQ >) numexpr()]
+  numexpr() [( < LT > | < GT > | < LE > | < GE > | < EQ > | < NEQ > | <  tipo_Logico > ) numexpr()]
 }
 
 
@@ -589,7 +598,6 @@ void unaryexpr():
 {
   [(< PLUS > | < MINUS >)] factor()
 }
-
 
 void factor():
 {
