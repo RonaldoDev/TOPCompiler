@@ -434,6 +434,8 @@ void statement() :
   vardecl()
 | 
   atribstat() < SEMICOLON >
+|
+  expression() < SEMICOLON >
 | 
   printstat() < SEMICOLON >
 | 
@@ -597,6 +599,8 @@ void factor():
     < tipo_INT  > |
     < tipo_STRING  > |
     < tipo_NULL > |
+    < tipo_CHAR > |
+    < tipo_BOOLEAN > |
     lvalue() |
     < LPAREN > expression() < RPAREN >)
 }
