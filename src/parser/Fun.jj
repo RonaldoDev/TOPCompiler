@@ -373,7 +373,8 @@ void vardecl() :
 }
 {
 	( <INT> | <STRING> | <tipo_Identificador> | < CHAR > | < FLOAT > | < BOOLEAN >)
-	<tipo_Identificador> ( <LBRACKET> <RBRACKET>)*
+	<tipo_Identificador> ( <LBRACKET> <RBRACKET>)* (< ASSIGN > (< tipo_CHAR >|
+	< tipo_STRING > | < tipo_INT > | < tipo_FLOAT > | < tipo_NULL >))?
 	(<COMMA> <tipo_Identificador> ( <RBRACKET> <LBRACKET>)* )*
 }
 
@@ -459,6 +460,8 @@ void atribstat() :
 }
 {
   lvalue() < ASSIGN > (alocexpression() | expression())
+|
+  lvalue() < ASSIGN > (< tipo_CHAR > | < tipo_FLOAT > | < tipo_BOOLEAN >)
 }
 
 
@@ -482,7 +485,7 @@ void returnstat() :
 {
 }
 {
-  < RETURN > [expression()]
+	< RETURN > [expression()]
 }
 
 
@@ -588,6 +591,7 @@ void factor():
     < tipo_INT  > |
     < tipo_STRING  > |
     < tipo_NULL > |
+    < tipo_Identificador >
     lvalue() |
     < LPAREN > expression() < RPAREN >)
 }
