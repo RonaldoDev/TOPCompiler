@@ -373,8 +373,10 @@ void vardecl() :
 }
 {
 	( <INT> | <STRING> | <tipo_Identificador> | < CHAR > | < FLOAT > | < BOOLEAN >)
-	<tipo_Identificador> ( <LBRACKET> <RBRACKET>)*
+	<tipo_Identificador> ( <LBRACKET> <RBRACKET>)* (< ASSIGN > (< tipo_CHAR >|
+	< tipo_STRING > | < tipo_INT > | < tipo_FLOAT > | < tipo_BOOLEAN >| < tipo_NULL >))?
 	(<COMMA> <tipo_Identificador> ( <RBRACKET> <LBRACKET>)* )*
+	
 }
 
 void contructdecl() :
@@ -458,9 +460,16 @@ void atribstat() :
 {
 }
 {
-  lvalue() < ASSIGN > (alocexpression() | expression())
+  lvalue() < ASSIGN > (alocexpression() | expression() | content() )
 }
 
+
+void content() :
+{
+}
+{
+  (< tipo_CHAR > | < tipo_FLOAT > | < tipo_BOOLEAN > ) < SEMICOLON >
+}
 
 void printstat() :
 {
@@ -482,7 +491,7 @@ void returnstat() :
 {
 }
 {
-  < RETURN > [expression()]
+	< RETURN > [expression()]
 }
 
 
