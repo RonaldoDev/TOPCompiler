@@ -16,7 +16,7 @@ public class Fun
   final static String Version = "Top Compiler - Version 1.0 - 2018";
   int contadorDeErrosSintaticos = 0;	
 
-  final static String CaminhoDoArquivo = "C:/Users/Ronaldo/Downloads/entradatestevalido.txt";
+  final static String CaminhoDoArquivo = "C:/Users/Ronaldo/Downloads/programaerros/programaerro9.fun";
 
   public static void main(String args []) throws ParseException
   {
@@ -24,11 +24,21 @@ public class Fun
     String nomeArquivo = CaminhoDoArquivo;
     Fun analisador = leArquivo(nomeArquivo);
     System.out.println(Version);
+	int i;
+	for(i = 0; i< args.length - 1; i++) {
+		if(args[i].equals("-debug_AS")) {
+		  debug = true;
+		}else {
+			System.out.println("Usage is" + "java Fun [-debug_AS] inputfile");
+			System.exit(0);
+		}
+	}
+		
     desabilitaVerboseDoAS(analisador, debug);
+    
     try
     {
       analisador.program();
-      //executaParser(analisador);
     }
     catch (ParseException e)
     {
@@ -50,7 +60,7 @@ public class Fun
   {
     if (!debug)
     {
-      analisador.disable_tracing();
+     //analisador.disable_tracing();
     }
   }
 
@@ -58,7 +68,7 @@ public class Fun
   {
     if (analisador.token_source.foundLexError() != 0)
     {
-      System.out.println(analisador.token_source.foundLexError() + " erros lexicos encontrados");
+      System.out.println(analisador.token_source.foundLexError() + " erros léxicos encontrados");
     }
     return false;
   }
@@ -72,32 +82,11 @@ public class Fun
     }
     catch (java.io.FileNotFoundException e)
     {
-      System.out.println("Arquivo " + nomeArquivo + " nao encontrado.");
+      System.out.println("Arquivo " + nomeArquivo + " não encontrado.");
       return null;
     }
   }
-
-  public static void executaParser(Fun analisador)
-  {
-    analisador.Program();
-  }
-
-  static public String imagemToken(int x) //metodo auxiliar
-  {
-    int index;
-    String strToken;
-    strToken = tokenImage [x];
-    index = strToken.lastIndexOf("\"");
-    try
-    {
-      strToken = strToken.substring(1, index);
-    }
-    catch (StringIndexOutOfBoundsException e)
-    {
-    }
-    return strToken;
-  }
-
+  
   public static Token geraTokenManipulacao(Token token)
   {
     token = getNextToken();
@@ -165,10 +154,10 @@ TOKEN : //operadores
 | < GE : ">=" >
 | < NEQ : "!=" >
 | < REM : "%" >
-//| < NOT : "not" >
-//| < AND : "and" >
-//| < OR : "or" >
-//| < XOR : "xor" >
+| < NOT : "not" >
+| < AND : "and" >
+| < OR : "or" >
+| < XOR : "xor" >
 }
 
 TOKEN : //palavras reservadas
@@ -248,17 +237,18 @@ TOKEN :
   >
 }
 
-TOKEN : //operadores logicos
-{
-  < tipo_Logico  :
-  (
-    < NOT >| < AND > | < OR > | < XOR >)>
-|
-  < #NOT : "not" >
-| < #AND : "and" >
-| < #OR : "or" >
-| < #XOR : "xor" >  
-}
+//TOKEN : //operadores logicos
+//{
+//  < tipo_Logico  :
+//  (
+//    < NOT >| < AND > | < OR > | < XOR >)>
+//|
+//  < #NOT : "not" >
+//| < #AND : "and" >
+//| < #OR : "or" >
+//| < #XOR : "xor" >
+//  
+//}
 
 TOKEN : //identificadores
 {
@@ -380,17 +370,40 @@ void classdecl() :
   < CLASS > < tipo_Identificador > [ < EXTENDS > < tipo_Identificador > ] classbody()
 }
 
+void classbody() :
+{
+}
+{
+  < LBRACE >
+  [classlist()] 
+    (LOOKAHEAD(3) vardecl() < SEMICOLON >)*
+(  (contructdecl()) |
+	(methoddecl()))* 
+  < RBRACE >
+}
+
 void vardecl() :
 {
 }
 {
 	( <INT> | <STRING> | <tipo_Identificador> | < CHAR > | < FLOAT > | < BOOLEAN >)
-	<tipo_Identificador> ( <LBRACKET> <RBRACKET>)* (< ASSIGN > (< tipo_CHAR >|
-	< tipo_STRING > | < tipo_INT > | < tipo_FLOAT > | < tipo_BOOLEAN >| < tipo_NULL >))?
-	(<COMMA> <tipo_Identificador> ( <RBRACKET> <LBRACKET>)* )*
+	<tipo_Identificador> ( <LBRACKET> <RBRACKET>)*  (assigndecl())?
 	
 }
 
+void assigndecl() :
+{
+}
+{
+	< ASSIGN > (assignbody())
+}
+
+void assignbody():
+{
+}
+{
+  ((< tipo_CHAR >| < tipo_STRING > | < tipo_INT > | < tipo_FLOAT > | < tipo_BOOLEAN >)  (< RBRACKET >  <LBRACKET >)?) | < tipo_NULL >
+}
 void contructdecl() :
 {
 }
@@ -402,22 +415,12 @@ void methoddecl() :
 {
 }
 {
-  (< INT > | <STRING > | <tipo_Identificador >  | < CHAR > | < FLOAT > | < BOOLEAN >) (< RBRACKET >  <LBRACKET >)*
+  (< INT > | <STRING > | < tipo_Identificador >  | < CHAR > | < FLOAT > | < BOOLEAN >) (< RBRACKET >  <LBRACKET >)*
   < tipo_Identificador > methodbody()
     
 }
 
-void classbody() :
-{
-}
-{
-  < LBRACE >
-  [classlist()]
-  (LOOKAHEAD(3) vardecl() < SEMICOLON >)*
-  (contructdecl())*
-  (methoddecl())*
-  < RBRACE >
-}
+
 
 void methodbody() :
 {
@@ -432,11 +435,11 @@ void paramlist() :
 }
 {
   [
-  (< INT > | < STRING > | <tipo_Identificador > | < CHAR > | < FLOAT > | < BOOLEAN >) < tipo_Identificador > (< RBRACKET >  <LBRACKET >)*
-  (< COMMA > (< INT > | < STRING > |  < tipo_Identificador > | < CHAR > | < FLOAT > | < BOOLEAN >) < tipo_Identificador > (< RBRACKET > <LBRACKET >)*
+ 	vardecl() (< COMMA > (vardecl())*
   )*
     ]
 }
+
 
 void statement() :
 {
@@ -445,7 +448,7 @@ void statement() :
   LOOKAHEAD(2)
   vardecl()
 | 
-  atribstat() < SEMICOLON >
+  LOOKAHEAD(3)atribstat() < SEMICOLON >
 |
   expression() < SEMICOLON >
 | 
@@ -474,7 +477,7 @@ void atribstat() :
 {
 }
 {
-  lvalue() < ASSIGN > (alocexpression() | expression() | content() )
+  lvalue() < ASSIGN > (alocexpression() | LOOKAHEAD(2)expression() | content() )
 }
 
 
@@ -572,7 +575,7 @@ void expression():
 {
 }
 {
-  numexpr() [( < LT > | < GT > | < LE > | < GE > | < EQ > | < NEQ > | <  tipo_Logico > ) numexpr()]
+  numexpr() [( < LT > | < GT > | < LE > | < GE > | < EQ > | < NEQ > ) numexpr()]
 }
 
 
@@ -580,15 +583,14 @@ void numexpr():
 {
 }
 {
-  term() ((< PLUS > | < MINUS >) term())*
+  term() ((< PLUS > | < MINUS > | <  OR > | <  XOR >) term())*
 }
-
 
 void term():
 {
 }
 {
-  unaryexpr() ((< MULTIPLY > | < DIVIDE > | < REM >) unaryexpr())*
+  unaryexpr() ((< MULTIPLY > | < DIVIDE > | < REM > | < AND >) unaryexpr())*
 }
 
 
@@ -596,7 +598,7 @@ void unaryexpr():
 {
 }
 {
-  [(< PLUS > | < MINUS >)] factor()
+  [(< PLUS > | < MINUS > | <  NOT >)] factor()
 }
 
 void factor():
@@ -621,37 +623,4 @@ void arglist():
 }
 
 
-//JAVACODE void program()
-//{
-//  Token token;
-//  do
-//  {
-//    token = getNextToken();
-//    Token tokenEspecial = token;
-//    boolean isEstadoErro = false;
-//    while (tokenEspecial.specialToken != null)
-//    {
-//      tokenEspecial = tokenEspecial.specialToken;
-//      isEstadoErro = true;
-//    }
-//    do
-//    {
-//      if (imagemToken(tokenEspecial.kind) == "<INVALID_LEXICAL>" || imagemToken(tokenEspecial.kind) == "<INVALID_STRING>" || imagemToken(tokenEspecial.kind) == "<INVALID_CHAR>" || imagemToken(tokenEspecial.kind) == "<INVALID_FLOAT>")
-//      { //Caso encontre algum dos erros acima, nao fazer nada, pois a mensagem de erro ja está implementada na propria verificacao de special tokens invalidos
-//      }
-//      else
-//      {
-//        System.out.println("Linha: " + tokenEspecial.beginLine + " Coluna: " + tokenEspecial.beginColumn + " -> " + tokenEspecial.image + " " + imagemToken(tokenEspecial.kind));
-//      }
-//      tokenEspecial = tokenEspecial.next; //st recebe o próximo token não especial
-//    }
-//    while (tokenEspecial != token.next); //verifica se o valor recebido no token st é igual ao próximo token a ser lido
-//    if (isEstadoErro)
-//    { //imprime o valor do token que sucede um erro léxico encontrado
-//      System.out.println("Linha: " + token.beginLine + " Coluna: " + token.beginColumn + " -> " + token.image + " " + imagemToken(token.kind));
-//    }
-//  }
-//  while (token.kind != FunConstants.EOF); //enquanto não chegar no final do arquivo
-//  
-//}
 
