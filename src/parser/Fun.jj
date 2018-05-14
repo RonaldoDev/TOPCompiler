@@ -87,11 +87,6 @@ public class Fun
     }
   }
   
-  public static Token geraTokenManipulacao(Token token)
-  {
-    token = getNextToken();
-  }
-
   final public void classdecl() throws ParseException
   {
     trace_call("classdecl");
