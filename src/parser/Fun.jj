@@ -16,7 +16,7 @@ public class Fun
   final static String Version = "Top Compiler - Version 1.0 - 2018";
   int contadorDeErrosSintaticos = 0;	
 
-  final static String CaminhoDoArquivo = "C:/Users/Ronaldo/Downloads/programaerros/programaerro9.fun";
+  final static String CaminhoDoArquivo = "C:/Users/Ronaldo/Downloads/programaaceito1.fun";
 
   public static void main(String args []) throws ParseException
   {
@@ -397,7 +397,7 @@ void assignbody():
 {
 }
 {
-  ((< tipo_CHAR >| < tipo_STRING > | < tipo_INT > | < tipo_FLOAT > | < tipo_BOOLEAN >)  (< RBRACKET >  <LBRACKET >)?) | < tipo_NULL >
+  ((< tipo_CHAR >| < tipo_STRING > | < tipo_INT > | < tipo_FLOAT > | < tipo_BOOLEAN > | < tipo_Identificador >)  (< RBRACKET >  <LBRACKET >)?) | < tipo_NULL >
 }
 void contructdecl() :
 {
