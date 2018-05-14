@@ -60,7 +60,7 @@ public class Fun
   {
     if (!debug)
     {
-     //analisador.disable_tracing();
+       analisador.disable_tracing();
     }
   }
 
@@ -343,7 +343,7 @@ SPECIAL_TOKEN : //trata erros lexicos
 }
 
 
-
+// Inicializacao do parser
 void program() :
 {
 }
@@ -357,14 +357,14 @@ void classlist() :
 {
   classdecl() [ classlist() ]
 }
-
+// declaracao de classe Ex : class nome extends nomePai
 void classdecl() :
 {
 }
 {
   < CLASS > < tipo_Identificador > [ < EXTENDS > < tipo_Identificador > ] classbody()
 }
-
+//declaracao de corpo da classe, podendo criar variaveism, construtores, metodos dentro das chaves 
 void classbody() :
 {
 }
@@ -376,7 +376,7 @@ void classbody() :
 	(methoddecl()))* 
   < RBRACE >
 }
-
+// declaracao de uma variavel com opcional de array e tambem a possibilidade de inicialzacao
 void vardecl() :
 {
 }
@@ -385,27 +385,28 @@ void vardecl() :
 	<tipo_Identificador> ( <LBRACKET> <RBRACKET>)*  (assigndecl())?
 	
 }
-
+// declacarao de atribuicao de variavel
 void assigndecl() :
 {
 }
 {
 	< ASSIGN > (assignbody())
 }
-
+// atribuicao podendo ser todos os tipos ou array
 void assignbody():
 {
 }
 {
   ((< tipo_CHAR >| < tipo_STRING > | < tipo_INT > | < tipo_FLOAT > | < tipo_BOOLEAN > | < tipo_Identificador >)  (< RBRACKET >  <LBRACKET >)?) | < tipo_NULL >
 }
+// declaracao de construtor
 void contructdecl() :
 {
 }
 {
 	<CONSTRUCTOR> methodbody()
 }
-
+// declaracao de metodo
 void methoddecl() :
 {
 }
@@ -414,9 +415,7 @@ void methoddecl() :
   < tipo_Identificador > methodbody()
     
 }
-
-
-
+// corpo do método usado tanto no construtor quando no executando com (parametros*)
 void methodbody() :
 {
 }
@@ -424,7 +423,7 @@ void methodbody() :
   < LPAREN > paramlist() < RPAREN > statement()
     
 }
-
+// lista de paramatros que podem ou nao ser inicializados
 void paramlist() : 
 {
 }
@@ -434,8 +433,7 @@ void paramlist() :
   )*
     ]
 }
-
-
+// declaracao de corpo, usado em if, for, metodo:
 void statement() :
 {
 }
@@ -466,38 +464,34 @@ void statement() :
   < SEMICOLON >
   
 }
-
-
+// declaracao de atribuicao com operadores e expressoes
 void atribstat() :
 {
 }
 {
   lvalue() < ASSIGN > (alocexpression() | LOOKAHEAD(2)expression() | content() )
 }
-
-
+// funcao de conteudo criada para poder fazer atribuicao nas variaves
 void content() :
 {
 }
 {
   (< tipo_CHAR > | < tipo_FLOAT > | < tipo_BOOLEAN > ) < SEMICOLON >
 }
-
+// palavra reservada print
 void printstat() :
 {
 }
 {
   < PRINT > expression()
 }
-
-
+// palavra reservada read
 void readstat() :
 {
 }
 {
   < READ > lvalue()
 }
-
 
 void returnstat() :
 {
@@ -506,14 +500,12 @@ void returnstat() :
 	< RETURN > [expression()]
 }
 
-
 void superstat() :
 {
 }
 {
   < SUPER > <LPAREN > arglist() < RPAREN >
 }
-
 
 void ifstat():
 {
@@ -533,16 +525,14 @@ void forstat() :
   [atribstat()] <RPAREN >
   statement()
 }
-
-
+// lista de declaracoes
 void statlist():
 {
 }
 {
   statement() [statlist()]
 }
-
-
+// funcao de atribuicao a esquerda
 void lvalue():
 {
 }
@@ -552,8 +542,7 @@ void lvalue():
     		< DOT > <tipo_Identificador > [<LPAREN > arglist() < RPAREN >]
     		)*
 }
-
-
+// funcao para instanciar de novos tipoos
 void alocexpression():
 {
 }
@@ -564,38 +553,35 @@ void alocexpression():
     		(< LBRACKET > expression() < RBRACKET >)+
     	  )
 }
-
-
+// nivel mais alto de precedencia em expressoes
 void expression():
 {
 }
 {
   numexpr() [( < LT > | < GT > | < LE > | < GE > | < EQ > | < NEQ > ) numexpr()]
 }
-
-
+// nivel intermediario de precedencia
 void numexpr():
 {
 }
 {
   term() ((< PLUS > | < MINUS > | <  OR > | <  XOR >) term())*
 }
-
+// expressoes com prioridade de precedecia
 void term():
 {
 }
 {
   unaryexpr() ((< MULTIPLY > | < DIVIDE > | < REM > | < AND >) unaryexpr())*
 }
-
-
+// expressoes unarias que te mais alta precedencia perante a gramatica
 void unaryexpr():
 {
 }
 {
   [(< PLUS > | < MINUS > | <  NOT >)] factor()
 }
-
+// fator que pode ser valorada ou chamada em recursivo com expressoes para encadeamento
 void factor():
 {
 }
