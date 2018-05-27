@@ -462,7 +462,7 @@ void classdecl(RecoverySet g) throws ParseEOFException :
   try {
     	< CLASS > < tipo_Identificador > [ < EXTENDS > < tipo_Identificador > ] classbody(g)
 	} catch (ParseException e){
-	  consumeUntil(g, e, "classcl");
+	  consomeTokenAteh(g, e, "classcl");
 	}
 }
 //declaracao de corpo da classe, podendo criar variaveism, construtores, metodos dentro das chaves 
@@ -500,7 +500,7 @@ void classbody(RecoverySet g) throws ParseEOFException :
   (methoddecl(f3))*
   < RBRACE >
 } catch (ParseException e){
-		constumeUntil(g, e, "classbody");
+		consomeTokenAteh(g, e, "classbody");
 	}
 }
 
@@ -523,7 +523,7 @@ void vardecl(RecoverySet g) throws ParseEOFException :
     assigndecl()
   )?
   } catch(ParseException e) {
-	consumeUntil(g, e, "vardecl");
+	consomeTokenAteh(g, e, "vardecl");
   }
 }
 
@@ -591,7 +591,7 @@ void methodbody(RecoverySet g) throws ParseEOFException :
   try {
 	  < LPAREN > paramlist(f) < RPAREN > statement(g)
   } catch (ParseException e){
-	consumeUntil(g, e, "methodbody");
+	consomeTokenAteh(g, e, "methodbody");
   }
 }
 
@@ -611,7 +611,7 @@ try {
     )*
   ]
 } catch (ParseException e) {
-	consumeUntil(g, e, "paramlist");
+	consomeTokenAteh(g, e, "paramlist");
 }
 }
 
@@ -650,7 +650,7 @@ void statement(RecoverySet g) throws ParseEOFException :
 | 
   < SEMICOLON >
 } catch (ParseException e) {
-	consumeUntil(g, e, "statement");
+	consomeTokenAteh(g, e, "statement");
 }
 }
 
@@ -669,7 +669,7 @@ void atribstat(RecoverySet g) throws ParseEOFException :
   | content(g)  //não sei se é g ou f1, no livro não tem esse content... colocando g, aqui pode dar pau
   )	
   } catch (ParseException e) {
-	consumeUntil(g, e, "atribstat");
+	consomeTokenAteh(g, e, "atribstat");
   }
   
 }
@@ -695,7 +695,7 @@ void printstat(RecoverySet g) throws ParseEOFException :
   try { 
 	  < PRINT > expression(g)
 	} catch (ParseException e) {
-		consumeUntil(g, e, "printstat");
+		consomeTokenAteh(g, e, "printstat");
 	}
 }
 
@@ -707,7 +707,7 @@ void readstat(RecoverySet g) throws ParseEOFException :
   try { 
  	 < READ > lvalue(g)
 	} catch (ParseException e) {
-		consumeUntil(g, e, "readstat");
+		consomeTokenAteh(g, e, "readstat");
 	}
 }
 
@@ -718,7 +718,7 @@ void returnstat(RecoverySet g) throws ParseEOFException :
   try { 
   	< RETURN > [ expression(g) ]
   } catch (ParseException e) {
-		consumeUntil(g, e, "returnstat");
+		consomeTokenAteh(g, e, "returnstat");
 	}
 }
 
@@ -730,7 +730,7 @@ void superstat(RecoverySet g) throws ParseEOFException :
   try { 
   < SUPER > < LPAREN > arglist(f) < RPAREN >
   } catch (ParseException e) {
-		consumeUntil(g, e, "superstat");
+		consomeTokenAteh(g, e, "superstat");
 	}
 }
 
@@ -747,7 +747,7 @@ void ifstat(RecoverySet g) throws ParseEOFException :
     < ELSE > statement(g)
   ]
   } catch (ParseException e) {
-		consumeUntil(g, e, "ifstat");
+		consomeTokenAteh(g, e, "ifstat");
 	}
 }
 
@@ -763,7 +763,7 @@ void forstat(RecoverySet g) throws ParseEOFException :
   [ atribstat(f2) ] < RPAREN > 
   statement(g)
   } catch (ParseException e) {
-		consumeUntil(g, e, "forstat");
+		consomeTokenAteh(g, e, "forstat");
 	}
 }
 
@@ -789,7 +789,7 @@ void lvalue(RecoverySet g) throws ParseEOFException :
     < DOT > < tipo_Identificador > [ < LPAREN > arglist(null) < RPAREN > ]
   )*
 } catch (ParseException e){
-	consumeUntil(g, e, "lvalue");
+	consomeTokenAteh(g, e, "lvalue");
 }
 }
 
@@ -835,7 +835,7 @@ void expression(RecoverySet g) throws ParseEOFException :
 	    numexpr()
   	  ]
   } catch (ParseException e) {
-	consumeUntil(g, e, "expression");
+	consomeTokenAteh(g, e, "expression");
   }
   
 }
