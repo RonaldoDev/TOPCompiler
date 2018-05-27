@@ -431,28 +431,40 @@ void program() throws ParseEOFException :
     consomeTokenAteh(g, e, "program");
   }
 }
-
-void classlist() :
+/* Chama o classdecl passando como conjunto de sync o conjunto g, e todos terminais que estão
+no FIRST(classlist). Isso porque depois do classdecl podemos ter um classlist ou
+o final da aplicação dessa produção */
+void classlist(RecoverySet g) throws ParseEOFException :
 {
+  RecoverySet f = First.classlist.union(g);
 }
 {
-  classdecl() [ classlist() ]
+  classdecl(f) [ classlist(g) ]
 }
 
 // declaracao de classe Ex : class nome extends nomePai
-void classdecl() :
+// alterado de acordo com o livro (Programa 5.8)
+void classdecl(RecoverySet g) throws ParseEOFException :
 {
 }
 {
-  < CLASS > < tipo_Identificador > [ < EXTENDS > < tipo_Identificador > ] classbody()
+  try {
+    	< CLASS > < tipo_Identificador > [ < EXTENDS > < tipo_Identificador > ] classbody(g)
+	} catch (ParseException e){
+	  consumeUntil(g, e, "classcl");
+	}
 }
-
 //declaracao de corpo da classe, podendo criar variaveism, construtores, metodos dentro das chaves 
-void classbody() :
+void classbody(RecoverySet g) throws ParseEOFException :
 {
+  RecoverySet 	f1 = new RecoverySet(RBRACE),
+				f2 = new RecoverySet(SEMICOLON),
+				f3 = First.methoddecl.union(f1),
+				f4 = First.constructdecl.union(f3),
+				f5 = First.valdecl.union(f4);
 }
-{
-  < LBRACE > 
+{ //Essa parte tá diferente do livro, deixei como tava no livro. página 100 (página impressa).
+/*   < LBRACE > 
   [ classlist() ]
   (
     LOOKAHEAD(3)
@@ -468,14 +480,26 @@ void classbody() :
     )
   )*
   < RBRACE >
+*/
+  try {  
+  < LBRACE > 
+  [ classlist(f5) ]
+  (LOOKAHEAD(3) vardecl(f2) < SEMICOLON >)*
+  (contructdecl(f4))*
+  (methoddecl(f3))*
+  < RBRACE >
+} catch (ParseException e){
+		constumeUntil(g, e, "classbody");
+	}
 }
 
 // declaracao de uma variavel com opcional de array e tambem a possibilidade de inicialzacao
-void vardecl() :
+void vardecl(RecoverySet g) throws ParseEOFException :
 {
 }
 {
-  (
+  try { 
+	 (
     < INT >
   | < STRING >
   | < tipo_Identificador >
@@ -487,6 +511,9 @@ void vardecl() :
   (
     assigndecl()
   )?
+  } catch(ParseException e) {
+	consumeUntil(g, e, "vardecl");
+  }
 }
 
 // declacarao de atribuicao de variavel
@@ -545,73 +572,95 @@ void methoddecl() :
 }
 
 // corpo do método usado tanto no construtor quando no executando com (parametros*)
-void methodbody() :
+void methodbody(RecoverySet g) throws ParseEOFException :
 {
+  RecoverySet f = new RecoverySet(RPAREN);
 }
 {
-  < LPAREN > paramlist() < RPAREN > statement()
+  try {
+	  < LPAREN > paramlist() < RPAREN > statement(g)
+  } catch (ParseException e){
+	consumeUntil(g, e, "methodbody");
+  }
 }
 
 // lista de paramatros que podem ou nao ser inicializados
-void paramlist() :
+void paramlist(RecoverySet g) throws ParseEOFException :
 {
 }
-{
+{//Isso aqui ta bem diferente do que está no livro no fim da página impressa 101
+try {
   [
-    vardecl()
+    vardecl(g) //adicionei o g como parametro porque é o que estava fazendo nos outros
     (
       < COMMA >
       (
-        vardecl()
+        vardecl(g) //adicionei o g como parametro porque é o que estava fazendo nos outros
       )*
     )*
   ]
+} catch (ParseException e) {
+	consumeUntil(g, e, "paramlist");
+}
 }
 
 // declaracao de corpo, usado em if, for, metodo:
-void statement() :
+void statement(RecoverySet g) throws ParseEOFException :
 {
+  RecoverySet f1 = new RecoverySet(SEMICOLON);
+  RecoverySet f2 = new RecoverySet(RBRACE);
 }
 {
+  try {
+  
   LOOKAHEAD(2)
-  vardecl()
+  vardecl(f1)
 | 
   LOOKAHEAD(3)
-  atribstat() < SEMICOLON >
+  atribstat(f1) < SEMICOLON >
 | 
-  expression() < SEMICOLON >
+  expression(f1) < SEMICOLON >
 | 
-  printstat() < SEMICOLON >
+  printstat(f1) < SEMICOLON >
 | 
-  readstat() < SEMICOLON >
+  readstat(f1) < SEMICOLON >
 | 
-  returnstat() < SEMICOLON >
+  returnstat(f1) < SEMICOLON >
 | 
-  superstat() < SEMICOLON >
+  superstat(f1) < SEMICOLON >
 | 
-  ifstat()
+  ifstat(g)
 | 
-  forstat()
+  forstat(g)
 | 
-  < LBRACE > statlist() < RBRACE >
+  < LBRACE > statlist(f2) < RBRACE >
 | 
   < BREAK > < SEMICOLON >
 | 
   < SEMICOLON >
+} catch (ParseException e) {
+	consumeUntil(g, e, "statement");
+}
 }
 
 // declaracao de atribuicao com operadores e expressoes
-void atribstat() :
+void atribstat(RecoverySet g) throws ParseEOFException :
 {
+  RecoverySet f1 = RecoverySet(ASSIGN);
 }
 {
-  lvalue() < ASSIGN >
+  try {
+	lvalue(f1) < ASSIGN >
   (
-    alocexpression()
+    alocexpression(g)
   | LOOKAHEAD(2)
-    expression()
-  | content()
-  )
+    expression(g)
+  | content(g)  //não sei se é g ou f1, no livro não tem esse content... colocando g, aqui pode dar pau
+  )	
+  } catch (ParseException e) {
+	consumeUntil(g, e, "atribstat");
+  }
+  
 }
 
 // funcao de conteudo criada para poder fazer atribuicao nas variaves
@@ -628,86 +677,122 @@ void content() :
 }
 
 // palavra reservada print
-void printstat() :
+void printstat(RecoverySet g) throws ParseEOFException :
 {
 }
 {
-  < PRINT > expression()
+  try { 
+	  < PRINT > expression(g)
+	} catch (ParseException e) {
+		consumeUntil(g, e, "printstat");
+	}
 }
 
 // palavra reservada read
-void readstat() :
+void readstat(RecoverySet g) throws ParseEOFException :
 {
 }
 {
-  < READ > lvalue()
-}
-
-void returnstat() :
-{
-}
-{
-  < RETURN > [ expression() ]
+  try { 
+ 	 < READ > lvalue(g)
+	} catch (ParseException e) {
+		consumeUntil(g, e, "readstat");
+	}
 }
 
-void superstat() :
+void returnstat(RecoverySet g) throws ParseEOFException :
 {
 }
 {
+  try { 
+  	< RETURN > [ expression(g) ]
+  } catch (ParseException e) {
+		consumeUntil(g, e, "returnstat");
+	}
+}
+
+void superstat(RecoverySet g) throws ParseEOFException :
+{
+  RecoverySet f = new RecoverySet(RPAREN);
+}
+{
+  try { 
   < SUPER > < LPAREN > arglist() < RPAREN >
+  } catch (ParseException e) {
+		consumeUntil(g, e, "superstat");
+	}
 }
 
-void ifstat() :
+void ifstat(RecoverySet g) throws ParseEOFException :
 {
+  RecoverySet f1 = new RecoverySet(RPAREN),
+  			  f2 = new RecoverySet(ELSE).union(g);
 }
 {
-  < IF > < LPAREN > expression() < RPAREN > statement()
+  try { 
+  < IF > < LPAREN > expression(f1) < RPAREN > statement(f2)
   [
     LOOKAHEAD(1)
-    < ELSE > statement()
+    < ELSE > statement(g)
   ]
+  } catch (ParseException e) {
+		consumeUntil(g, e, "ifstat");
+	}
 }
 
-void forstat() :
+void forstat(RecoverySet g) throws ParseEOFException :
 {
+  RecoverySet f1 = new RecoverySet(SEMICOLON),
+  			  f2 = new RecoverySet(RPAREN);
 }
 {
-  < FOR > < LPAREN > [ atribstat() ] < SEMICOLON > 
-  [ expression() ] < SEMICOLON > 
-  [ atribstat() ] < RPAREN > 
-  statement()
+  try { 
+  < FOR > < LPAREN > [ atribstat(f1) ] < SEMICOLON > 
+  [ expression(f1) ] < SEMICOLON > 
+  [ atribstat(f2) ] < RPAREN > 
+  statement(g)
+  } catch (ParseException e) {
+		consumeUntil(g, e, "forstat");
+	}
 }
 
 // lista de declaracoes
-void statlist() :
+void statlist(RecoverySet g) throws ParseEOFException :
 {
+  RecoverySet f = First.statlist.union(g);
 }
 {
-  statement() [ statlist() ]
+  statement(f) [ statlist(g) ]
 }
 
 // funcao de atribuicao a esquerda
-void lvalue() :
+void lvalue(RecoverySet g) throws ParseEOFException :
 {
 }
 {
+  try { 
   < tipo_Identificador >
   (
-    < LBRACKET > expression() < RBRACKET >
+    < LBRACKET > expression(null) < RBRACKET > //Porque null? Página impressa 105
   | 
-    < DOT > < tipo_Identificador > [ < LPAREN > arglist() < RPAREN > ]
+    < DOT > < tipo_Identificador > [ < LPAREN > arglist(null) < RPAREN > ]
   )*
+} catch (ParseException e){
+	consumeUntil(g, e, "lvalue");
+}
 }
 
 // funcao para instanciar de novos tipoos
-void alocexpression() :
+void alocexpression(RecoverySet g) throws ParseEOFException :
 {
+    RecoverySet f1 = new RecoverySet(RPAREN),
+  			  f2 = new RecoverySet(RBRACKET);
 }
 {
   < NEW >
   (
     LOOKAHEAD(2)
-    < tipo_Identificador > < LPAREN > arglist() < RPAREN >
+    < tipo_Identificador > < LPAREN > arglist(f1) < RPAREN >
   |
     (
       < INT >
@@ -715,32 +800,37 @@ void alocexpression() :
     | < tipo_Identificador >
     )
     (
-      < LBRACKET > expression() < RBRACKET >
+      < LBRACKET > expression(f2) < RBRACKET >
     )+
   )
 }
 
 // nivel mais alto de precedencia em expressoes
-void expression() :
+void expression(RecoverySet g) throws ParseEOFException :
 {
 }
 {
-  numexpr()
-  [
-    (
-      < LT >
-    | < GT >
-    | < LE >
-    | < GE >
-    | < EQ >
-    | < NEQ >
-    )
-    numexpr()
-  ]
+  try {
+	numexpr()
+	  [
+	    (
+	      < LT >
+	    | < GT >
+	    | < LE >
+	    | < GE >
+	    | < EQ >
+	    | < NEQ >
+	    )
+	    numexpr()
+  	  ]
+  } catch (ParseException e) {
+	consumeUntil(g, e, "expression");
+  }
+  
 }
 
 // nivel intermediario de precedencia
-void numexpr() :
+void numexpr() throws ParseEOFException :
 {
 }
 {
@@ -757,7 +847,7 @@ void numexpr() :
 }
 
 // expressoes com prioridade de precedecia
-void term() :
+void term() throws ParseEOFException :
 {
 }
 {
@@ -774,7 +864,7 @@ void term() :
 }
 
 // expressoes unarias que te mais alta precedencia perante a gramatica
-void unaryexpr() :
+void unaryexpr() throws ParseEOFException :
 {
 }
 {
@@ -789,7 +879,7 @@ void unaryexpr() :
 }
 
 // fator que pode ser valorada ou chamada em recursivo com expressoes para encadeamento
-void factor() :
+void factor() throws ParseEOFException :
 {
 }
 {
@@ -810,8 +900,9 @@ void factor() :
   )
 }
 
-void arglist() :
+void arglist(RecoverySet g) throws ParseEOFException :
 {
+  RecoverySet f = new RecoverySet(COMMA).union(g);
 }
 {
   [
