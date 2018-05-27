@@ -1,7 +1,7 @@
 package recovery;
 
 import java.util.*;
-import langXConstants;
+import parser.FunConstants;
 
 //implementa alguns conjuntos first para alguns não terminais
 public class First {
@@ -14,29 +14,29 @@ public class First {
 	static public final RecoverySet program = new RecoverySet();
 	
 	static {
-		methoddecl.add(new Integer(langXConstants.INT));
-		methoddecl.add(new Integer(langXConstants.STRING));
-		methoddecl.add(new Integer(langXConstants.IDENT));
+		methoddecl.add(new Integer(parser.FunConstants.INT));
+		methoddecl.add(new Integer(parser.FunConstants.STRING));
+		methoddecl.add(new Integer(parser.FunConstants.tipo_Identificador));
 		
-		vardecl.add(new Integer(langXConstants.INT));
-		vardecl.add(new Integer(langXConstants.STRING));
-		vardecl.add(new Integer(langXConstants.IDENT));
+		vardecl.add(new Integer(parser.FunConstants.INT));
+		vardecl.add(new Integer(parser.FunConstants.STRING));
+		vardecl.add(new Integer(parser.FunConstants.tipo_Identificador));
 		
-		classlist.add(new Integer(langXConstants.CLASS));
+		classlist.add(new Integer(parser.FunConstants.CLASS));
 		
-		constructdecl.add(new Integer(langXConstants.CONSTRUCTOR));
+		constructdecl.add(new Integer(parser.FunConstants.CONSTRUCTOR));
 		
 		statlist.addAll(vardecl);
-		statlist.add(new Integer(langXConstants.IDENT));
-		statlist.add(new Integer(langXConstants.PRINT));
-		statlist.add(new Integer(langXConstants.READ));
-		statlist.add(new Integer(langXConstants.RETURN));
-		statlist.add(new Integer(langXConstants.SUPER));
-		statlist.add(new Integer(langXConstants.IF));
-		statlist.add(new Integer(langXConstants.FOR));
-		statlist.add(new Integer(langXConstants.LBRACE));
-		statlist.add(new Integer(langXConstants.BREAK));
-		statlist.add(new Integer(langXConstants.SEMICOLON));
+		statlist.add(new Integer(parser.FunConstants.tipo_Identificador));
+		statlist.add(new Integer(parser.FunConstants.PRINT));
+		statlist.add(new Integer(parser.FunConstants.READ));
+		statlist.add(new Integer(parser.FunConstants.RETURN));
+		statlist.add(new Integer(parser.FunConstants.SUPER));
+		statlist.add(new Integer(parser.FunConstants.IF));
+		statlist.add(new Integer(parser.FunConstants.FOR));
+		statlist.add(new Integer(parser.FunConstants.LBRACE));
+		statlist.add(new Integer(parser.FunConstants.BREAK));
+		statlist.add(new Integer(parser.FunConstants.SEMICOLON));
 		
 	}
 	

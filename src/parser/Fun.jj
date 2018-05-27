@@ -155,10 +155,10 @@ public class Fun
         isEndOfFile = true;
       }
     }
-    if(token != lastError) //No livro, ao invés de token ele coloca como tok
+    if(token != ultimoIndice) //No livro, ao invés de token ele coloca como tok, e substitui lastError por ultimoIndice
     {
       System.out.println(e.getMessage());
-      lastError = token; //aqui também.
+      ultimoIndice = token; //aqui também.
     	contadorDeErrosSintaticos++;
     }
     

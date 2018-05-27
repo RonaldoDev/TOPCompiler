@@ -1,7 +1,7 @@
 package recovery;
 
 import java.util.*;
-import langX;
+import parser.Fun;
 
 public class RecoverySet extends HashSet{
 
@@ -41,7 +41,7 @@ public class RecoverySet extends HashSet{
 		
 		while( it.hasNext()) {
 			k = ((Integer) it.next()).intValue();
-			s += langX.img(x) + " ";
+			s += parser.Fun.im(k) + " ";
 		}
 		
 		return s;
