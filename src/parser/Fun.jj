@@ -18,7 +18,7 @@ public class Fun
   int contadorDeErrosSintaticos = 0;
   boolean debug_recovery;
 
-  final static String CaminhoDoArquivo = "C:/Users/Vitor/Downloads/Matheus_Ronaldo_Vitor-Analisador_Lexico_Sintatico/entradasAceitas/programaaceito1.fun";
+  final static String CaminhoDoArquivo = "C:/Users/Ronaldo/Downloads/exemplosteste/programaaceito/programaaceito4.fun";
 
   public static void main(String args []) throws ParseException
   {
@@ -50,11 +50,6 @@ public class Fun
     try
     {
       analisador.program();
-    }
-    catch (ParseException e)
-    {
-      System.err.println(e.getMessage());
-      analisador.contadorDeErrosSintaticos++;
     }
     catch (ParseEOFException e)
     {
@@ -150,51 +145,19 @@ public class Fun
       }
       getNextToken();
       token = getToken(1);
-    //  System.out.println(conjuntoTokens);
       if (token.kind == EOF && conjuntoTokens.contains(EOF))
       {
         isEndOfFile = true;
       }
     }
-//    if(token != ultimoIndice) //No livro, ao invés de token ele coloca como tok, e substitui lastError por ultimoIndice página impressa 110
-//    {
-      System.out.println(e.getMessage());
-//      ultimoIndice = token; //aqui também.
-    	contadorDeErrosSintaticos++;
-//    }
-    
+    System.out.println(e.getMessage());
     
     if (isEndOfFile)
     {
       throw new ParseEOFException("Final de arquivo encontrado prematuramente");
     }
   }
-
-//  final public void classdecl() throws ParseException
-//  {
-//    trace_call("classdecl");
-//    try
-//    {
-//      jj_consume_token(CLASS);
-//      jj_consume_token(tipo_Identificador);
-//      switch ((jj_ntk == - 1) ? jj_ntk() : jj_ntk)
-//      {
-//        case EXTENDS : 
-//        jj_consume_token(EXTENDS);
-//        jj_consume_token(tipo_Identificador);
-//        break;
-//        default : 
-//        jj_la1 [1] = jj_gen;
-//        ;
-//      }
-//      classbody();
-//    }
-//    finally
-//    {
-//      trace_return("classdecl");
-//    }
-//  }
-} // Fun
+}
 
 PARSER_END(Fun)
 
@@ -314,18 +277,6 @@ TOKEN :
   >
 }
 
-//TOKEN : //operadores logicos
-//{
-//  < tipo_Logico  :
-//  (
-//    < NOT >| < AND > | < OR > | < XOR >)>
-//|
-//  < #NOT : "not" >
-//| < #AND : "and" >
-//| < #OR : "or" >
-//| < #XOR : "xor" >
-//  
-//}
 TOKEN : //identificadores
 {
   < tipo_Identificador : //qualquer combinacao de letras e numeros que comece com uma letra
@@ -476,29 +427,12 @@ void classbody(RecoverySet g) throws ParseEOFException :
 				f5 = First.vardecl.union(f4).remove(tipo_Identificador);
 }
 { //Essa parte tá diferente do livro, deixei como tava no livro. página 100 (página impressa).
-/*   < LBRACE > 
-  [ classlist() ]
-  (
-    LOOKAHEAD(3)
-    vardecl() < SEMICOLON >
-  )*
-  (
-    (
-      constructdecl()
-    )
-  |
-    (
-      methoddecl()
-    )
-  )*
-  < RBRACE >
-*/
   try {  
   < LBRACE > 
   [ classlist(f5) ]
   (LOOKAHEAD(3) vardecl(f2) < SEMICOLON >)*
-  (constructdecl(f4))*
-  (methoddecl(f3))*
+  (    (constructdecl(f4)) |
+  (methoddecl(f3)))*
   < RBRACE >
 } catch (ParseException e){
 		consomeTokenAteh(g, e, "classbody");
@@ -514,14 +448,14 @@ void vardecl(RecoverySet g) throws ParseEOFException :
 	 (
     < INT >
   | < STRING >
-  | < tipo_Identificador >
+  | < tipo_Identificador >(< LBRACKET >(< tipo_Identificador >|< tipo_INT >)* < RBRACKET >)*
   | < CHAR >
   | < FLOAT >
   | < BOOLEAN >
   )
-  < tipo_Identificador > (< LBRACKET > < RBRACKET >)*
+  (    < tipo_Identificador > (< LBRACKET >< RBRACKET >)*)*
   (
-    assigndecl()
+    assigndecl(g)
   )?
   } catch(ParseException e) {
 	consomeTokenAteh(g, e, "vardecl");
@@ -529,33 +463,45 @@ void vardecl(RecoverySet g) throws ParseEOFException :
 }
 
 // declacarao de atribuicao de variavel
-void assigndecl() :
+void assigndecl(RecoverySet g) throws ParseEOFException :
 {
 }
 {
   < ASSIGN >
   (
-    assignbody()
+    assignbody(g)
   )
 }
 
 // atribuicao podendo ser todos os tipos ou array
-void assignbody() :
+void assignbody(RecoverySet g) throws ParseEOFException :
 {
 }
 {
-  (
+  
+  (LOOKAHEAD(3)(
     (
-      < tipo_CHAR >
-    | < tipo_STRING >
-    | < tipo_INT >
-    | < tipo_FLOAT >
-    | < tipo_BOOLEAN >
-    | < tipo_Identificador >
+	    alocexpression(g) | expression(g) 
+	  )?
+	| 	    (
+	   		tipobody() (< LBRACKET > < RBRACKET >)?
+	  	)
+	)
+	| < tipo_NULL >)
+}
+
+void tipobody() :
+{
+}
+{
+	 (
+	      < tipo_CHAR >
+	    | < tipo_STRING >
+	    | < tipo_INT >
+	    | < tipo_FLOAT >
+	    | < tipo_BOOLEAN >
+	    | < tipo_Identificador >
     )
-    (< RBRACKET > < LBRACKET >)?
-  )
-| < tipo_NULL >
 }
 
 // declaracao de construtor
@@ -579,7 +525,7 @@ void methoddecl(RecoverySet g) throws ParseEOFException :
   | < FLOAT >
   | < BOOLEAN >
   )
-  (< RBRACKET > < LBRACKET >)* 
+  (< LBRACKET >< RBRACKET > )* 
   < tipo_Identificador > methodbody(g)
 }
 
@@ -744,7 +690,7 @@ void ifstat(RecoverySet g) throws ParseEOFException :
   try { 
   < IF > < LPAREN > expression(f1) < RPAREN > statement(f2)
   [
-    LOOKAHEAD(1)
+    LOOKAHEAD(3)
     < ELSE > statement(g)
   ]
   } catch (ParseException e) {
@@ -797,8 +743,8 @@ void lvalue(RecoverySet g) throws ParseEOFException :
 // funcao para instanciar de novos tipoos
 void alocexpression(RecoverySet g) throws ParseEOFException :
 {
-    RecoverySet f1 = new RecoverySet(RPAREN).union(g),
-  			  f2 = new RecoverySet(RBRACKET).union(g);
+    RecoverySet f1 = new RecoverySet(RPAREN),
+  			  f2 = new RecoverySet(RBRACKET);
 }
 {
   < NEW >
@@ -824,19 +770,6 @@ void expression(RecoverySet g) throws ParseEOFException :
 {
     try {  
   	expr(g) ((< OR > | < XOR >) expression(g))*
-  /*try {
-	numexpr(g)
-	  [
-	    (
-	      < LT >
-	    | < GT >
-	    | < LE >
-	    | < GE >
-	    | < EQ >
-	    | < NEQ >
-	    )
-	    numexpr(g)
-  	  ]*/
   } catch (ParseException e) {
 	consomeTokenAteh(g, e, "expression");
   }
@@ -869,13 +802,7 @@ void numexpr(RecoverySet g) throws ParseEOFException :
 {
   term(g)
   (
-    (
-      < PLUS >
-    | < MINUS >
-  //  | < OR >
-   // | < XOR >
-    )
-    term(g)
+    (< PLUS > | < MINUS >) term(g)
   )*
 }
 
@@ -886,13 +813,7 @@ void term(RecoverySet g) throws ParseEOFException :
 {
   unaryexpr(g)
   (
-    (
-      < MULTIPLY >
-    | < DIVIDE >
-    | < REM >
-   // | < AND >
-    )
-    unaryexpr(g)
+    (< MULTIPLY > | < DIVIDE > | < REM >) unaryexpr(g)
   )*
 }
 
@@ -901,14 +822,7 @@ void unaryexpr(RecoverySet g) throws ParseEOFException :
 {
 }
 {
-  [
-    (
-      < PLUS >
-    | < MINUS >
-   // | < NOT >
-    )
-  ]
-  factor(g)
+  [(< PLUS > | < MINUS >)] factor(g)
 }
 
 // fator que pode ser valorada ou chamada em recursivo com expressoes para encadeamento
