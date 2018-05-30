@@ -19,7 +19,7 @@ public class Fun
   boolean debug_recovery;
   Token ultimoErro = null;
 
-  final static String CaminhoDoArquivo = "C:/Users/Ronaldo/Downloads/exemplos/programanaoaceito/programanaoaceito2.fun";
+  final static String CaminhoDoArquivo = "C:/Users/Ronaldo/Downloads/exemplos/programanaoaceito/programanaoaceito1.fun";
 
   public static void main(String args []) throws ParseException
   {
@@ -427,8 +427,7 @@ void classdecl(RecoverySet g) throws ParseEOFException :
 //declaracao de corpo da classe, podendo criar variaveism, construtores, metodos dentro das chaves 
 void classbody(RecoverySet g) throws ParseEOFException :
 {
-  RecoverySet 	//f1 = new RecoverySet(RBRACE), //na sessão 5.3 (página impressa 113), ele não mostra o f1
-				f2 = new RecoverySet(SEMICOLON).union(g).remove(tipo_Identificador),
+  RecoverySet 	f2 = new RecoverySet(SEMICOLON).union(g).remove(tipo_Identificador),
 				f3 = First.methoddecl.union(g).remove(tipo_Identificador), //ao invés de union g, estava union f1
 				f4 = First.constructdecl.union(f3).remove(tipo_Identificador),
 				f5 = First.vardecl.union(f4).remove(tipo_Identificador);
@@ -755,8 +754,8 @@ void lvalue(RecoverySet g) throws ParseEOFException :
 // funcao para instanciar de novos tipoos
 void alocexpression(RecoverySet g) throws ParseEOFException :
 {
-    RecoverySet f1 = new RecoverySet(RPAREN),
-  			  f2 = new RecoverySet(RBRACKET);
+    RecoverySet f1 = new RecoverySet(RPAREN).union(g),
+  			  	f2 = new RecoverySet(RBRACKET).union(g);
 }
 {
   < NEW >
