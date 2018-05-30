@@ -19,12 +19,12 @@ public class Fun
   boolean debug_recovery;
   Token ultimoErro = null;
 
-  final static String CaminhoDoArquivo = "C:/Users/Ronaldo/Downloads/exemplos/programanaoaceito/programanaoaceito1.fun";
+  final static String CaminhoDoArquivo = "C:/Users/Matheus/Desktop/Universidade/6ª Fase/Compila/programanaoaceito/programanaoaceito2.fun";
 
   public static void main(String args []) throws ParseException
   {
-    boolean debug = true;
-    boolean debug_as = true;
+    boolean debug = false;
+    boolean debug_as = false;
     boolean debug_recovery = true;
     String nomeArquivo = CaminhoDoArquivo;
     Fun analisador = leArquivo(nomeArquivo);
@@ -136,7 +136,7 @@ public class Fun
       {
         if (debug_recovery)
         {
-          System.out.println(" Encontrou token, sincronizando" + im(token.kind));
+          System.out.println(" Encontrou token de sincronização -> " + im(token.kind));
           break;
         }
       }
@@ -392,7 +392,7 @@ void program() throws ParseEOFException :
 	classlist(g)
   try
   {
-     //[ classlist(g) ] < EOF >// Livro está diferente.
+     //[ classlist(g) ] < EOF >// Livro estï¿½ diferente.
     <EOF>
   }
   catch (ParseException e)
@@ -401,9 +401,9 @@ void program() throws ParseEOFException :
   }
   [ program() ]
 }
-/* Chama o classdecl passando como conjunto de sync o conjunto g, e todos terminais que estão
+/* Chama o classdecl passando como conjunto de sync o conjunto g, e todos terminais que estï¿½o
 no FIRST(classlist). Isso porque depois do classdecl podemos ter um classlist ou
-o final da aplicação dessa produção */
+o final da aplicaï¿½ï¿½o dessa produï¿½ï¿½o */
 void classlist(RecoverySet g) throws ParseEOFException :
 {
   RecoverySet f = First.classlist.union(g);
@@ -428,16 +428,17 @@ void classdecl(RecoverySet g) throws ParseEOFException :
 void classbody(RecoverySet g) throws ParseEOFException :
 {
   RecoverySet 	f2 = new RecoverySet(SEMICOLON).union(g).remove(tipo_Identificador),
-				f3 = First.methoddecl.union(g).remove(tipo_Identificador), //ao invés de union g, estava union f1
+				f3 = First.methoddecl.union(g).remove(tipo_Identificador), //ao invï¿½s de union g, estava union f1
 				f4 = First.constructdecl.union(f3).remove(tipo_Identificador),
 				f5 = First.vardecl.union(f4).remove(tipo_Identificador);
 }
-{ //Essa parte tá diferente do livro, deixei como tava no livro. página 100 (página impressa).
+{ //Essa parte tï¿½ diferente do livro, deixei como tava no livro. pï¿½gina 100 (pï¿½gina impressa).
   try {  
   < LBRACE > 
   [ classlist(f5) ]
   (LOOKAHEAD(3) vardecl(f2) < SEMICOLON >)*
-  (    (constructdecl(f4)) |
+  (
+    (constructdecl(f4)) |
   (methoddecl(f3)))*
   < RBRACE >
 } catch (ParseException e){
@@ -459,7 +460,8 @@ void vardecl(RecoverySet g) throws ParseEOFException :
   | < FLOAT >
   | < BOOLEAN >
   )
-  (    < tipo_Identificador > (< LBRACKET >< RBRACKET >)*)*
+  (
+    < tipo_Identificador > (< LBRACKET >< RBRACKET >)*)*
   (
     assigndecl(g)
   )?
@@ -494,7 +496,8 @@ void assignbody(RecoverySet g) throws ParseEOFException :
     (
 	    alocexpression(g) | expression(g) 
 	  )?
-	| 	    (
+	| 
+	    (
 	   		tipobody() (< LBRACKET > < RBRACKET >)?
 	  	)
 	)
@@ -540,7 +543,7 @@ void methoddecl(RecoverySet g) throws ParseEOFException :
   < tipo_Identificador > methodbody(g)
 }
 
-// corpo do método usado tanto no construtor quando no executando com (parametros*)
+// corpo do mï¿½todo usado tanto no construtor quando no executando com (parametros*)
 void methodbody(RecoverySet g) throws ParseEOFException :
 {
   RecoverySet f = new RecoverySet(RPAREN).union(g);
@@ -557,14 +560,14 @@ void methodbody(RecoverySet g) throws ParseEOFException :
 void paramlist(RecoverySet g) throws ParseEOFException :
 {
 }
-{//Isso aqui ta bem diferente do que está no livro no fim da página impressa 101
+{//Isso aqui ta bem diferente do que estï¿½ no livro no fim da pï¿½gina impressa 101
 try {
   [
-    vardecl(g) //adicionei o g como parametro porque é o que estava fazendo nos outros
+    vardecl(g) //adicionei o g como parametro porque ï¿½ o que estava fazendo nos outros
     (
       < COMMA >
       (
-        vardecl(g) //adicionei o g como parametro porque é o que estava fazendo nos outros
+        vardecl(g) //adicionei o g como parametro porque ï¿½ o que estava fazendo nos outros
       )*
     )*
   ]
@@ -622,9 +625,9 @@ void atribstat(RecoverySet g) throws ParseEOFException :
 	lvalue(f1) < ASSIGN >
   (
     alocexpression(g)
-  | LOOKAHEAD(2) //no livro não tem esse lookahead
+  | LOOKAHEAD(2) //no livro nï¿½o tem esse lookahead
     expression(g)
-  | content(g)  //não sei se é g ou f1, no livro não tem esse content... colocando g, aqui pode dar pau
+  | content(g)  //nï¿½o sei se ï¿½ g ou f1, no livro nï¿½o tem esse content... colocando g, aqui pode dar pau
   )	
   } catch (ParseException e) {
 	consomeTokenAteh(g, e, "atribstat");
@@ -742,7 +745,7 @@ void lvalue(RecoverySet g) throws ParseEOFException :
   try { 
   < tipo_Identificador >
   (
-    < LBRACKET > expression(null) < RBRACKET > //Porque null? Página impressa 105
+    < LBRACKET > expression(null) < RBRACKET > //Porque null? Pï¿½gina impressa 105
   | 
     < DOT > < tipo_Identificador > [ < LPAREN > arglist(null) < RPAREN > ]
   )*
@@ -773,7 +776,7 @@ void alocexpression(RecoverySet g) throws ParseEOFException :
     )+
   )
 }
-//ele falou algo sobre nao terminais que aceitam null devem ter o union.(g).final da página impressa 115
+//ele falou algo sobre nao terminais que aceitam null devem ter o union.(g).final da pï¿½gina impressa 115
 // nivel mais alto de precedencia em expressoes
 void expression(RecoverySet g) throws ParseEOFException :
 {
