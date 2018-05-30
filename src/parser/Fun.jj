@@ -17,8 +17,9 @@ public class Fun
   final static String Version = "Top Compiler - Version 1.0 - 2018";
   int contadorDeErrosSintaticos = 0;
   boolean debug_recovery;
+  Token ultimoErro = null;
 
-  final static String CaminhoDoArquivo = "C:/Users/Ronaldo/Downloads/exemplosteste/programaaceito/programaaceito4.fun";
+  final static String CaminhoDoArquivo = "C:/Users/Ronaldo/Downloads/exemplos/programanaoaceito/programanaoaceito2.fun";
 
   public static void main(String args []) throws ParseException
   {
@@ -46,6 +47,7 @@ public class Fun
         }
       }
     }
+    analisador.debug_recovery = debug_recovery;
     desabilitaVerboseDoAS(analisador, debug);
     try
     {
@@ -54,7 +56,6 @@ public class Fun
     catch (ParseEOFException e)
     {
       System.err.println(e.getMessage());
-      analisador.contadorDeErrosSintaticos++;
     }
     finally
     {
@@ -145,12 +146,18 @@ public class Fun
       }
       getNextToken();
       token = getToken(1);
-      if (token.kind == EOF && conjuntoTokens.contains(EOF))
+      if (token.kind == EOF && !conjuntoTokens.contains(EOF))
       {
         isEndOfFile = true;
       }
     }
-    System.out.println(e.getMessage());
+    if(token != ultimoErro)
+    {
+    	System.out.println(e.getMessage());
+    	ultimoErro = token;
+    	contadorDeErrosSintaticos++;
+    }
+    
     
     if (isEndOfFile)
     {
@@ -377,7 +384,7 @@ SPECIAL_TOKEN : //trata erros lexicos
 // Inicializacao do parser
 void program() throws ParseEOFException :
 {
-  RecoverySet g = new RecoverySet(EOF); //First.program
+  RecoverySet g = First.program;
 }
 {
   <EOF>
@@ -385,8 +392,8 @@ void program() throws ParseEOFException :
 	classlist(g)
   try
   {
-     [ classlist(g) ] < EOF >// Livro está diferente.
-   // <EOF>
+     //[ classlist(g) ] < EOF >// Livro está diferente.
+    <EOF>
   }
   catch (ParseException e)
   {
@@ -420,7 +427,7 @@ void classdecl(RecoverySet g) throws ParseEOFException :
 //declaracao de corpo da classe, podendo criar variaveism, construtores, metodos dentro das chaves 
 void classbody(RecoverySet g) throws ParseEOFException :
 {
-  RecoverySet 	f1 = new RecoverySet(RBRACE), //na sessão 5.3 (página impressa 113), ele não mostra o f1
+  RecoverySet 	//f1 = new RecoverySet(RBRACE), //na sessão 5.3 (página impressa 113), ele não mostra o f1
 				f2 = new RecoverySet(SEMICOLON).union(g).remove(tipo_Identificador),
 				f3 = First.methoddecl.union(g).remove(tipo_Identificador), //ao invés de union g, estava union f1
 				f4 = First.constructdecl.union(f3).remove(tipo_Identificador),
@@ -467,10 +474,15 @@ void assigndecl(RecoverySet g) throws ParseEOFException :
 {
 }
 {
-  < ASSIGN >
-  (
-    assignbody(g)
-  )
+  try 
+  {
+	< ASSIGN >
+	(
+	  assignbody(g)
+	)
+  } catch(ParseException e) {
+	consomeTokenAteh(g, e, "vardecl");
+  }
 }
 
 // atribuicao podendo ser todos os tipos ou array
