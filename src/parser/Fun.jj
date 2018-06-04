@@ -11,6 +11,7 @@ PARSER_BEGIN(Fun)
 package parser;
 import java.io.*;
 import recovery.*;
+import syntaticTree.*;
 
 public class Fun
 {
@@ -19,7 +20,7 @@ public class Fun
   boolean debug_recovery;
   Token ultimoErro = null;
 
-  final static String CaminhoDoArquivo = "C:/Users/Matheus/Desktop/Universidade/6ª Fase/Compila/programanaoaceito/programanaoaceito2.fun";
+  final static String CaminhoDoArquivo = "\\Users\\ronaldostranger\\Downloads\\entradatestevalido.txt";
 
   public static void main(String args []) throws ParseException
   {
@@ -136,7 +137,7 @@ public class Fun
       {
         if (debug_recovery)
         {
-          System.out.println(" Encontrou token de sincronização -> " + im(token.kind));
+          System.out.println(" Encontrou token de sincronizaï¿½ï¿½o -> " + im(token.kind));
           break;
         }
       }
@@ -382,51 +383,70 @@ SPECIAL_TOKEN : //trata erros lexicos
 }
 
 // Inicializacao do parser
-void program() throws ParseEOFException :
+ListNode program() throws ParseEOFException :
 {
   RecoverySet g = First.program;
+  ListNode l= null, d= null;
 }
 {
   <EOF>
 |
-	classlist(g)
+	l= classlist(g)
   try
   {
      //[ classlist(g) ] < EOF >// Livro estï¿½ diferente.
-    <EOF>
+    <EOF> { return 1; }
   }
   catch (ParseException e)
   {
     consomeTokenAteh(g, e, "program");
   }
-  [ program() ]
+  [ d= program() ]
+  { return 1; }
+    
 }
 /* Chama o classdecl passando como conjunto de sync o conjunto g, e todos terminais que estï¿½o
 no FIRST(classlist). Isso porque depois do classdecl podemos ter um classlist ou
 o final da aplicaï¿½ï¿½o dessa produï¿½ï¿½o */
-void classlist(RecoverySet g) throws ParseEOFException :
+ListNode classlist(RecoverySet g) throws ParseEOFException :
 {
+  ClassDeclNode c = null;
+  ListNode l = null;
   RecoverySet f = First.classlist.union(g);
 }
 {
-  classdecl(f) [ classlist(g) ]
+  c = classdecl(f) [ l = classlist(g) ]
+  {  return new ListNode( c, l); } 
 }
 
 // declaracao de classe Ex : class nome extends nomePai
 // alterado de acordo com o livro (Programa 5.8)
-void classdecl(RecoverySet g) throws ParseEOFException :
+ClassDeclNode classdecl(RecoverySet g) throws ParseEOFException :
 {
+  Token t1 = null, t2 = null, t3 = null;
+  ClassBobyNode c1 = null;
 }
 {
   try {
-    	< CLASS > < tipo_Identificador > [ < EXTENDS > < tipo_Identificador > ] classbody(g)
+    	t1 = < CLASS > t2 = < tipo_Identificador > [ < EXTENDS > t3 = < tipo_Identificador > ] c1 = classbody(g)
+    	{ return new ClassDeclNode(t1, t2, t3, c1); }
 	} catch (ParseException e){
 	  consomeTokenAteh(g, e, "classcl");
+	  return new ClassDeclNode(t1, t2, t3, c1);
 	}
 }
 //declaracao de corpo da classe, podendo criar variaveism, construtores, metodos dentro das chaves 
-void classbody(RecoverySet g) throws ParseEOFException :
+ClassBodyNode classbody(RecoverySet g) throws ParseEOFException :
 {
+  ListNode c = null,
+  		   v = null,
+  		   ct = null,
+  		   m = null,
+  VarDeclNode vd;
+  ConstructDeclNode cd;
+  MethodDeclNode md;
+  Token t = null;
+
   RecoverySet 	f2 = new RecoverySet(SEMICOLON).union(g).remove(tipo_Identificador),
 				f3 = First.methoddecl.union(g).remove(tipo_Identificador), //ao invï¿½s de union g, estava union f1
 				f4 = First.constructdecl.union(f3).remove(tipo_Identificador),
@@ -434,34 +454,55 @@ void classbody(RecoverySet g) throws ParseEOFException :
 }
 { //Essa parte tï¿½ diferente do livro, deixei como tava no livro. pï¿½gina 100 (pï¿½gina impressa).
   try {  
-  < LBRACE > 
-  [ classlist(f5) ]
-  (LOOKAHEAD(3) vardecl(f2) < SEMICOLON >)*
+  t = < LBRACE > 
+  [ c = classlist(f5) ]
+  (LOOKAHEAD(3) vd = vardecl(f2) < SEMICOLON >
+	{	if (v == null)
+			v = new ListNode(vd);
+		else
+			v.add(vd);
+	}
+  )*  
   (
-    (constructdecl(f4)) |
-  (methoddecl(f3)))*
+    (cd = constructdecl(f4)
+    { if (ct == null)
+    	ct = new ListNode(cd);
+      else
+      	m.add(md) })
+   |
+  (methoddecl(f3)
+  	{ if (m == null)
+  		m = new ListNode(md);
+  	  else
+  	  	m.add(md); }
+  ))*
   < RBRACE >
+  { return new ClassBodyNode(t, c, v, ct, m); }
 } catch (ParseException e){
 		consomeTokenAteh(g, e, "classbody");
+		return new ClassBodyNode(t, c, v, ct, m);
 	}
 }
 
 // declaracao de uma variavel com opcional de array e tambem a possibilidade de inicialzacao
 void vardecl(RecoverySet g) throws ParseEOFException :
 {
+  Token t1 = null, t2;
+  int k = 0;
+  ListNode l = null;
 }
 {
   try { 
 	 (
-    < INT >
-  | < STRING >
-  | < tipo_Identificador >(< LBRACKET >(< tipo_Identificador >|< tipo_INT >)* < RBRACKET >)*
-  | < CHAR >
-  | < FLOAT >
-  | < BOOLEAN >
+    t1 = < INT >
+  | t1 = < STRING >
+  | t1 = < tipo_Identificador >(< LBRACKET >(< tipo_Identificador >|< tipo_INT >)* < RBRACKET > { k++ })*
+  | t1 = < CHAR >
+  | t1 = < FLOAT >
+  | t1 = < BOOLEAN >
   )
   (
-    < tipo_Identificador > (< LBRACKET >< RBRACKET >)*)*
+    < tipo_Identificador > (< LBRACKET >< RBRACKET > {  k++ })*)* // TODO test
   (
     assigndecl(g)
   )?
