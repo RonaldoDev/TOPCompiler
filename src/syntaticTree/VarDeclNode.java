@@ -1,5 +1,14 @@
 package syntaticTree;
 
-public class VarDeclNode {
+import parser.Token;
+
+public class VarDeclNode extends StatementNode {
+	public ListNode vars;
+	
+	public VarDeclNode(Token t, ListNode p)
+	{
+		super(t);
+		vars = p;
+	}
 
 }
