@@ -485,7 +485,7 @@ ClassBodyNode classbody(RecoverySet g) throws ParseEOFException :
 }
 
 // declaracao de uma variavel com opcional de array e tambem a possibilidade de inicialzacao
-void vardecl(RecoverySet g) throws ParseEOFException :
+VarDeclNode vardecl(RecoverySet g) throws ParseEOFException :
 {
   Token t1 = null, t2;
   int k = 0;
@@ -733,82 +733,112 @@ ExprNode content(RecoverySet g) throws ParseEOFException :
 }
 
 // palavra reservada print
-void printstat(RecoverySet g) throws ParseEOFException :
+PrintNode printstat(RecoverySet g) throws ParseEOFException :
 {
+  ExpreNode e1 = null;
+  Token t = null;
 }
 {
   try { 
-	  < PRINT > expression(g)
+	  t= < PRINT > e1 = expression(g)
+	  { return new PrintNode(t, e1); }
 	} catch (ParseException e) {
 		consomeTokenAteh(g, e, "printstat");
+		return new PrintNode(t, e1);
 	}
 }
 
 // palavra reservada read
-void readstat(RecoverySet g) throws ParseEOFException :
+ReadNode readstat(RecoverySet g) throws ParseEOFException :
 {
+  ExpreNode e1 = null;
+  Token t = null;
 }
 {
   try { 
- 	 < READ > lvalue(g)
+ 	 t = < READ > e1 = lvalue(g)
+ 	 {  return new ReadNode(t, e1); }
 	} catch (ParseException e) {
 		consomeTokenAteh(g, e, "readstat");
+		return new ReadNode(t, e1);
 	}
 }
 
-void returnstat(RecoverySet g) throws ParseEOFException :
+ReturnNode returnstat(RecoverySet g) throws ParseEOFException :
 {
+  ExpreNode e1 = null;
+  Token t = null;
 }
 {
   try { 
-  	< RETURN > [ expression(g) ]
+  	t = < RETURN > [ e1 = expression(g) ]
+  	{  return new ReturnNode(t, e1); }
   } catch (ParseException e) {
 		consomeTokenAteh(g, e, "returnstat");
+		return new ReturnNode(t, e1);
 	}
 }
 
-void superstat(RecoverySet g) throws ParseEOFException :
+SuperNode superstat(RecoverySet g) throws ParseEOFException :
 {
+  ListNode l = null;
+  Token t = null;
   RecoverySet f = new RecoverySet(RPAREN).union(g);
 }
 {
   try { 
-  < SUPER > < LPAREN > arglist(f) < RPAREN >
+  	t = < SUPER > < LPAREN > l = arglist(f) < RPAREN >
+  	{  return new SuperNode(t, l); }
   } catch (ParseException e) {
 		consomeTokenAteh(g, e, "superstat");
+		return new SuperNode(t, l);
 	}
 }
 
-void ifstat(RecoverySet g) throws ParseEOFException :
+IfNode ifstat(RecoverySet g) throws ParseEOFException :
 {
+  ExpreNode e1 = null;
+  StatementNode s1 = null,
+  				s2 = null;
+  Token t = null;
   RecoverySet f1 = new RecoverySet(RPAREN).union(g),
   			  f2 = new RecoverySet(ELSE).union(g);
 }
 {
   try { 
-  < IF > < LPAREN > expression(f1) < RPAREN > statement(f2)
+  	t = < IF > < LPAREN > e1 = expression(f1) < RPAREN > s1 = statement(f2)
   [
     LOOKAHEAD(3)
-    < ELSE > statement(g)
+    < ELSE > s2 = statement(g)
   ]
+  { return new IfNode(t, e1, s1, s2); }
   } catch (ParseException e) {
 		consomeTokenAteh(g, e, "ifstat");
+		return new IfNode(t, e1, s1, s2);
 	}
 }
 
-void forstat(RecoverySet g) throws ParseEOFException :
+ForNode forstat(RecoverySet g) throws ParseEOFException :
 {
+  AtribNode s1 = null,
+  			s2 = null;
+  StatementNode s3 = null;
+  ExpreNode e1 = null;
+  Token t = null;
+  
   RecoverySet f1 = new RecoverySet(SEMICOLON).union(g),
   			  f2 = new RecoverySet(RPAREN).union(g);
 }
 {
   try { 
-  < FOR > < LPAREN > [ atribstat(f1) ] < SEMICOLON > 
-  [ expression(f1) ] < SEMICOLON > 
-  [ atribstat(f2) ] < RPAREN > 
-  statement(g)
+  	t = < FOR > < LPAREN > [ s1 = atribstat(f1) ] < SEMICOLON > 
+  [ e1 = expression(f1) ] < SEMICOLON > 
+  [ s2 = atribstat(f2) ] < RPAREN > 
+  s3 = statement(g)
+  { return new ForNode(t, e1, s1, s2, s3); }
   } catch (ParseException e) {
 		consomeTokenAteh(g, e, "forstat");
+		return new ForNode(t, e1, s1, s2, s3);
 	}
 }
 
@@ -849,123 +879,169 @@ ExpreNode lvalue(RecoverySet g) throws ParseEOFException :
 }
 
 // funcao para instanciar de novos tipoos
-void alocexpression(RecoverySet g) throws ParseEOFException :
+ExpreNode alocexpression(RecoverySet g) throws ParseEOFException :
 {
+  	ExpreNode e1 = null,
+  			  e2 = null;
+  	ListNode l = null;
+  	Token t1, t2;
     RecoverySet f1 = new RecoverySet(RPAREN).union(g),
   			  	f2 = new RecoverySet(RBRACKET).union(g);
 }
 {
-  < NEW >
+  t1 = < NEW >
   (
     LOOKAHEAD(2)
-    < tipo_Identificador > < LPAREN > arglist(f1) < RPAREN >
+    t2 = < tipo_Identificador > < LPAREN > l = arglist(f1) < RPAREN >
+    {  e1 = new NewObjectNode(t1, t2, l); }
   |
     (
-      < INT >
-    | < STRING >
-    | < tipo_Identificador >
+      t2 = < INT >
+    | t2 = < STRING >
+    | t2 = < tipo_Identificador >
     )
     (
-      < LBRACKET > expression(f2) < RBRACKET >
+      < LBRACKET > e2 = expression(f2) < RBRACKET >
+      { if (l == null)
+      		l = new ListNode(e2);
+      	else
+      		l.add(e2); }
+      		
     )+
+    { e1 = new NewArrayNode(t1, t2, l); }
   )
+  { return e1; }
 }
 //ele falou algo sobre nao terminais que aceitam null devem ter o union.(g).final da p�gina impressa 115
 // nivel mais alto de precedencia em expressoes
-void expression(RecoverySet g) throws ParseEOFException :
+ExpreNode expression(RecoverySet g) throws ParseEOFException :
 {
+  ExpreNode e1 = null, e2 = null;
+  Token t = null;
 }
 {
     try {  
-  	expr(g) ((< OR > | < XOR >) expression(g))*
+  	e1 = expr(g) ((t = < OR > | t = < XOR >) e2 = expression(g))*
+  	{  e1 = new RelationalNode(t, e1, e2); }
+  	{  return e1; }
   } catch (ParseException e) {
 	consomeTokenAteh(g, e, "expression");
+	return new RelationalNode(t, e1, e2);
+	
   }
   
 }
-void expr(RecoverySet g) throws ParseEOFException:
-{}
+ExpreNode expr(RecoverySet g) throws ParseEOFException:
 {
-	exp(g) (<AND> expr(g))*
+  ExpreNode e1 = null, e2;
+  Token t = null;
+}
+{
+	e1 = exp(g) (t = <AND> e2 = expr(g))*
+	{ return e1; }
 }
 
-void exp(RecoverySet g) throws ParseEOFException:
-{}
+ExpreNode exp(RecoverySet g) throws ParseEOFException:
 {
-	< NOT > comparexpression(g)
+  ExpreNode e1 = null;
+  Token t = null;
+}
+{
+	t = < NOT > e1 = comparexpression(g)
 |
-	comparexpression(g)
+	e1 = comparexpression(g)
+	{ return e1; }
 }
 
-void comparexpression(RecoverySet g) throws ParseEOFException :
-{}
+ExpreNode comparexpression(RecoverySet g) throws ParseEOFException :
 {
-	numexpr(g) [ ( <LT> | <GT> | <LE> | <GE> | <EQ> | <NEQ> ) numexpr(g) ]
+  ExpreNode e1 = null, e2;
+  Token t = null;
+}
+{
+	e1 = numexpr(g) [ ( t = <LT> | t = <GT> | t = <LE> | t = <GE> | t = <EQ> | t = <NEQ> ) e2 = numexpr(g) ]
 }
 
 // nivel intermediario de precedencia
-void numexpr(RecoverySet g) throws ParseEOFException :
+ExpreNode numexpr(RecoverySet g) throws ParseEOFException :
 {
+  ExpreNode e1 = null, e2;
+  Token t = null;
 }
 {
-  term(g)
+  e1 = term(g)
   (
-    (< PLUS > | < MINUS >) term(g)
+    (t = < PLUS > | t = < MINUS >) e2 = term(g)
   )*
 }
 
 // expressoes com prioridade de precedecia
-void term(RecoverySet g) throws ParseEOFException :
+ExpreNode term(RecoverySet g) throws ParseEOFException :
 {
+  ExpreNode e1 = null, e2;
+  Token t = null;
 }
 {
-  unaryexpr(g)
+  e1 = unaryexpr(g)
   (
-    (< MULTIPLY > | < DIVIDE > | < REM >) unaryexpr(g)
+    (t = < MULTIPLY > | t = < DIVIDE > | t = < REM >) e2 = unaryexpr(g)
+    {  e1 = new MultNode(t, e1, e2); }
   )*
+  { return e1; } 
 }
 
 // expressoes unarias que te mais alta precedencia perante a gramatica
-void unaryexpr(RecoverySet g) throws ParseEOFException :
+ExpreNode unaryexpr(RecoverySet g) throws ParseEOFException :
 {
+  ExpreNode e;
+  Token t = null;
 }
 {
-  [(< PLUS > | < MINUS >)] factor(g)
+  [(t = < PLUS > | t = < MINUS >)] e = factor(g)
+  { return ( (t == null) ? e : new UnaryNode(t, e)); }
 }
 
 // fator que pode ser valorada ou chamada em recursivo com expressoes para encadeamento
-void factor(RecoverySet g) throws ParseEOFException :
+ExpreNode factor(RecoverySet g) throws ParseEOFException :
 {
+  ExpreNode e = null;
+  Token t;
 }
 {
   (
-    < tipo_INT >
+    t = < tipo_INT > { e = new IntConstNode(t); }
   | 
-    < tipo_STRING >
+    t = < tipo_STRING > { e = new StringConstNode(t); }
   | 
-    < tipo_FLOAT >
+    t = < tipo_FLOAT > { e = new FloatConstNode(t); }
   | 
-    < tipo_NULL >
+    t = < tipo_NULL > { e = new NullConstNode(t); }
   | 
-    < tipo_CHAR >
+    t = < tipo_CHAR > { e = new CharConstNode(t); }
   | 
-    < tipo_BOOLEAN >
+    t = < tipo_BOOLEAN > { e = new BoolConstNode(t); }
   | 
-    lvalue(g)
+    e = lvalue(g)
   | 
-    < LPAREN > expression(g) < RPAREN >
+    < LPAREN > e = expression(g) < RPAREN >
   )
+  { return e; }
 }
 
-void arglist(RecoverySet g) throws ParseEOFException :
+ListNode arglist(RecoverySet g) throws ParseEOFException :
 {
+  ListNode l = null;
+  ExpreNode e = null;
   RecoverySet f = new RecoverySet(COMMA).union(g);
 }
 {
   [
-    expression(g)
+    e = expression(f)
+    {  l = new ListNode(e); }
     (
-      < COMMA > expression(g)
+      < COMMA > e = expression(f)
+      { l.add(e); }
     )*
   ]
+  { return l; }
 }
