@@ -20,7 +20,7 @@ public class Fun
   boolean debug_recovery;
   Token ultimoErro = null;
 
-  final static String CaminhoDoArquivo = "C:/Users/Ronaldo/Downloads/entradasAceitas/programaaceito2.fun";
+  final static String CaminhoDoArquivo = "C:/Users/Ronaldo/Downloads/entradasAceitas/programaaceito3.fun";
 
   public static void main(String args []) throws ParseException
   {
@@ -491,7 +491,7 @@ VarDeclNode vardecl(RecoverySet g) throws ParseEOFException :
   Token t1 = null, t2;
   int k = 0;
   ListNode l = null;
-  AtribNode a = null;
+  ExpreNode e1 = null;
 }
 {
   try { 
@@ -505,15 +505,15 @@ VarDeclNode vardecl(RecoverySet g) throws ParseEOFException :
   | t1 = < BOOLEAN >
   )
   (
-   //t2 = < tipo_Identificador > (< LBRACKET >< RBRACKET > {  k++ })*)* // TODO test verificar comma
-	   < COMMA > { k = 0; } t2 = < tipo_Identificador >
+   //t2 = < tipo_Identificador > (< LBRACKET >< RBRACKET > {  k++ })* // TODO test verificar comma
+	   (< COMMA >)? { k = 0; } t2 = < tipo_Identificador >
 	   (< LBRACKET > < RBRACKET > { k++; }
 	   { l.add(new VarNode(t2, k)); })*
    )*
    
   (
-    a = assigndecl(g) { k++; }
-     { l = new ListNode(a); }
+    e1 = assigndecl(g) { k++; }
+     { l = new ListNode(e1); }
   )?
   { return new VarDeclNode(t1, l); }
 
@@ -524,10 +524,10 @@ VarDeclNode vardecl(RecoverySet g) throws ParseEOFException :
 }
 
 // declacarao de atribuicao de variavel
-AtribNode assigndecl(RecoverySet g) throws ParseEOFException :
+ExpreNode assigndecl(RecoverySet g) throws ParseEOFException :
 {
   Token t1 = null;
-  ExpreNode e1 = null, e2 = null;
+  ExpreNode e1 = null;
 }
 {
   try 
@@ -536,44 +536,55 @@ AtribNode assigndecl(RecoverySet g) throws ParseEOFException :
 	(
 	 e1 = assignbody(g)
 	)
-	{ return new AtribNode(t1, e1, e2); }
+	{ return new UnaryNode(t1, e1); }
   } catch(ParseException e) {
 	consomeTokenAteh(g, e, "vardecl");
-	return new AtribNode(t1, e1, e2);
+	return  new UnaryNode(t1, e1);
   }
 }
 
 // atribuicao podendo ser todos os tipos ou array
-void assignbody(RecoverySet g) throws ParseEOFException :
+ExpreNode assignbody(RecoverySet g) throws ParseEOFException :
 {
+  ExpreNode e1 =null;
 }
 {
   
   (LOOKAHEAD(3)(
     (
-	    alocexpression(g) | expression(g) 
+	   e1 = alocexpression(g) | e1 = expression(g) 
 	  )?
 	| 
 	    (
-	   		tipobody() (< LBRACKET > < RBRACKET >)?
+	   		e1 = tipobody() (< LBRACKET > < RBRACKET >)?
 	  	)
 	)
 	| < tipo_NULL >)
+	{ return e1; }
 }
 
-void tipobody() :
+ExpreNode tipobody() :
 {
+    ExpreNode e = null;
+  Token t;
 }
 {
-	 (
-	      < tipo_CHAR >
-	    | < tipo_STRING >
-	    | < tipo_INT >
-	    | < tipo_FLOAT >
-	    | < tipo_BOOLEAN >
-	    | < tipo_Identificador >
-    )
+  (
+    t = < tipo_INT > { e = new IntConstNode(t); }
+  | 
+    t = < tipo_STRING > { e = new StringConstNode(t); }
+  | 
+    t = < tipo_FLOAT > { e = new FloatConstNode(t); }
+  | 
+    t = < tipo_Identificador > { e = new IdentConstNode(t); }
+  | 
+    t = < tipo_CHAR > { e = new CharConstNode(t); }
+  | 
+    t = < tipo_BOOLEAN > { e = new BoolConstNode(t); }
+ )
+ { return e; }
 }
+
 
 // declaracao de construtor
 ConstructDeclNode constructdecl(RecoverySet g) throws ParseEOFException :
@@ -741,15 +752,19 @@ AtribNode atribstat(RecoverySet g) throws ParseEOFException :
 // funcao de conteudo criada para poder fazer atribuicao nas variaves TODO rever
 ExpreNode content(RecoverySet g) throws ParseEOFException :
 {
-  Token t1 = null;
+  ExpreNode e = null;
+  Token t;
 }
 {
   (
-   t1 = < tipo_CHAR >
-  |t1 = < tipo_FLOAT >
-  |t1 = < tipo_BOOLEAN >
+    t = < tipo_FLOAT > { e = new FloatConstNode(t); }
+  | 
+    t = < tipo_CHAR > { e = new CharConstNode(t); }
+  | 
+    t = < tipo_BOOLEAN > { e = new BoolConstNode(t); }
   )
   < SEMICOLON >
+  { return e; }
 }
 
 // palavra reservada print
