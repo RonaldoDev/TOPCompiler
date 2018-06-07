@@ -638,11 +638,10 @@ ListNode paramlist(RecoverySet g) throws ParseEOFException :
   int k = 0;
   Token t1 = null, t2 = null;
 }
-{//Isso aqui ta bem diferente do que est� no livro no fim da p�gina impressa 101
+{//t3 101
 try {
   [
-    (      vardecl(g) { k++; }
-    )*
+      vardecl(g) { k++; }
       {
 		q = new ListNode(new VarNode(t2, k));
 		p = new ListNode(new VarDeclNode(t1, q));
