@@ -506,7 +506,7 @@ VarDeclNode vardecl(RecoverySet g) throws ParseEOFException :
   )
   (
    //t2 = < tipo_Identificador > (< LBRACKET >< RBRACKET > {  k++ })* // TODO test verificar comma
-	   (< COMMA >)? { k = 0; } t2 = < tipo_Identificador >
+	   { k = 0; } t2 = < tipo_Identificador >
 	   (< LBRACKET > < RBRACKET > { k++; }
 	   { l.add(new VarNode(t2, k)); })*
    )*
@@ -655,23 +655,24 @@ ListNode paramlist(RecoverySet g) throws ParseEOFException :
   ListNode p = null, q = null;
   int k = 0;
   Token t1 = null, t2 = null;
+  VarDeclNode v1 = null, v2 = null;
 }
 {//t3 101
 try {
   [
-      vardecl(g) { k++; }
+      v1 = vardecl(g) { k++; }
       {
 		q = new ListNode(new VarNode(t2, k));
-		p = new ListNode(new VarDeclNode(t1, q));
+		p = new ListNode(v1);
       }
     (
       < COMMA > { k = 0; }
       (
-        vardecl(g) { k++; }
+       v2 = vardecl(g) { k++; }
       )*
       {
         q = new ListNode(new VarNode(t2, k));
-        p.add(new VarDeclNode(t1, q));
+        p.add(v1);
       }
     )*
   ] { return p; }
