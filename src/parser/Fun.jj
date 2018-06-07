@@ -692,8 +692,7 @@ StatementNode statement(RecoverySet g) throws ParseEOFException :
 }
 {
   try {
-  
-  LOOKAHEAD(2) //livro diferente, antes estava: LOOKAHEAD(2) <tipo_Identificador> <tipo_Identificador>
+ (  LOOKAHEAD(2) //livro diferente, antes estava: LOOKAHEAD(2) <tipo_Identificador> <tipo_Identificador>
   s = vardecl(f1)
 | 
   LOOKAHEAD(3) // livro diferente, antes estava: LOOKAHEAD(3) LOOKAHEAD(1)
@@ -718,7 +717,7 @@ StatementNode statement(RecoverySet g) throws ParseEOFException :
   t1 = < BREAK > < SEMICOLON > {  s = new BreakNode(t1); }
 | 
   t1 = < SEMICOLON > {  s = new NopNode(t1); }
-  { return s; }
+) { return s; }
 } catch (ParseException e) {
 	consomeTokenAteh(g, e, "statement");
 	return new NopNode(t1);
