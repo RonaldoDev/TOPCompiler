@@ -20,7 +20,7 @@ public class Fun
   boolean debug_recovery;
   Token ultimoErro = null;
 
-  final static String CaminhoDoArquivo = "\\Users\\ronaldostranger\\Downloads\\entradatestevalido.txt";
+  final static String CaminhoDoArquivo = "C:/Users/Matheus/Desktop/Universidade/6ª Fase/Compila/programaaceito1.fun";
 
   public static void main(String args []) throws ParseException
   {
@@ -724,7 +724,7 @@ AtribNode atribstat(RecoverySet g) throws ParseEOFException :
 }
 
 // funcao de conteudo criada para poder fazer atribuicao nas variaves TODO rever
-ExprNode content(RecoverySet g) throws ParseEOFException :
+ExpreNode content(RecoverySet g) throws ParseEOFException :
 {
   Token t1 = null;
 }
