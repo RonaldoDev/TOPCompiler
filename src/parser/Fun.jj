@@ -20,7 +20,7 @@ public class Fun
   boolean debug_recovery;
   Token ultimoErro = null;
 
-  final static String CaminhoDoArquivo = "C:/Users/Matheus/Desktop/Universidade/6ª Fase/Compila/programaaceito/programaaceito1.fun";
+  final static String CaminhoDoArquivo = "C:/Users/Ronaldo/Downloads/entradasAceitas/programaaceito1.fun";
 
   public static void main(String args []) throws ParseException
   {
@@ -864,14 +864,15 @@ ListNode statlist(RecoverySet g) throws ParseEOFException :
 }
 {
   s = statement(f) [ l = statlist(g) ]
+  { return new ListNode(s, l); }
 }
 
 // funcao de atribuicao a esquerda
 ExpreNode lvalue(RecoverySet g) throws ParseEOFException :
 {
-  ExpreNode e1 = null;
+  ExpreNode e1 = null,
   			e2 = null;
-  Token t1 = null;
+  Token t1 = null,
   		t2 = null;
   ListNode l = null;
 }
@@ -968,11 +969,13 @@ ExpreNode exp(RecoverySet g) throws ParseEOFException:
 
 ExpreNode comparexpression(RecoverySet g) throws ParseEOFException :
 {
-  ExpreNode e1 = null, e2;
+  ExpreNode e1 = null, e2 = null;
   Token t = null;
 }
 {
 	e1 = numexpr(g) [ ( t = <LT> | t = <GT> | t = <LE> | t = <GE> | t = <EQ> | t = <NEQ> ) e2 = numexpr(g) ]
+	{ e1 = new RelationalNode(t, e1, e2); }
+	{ return e1; }
 }
 
 // nivel intermediario de precedencia
@@ -985,7 +988,9 @@ ExpreNode numexpr(RecoverySet g) throws ParseEOFException :
   e1 = term(g)
   (
     (t = < PLUS > | t = < MINUS >) e2 = term(g)
+    { e1 = new AddNode(t, e1, e2); }
   )*
+ { return e1; }
 }
 
 // expressoes com prioridade de precedecia
