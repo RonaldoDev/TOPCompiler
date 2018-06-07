@@ -20,7 +20,7 @@ public class Fun
   boolean debug_recovery;
   Token ultimoErro = null;
 
-  final static String CaminhoDoArquivo = "C:/Users/Matheus/Desktop/Universidade/6ª Fase/Compila/programaaceito1.fun";
+  final static String CaminhoDoArquivo = "C:/Users/Matheus/Desktop/Universidade/6ª Fase/Compila/programaaceito/programaaceito1.fun";
 
   public static void main(String args []) throws ParseException
   {
@@ -386,23 +386,23 @@ SPECIAL_TOKEN : //trata erros lexicos
 ListNode program() throws ParseEOFException :
 {
   RecoverySet g = First.program;
-  ListNode l= null, d= null;
+  ListNode l = null, d = null;
 }
 {
   <EOF>
 |
-	l= classlist(g)
+	l = classlist(g)
   try
   {
      //[ classlist(g) ] < EOF >// Livro estï¿½ diferente.
-    <EOF> { return 1; }
+    <EOF> { return l; }
   }
   catch (ParseException e)
   {
     consomeTokenAteh(g, e, "program");
   }
   [ d= program() ]
-  { return 1; }
+  { return l; }
     
 }
 /* Chama o classdecl passando como conjunto de sync o conjunto g, e todos terminais que estï¿½o
@@ -424,7 +424,7 @@ ListNode classlist(RecoverySet g) throws ParseEOFException :
 ClassDeclNode classdecl(RecoverySet g) throws ParseEOFException :
 {
   Token t1 = null, t2 = null, t3 = null;
-  ClassBobyNode c1 = null;
+  ClassBodyNode c1 = null;
 }
 {
   try {
@@ -468,9 +468,9 @@ ClassBodyNode classbody(RecoverySet g) throws ParseEOFException :
     { if (ct == null)
     	ct = new ListNode(cd);
       else
-      	m.add(md); })
+      	m.add(cd); })
    |
-  (methoddecl(f3)
+  (md = methoddecl(f3)
   	{ if (m == null)
   		m = new ListNode(md);
   	  else
@@ -641,14 +641,23 @@ ListNode paramlist(RecoverySet g) throws ParseEOFException :
 {//Isso aqui ta bem diferente do que estï¿½ no livro no fim da pï¿½gina impressa 101
 try {
   [
-    vardecl(g) //adicionei o g como parametro porque ï¿½ o que estava fazendo nos outros
-    (
-      < COMMA >
-      (
-        vardecl(g) //adicionei o g como parametro porque ï¿½ o que estava fazendo nos outros
-      )*
+    (      vardecl(g) { k++; }
     )*
-  ]
+      {
+		q = new ListNode(new VarNode(t2, k));
+		p = new ListNode(new VarDeclNode(t1, q));
+      }
+    (
+      < COMMA > { k = 0; }
+      (
+        vardecl(g) { k++; }
+      )*
+      {
+        q = new ListNode(new VarNode(t2, k));
+        p.add(new VarDeclNode(t1, q));
+      }
+    )*
+  ] { return p; }
 } catch (ParseException e) {
 	consomeTokenAteh(g, e, "paramlist");
 	return null;
