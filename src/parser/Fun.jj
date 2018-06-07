@@ -20,7 +20,7 @@ public class Fun
   boolean debug_recovery;
   Token ultimoErro = null;
 
-  final static String CaminhoDoArquivo = "\\Users\\ronaldostranger\\Downloads\\entradatestevalido.txt";
+  final static String CaminhoDoArquivo = "C:/Users/Matheus/Desktop/Universidade/6ª Fase/Compila/programaaceito/programaaceito1.fun";
 
   public static void main(String args []) throws ParseException
   {
@@ -386,23 +386,23 @@ SPECIAL_TOKEN : //trata erros lexicos
 ListNode program() throws ParseEOFException :
 {
   RecoverySet g = First.program;
-  ListNode l= null, d= null;
+  ListNode l = null, d = null;
 }
 {
   <EOF>
 |
-	l= classlist(g)
+	l = classlist(g)
   try
   {
      //[ classlist(g) ] < EOF >// Livro estï¿½ diferente.
-    <EOF> { return 1; }
+    <EOF> { return l; }
   }
   catch (ParseException e)
   {
     consomeTokenAteh(g, e, "program");
   }
   [ d= program() ]
-  { return 1; }
+  { return l; }
     
 }
 /* Chama o classdecl passando como conjunto de sync o conjunto g, e todos terminais que estï¿½o
@@ -424,7 +424,7 @@ ListNode classlist(RecoverySet g) throws ParseEOFException :
 ClassDeclNode classdecl(RecoverySet g) throws ParseEOFException :
 {
   Token t1 = null, t2 = null, t3 = null;
-  ClassBobyNode c1 = null;
+  ClassBodyNode c1 = null;
 }
 {
   try {
@@ -441,7 +441,7 @@ ClassBodyNode classbody(RecoverySet g) throws ParseEOFException :
   ListNode c = null,
   		   v = null,
   		   ct = null,
-  		   m = null,
+  		   m = null;
   VarDeclNode vd;
   ConstructDeclNode cd;
   MethodDeclNode md;
@@ -468,9 +468,9 @@ ClassBodyNode classbody(RecoverySet g) throws ParseEOFException :
     { if (ct == null)
     	ct = new ListNode(cd);
       else
-      	m.add(md) })
+      	m.add(cd); })
    |
-  (methoddecl(f3)
+  (md = methoddecl(f3)
   	{ if (m == null)
   		m = new ListNode(md);
   	  else
@@ -496,7 +496,7 @@ VarDeclNode vardecl(RecoverySet g) throws ParseEOFException :
 	 (
     t1 = < INT >
   | t1 = < STRING >
-  | t2 = < tipo_Identificador >(< LBRACKET >(< tipo_Identificador >|< tipo_INT >)* < RBRACKET > { k++ })*
+  | t2 = < tipo_Identificador >(< LBRACKET >(< tipo_Identificador >|< tipo_INT >)* < RBRACKET > { k++; })*
   { l = new ListNode(new VarNode(t2, k)); }
   | t1 = < CHAR >
   | t1 = < FLOAT >
@@ -504,14 +504,17 @@ VarDeclNode vardecl(RecoverySet g) throws ParseEOFException :
   )
   (
    //t2 = < tipo_Identificador > (< LBRACKET >< RBRACKET > {  k++ })*)* // TODO test verificar comma
-   < COMMA > { k = 0; } t2 = < tipo_Identificador > (< LBRACKET > < RBRACKET > { k++; }
-   { l.add(new VarNode(t2, k)); })*
+	   < COMMA > { k = 0; } t2 = < tipo_Identificador >
+	   (< LBRACKET > < RBRACKET > { k++; }
+	   { l.add(new VarNode(t2, k)); })*
+   )*
    
   (
     assigndecl(g)
   )?
-  { return new VarDeclNode(t1, l) }
-  } catch(ParseException e) {
+  { return new VarDeclNode(t1, l); }
+
+  }catch(ParseException e){
     consomeTokenAteh(g, e, "vardecl");
     return new VarDeclNode(t1, l);
   }
@@ -571,6 +574,7 @@ ConstructDeclNode constructdecl(RecoverySet g) throws ParseEOFException :
     Token t = null;
     MethodBodyNode m = null;
 }
+{
 try {
     t = < CONSTRUCTOR > m = methodbody(g)
     { return new ConstructDeclNode(t, m); }
@@ -579,6 +583,7 @@ catch(ParseException e)
 {
     consomeTokenAteh(g, e, "constructdecl");
     { return new ConstructDeclNode(t, m); }
+}
 }
 
 // declaracao de metodo
@@ -629,21 +634,30 @@ MethodBodyNode methodbody(RecoverySet g) throws ParseEOFException :
 // lista de paramatros que podem ou nao ser inicializados TODO Verificar alterar pag 142 # 154
 ListNode paramlist(RecoverySet g) throws ParseEOFException :
 {
-  ListNode = = null, q = null;
+  ListNode p = null, q = null;
   int k = 0;
   Token t1 = null, t2 = null;
 }
 {//Isso aqui ta bem diferente do que estï¿½ no livro no fim da pï¿½gina impressa 101
 try {
   [
-    vardecl(g) //adicionei o g como parametro porque ï¿½ o que estava fazendo nos outros
-    (
-      < COMMA >
-      (
-        vardecl(g) //adicionei o g como parametro porque ï¿½ o que estava fazendo nos outros
-      )*
+    (      vardecl(g) { k++; }
     )*
-  ]
+      {
+		q = new ListNode(new VarNode(t2, k));
+		p = new ListNode(new VarDeclNode(t1, q));
+      }
+    (
+      < COMMA > { k = 0; }
+      (
+        vardecl(g) { k++; }
+      )*
+      {
+        q = new ListNode(new VarNode(t2, k));
+        p.add(new VarDeclNode(t1, q));
+      }
+    )*
+  ] { return p; }
 } catch (ParseException e) {
 	consomeTokenAteh(g, e, "paramlist");
 	return null;
@@ -719,7 +733,7 @@ AtribNode atribstat(RecoverySet g) throws ParseEOFException :
 }
 
 // funcao de conteudo criada para poder fazer atribuicao nas variaves TODO rever
-ExprNode content(RecoverySet g) throws ParseEOFException :
+ExpreNode content(RecoverySet g) throws ParseEOFException :
 {
   Token t1 = null;
 }
@@ -845,7 +859,7 @@ ForNode forstat(RecoverySet g) throws ParseEOFException :
 // lista de declaracoes
 ListNode statlist(RecoverySet g) throws ParseEOFException :
 {
-  ListNode l - null;
+  ListNode l = null;
   StatementNode s = null;
   RecoverySet f = First.statlist.remove(tipo_Identificador).union(g);
 }
