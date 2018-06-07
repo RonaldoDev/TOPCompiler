@@ -20,11 +20,11 @@ public class Fun
   boolean debug_recovery;
   Token ultimoErro = null;
 
-  final static String CaminhoDoArquivo = "C:/Users/Ronaldo/Downloads/entradasAceitas/programaaceito1.fun";
+  final static String CaminhoDoArquivo = "C:/Users/Ronaldo/Downloads/entradasAceitas/programaaceito2.fun";
 
   public static void main(String args []) throws ParseException
   {
-    boolean debug = false;
+    boolean debug = true;
     boolean debug_as = false;
     boolean debug_recovery = true;
     String nomeArquivo = CaminhoDoArquivo;
@@ -48,11 +48,12 @@ public class Fun
         }
       }
     }
+    ListNode root = null;
     analisador.debug_recovery = debug_recovery;
     desabilitaVerboseDoAS(analisador, debug);
     try
     {
-      analisador.program();
+      root = analisador.program();
     }
     catch (ParseEOFException e)
     {
@@ -490,6 +491,7 @@ VarDeclNode vardecl(RecoverySet g) throws ParseEOFException :
   Token t1 = null, t2;
   int k = 0;
   ListNode l = null;
+  AtribNode a = null;
 }
 {
   try { 
@@ -510,7 +512,8 @@ VarDeclNode vardecl(RecoverySet g) throws ParseEOFException :
    )*
    
   (
-    assigndecl(g)
+    a = assigndecl(g) { k++; }
+     { l = new ListNode(a); }
   )?
   { return new VarDeclNode(t1, l); }
 
@@ -521,18 +524,22 @@ VarDeclNode vardecl(RecoverySet g) throws ParseEOFException :
 }
 
 // declacarao de atribuicao de variavel
-void assigndecl(RecoverySet g) throws ParseEOFException :
+AtribNode assigndecl(RecoverySet g) throws ParseEOFException :
 {
+  Token t1 = null;
+  ExpreNode e1 = null, e2 = null;
 }
 {
   try 
   {
-	< ASSIGN >
+	t1 = < ASSIGN >
 	(
-	  assignbody(g)
+	 e1 = assignbody(g)
 	)
+	{ return new AtribNode(t1, e1, e2); }
   } catch(ParseException e) {
 	consomeTokenAteh(g, e, "vardecl");
+	return new AtribNode(t1, e1, e2);
   }
 }
 
