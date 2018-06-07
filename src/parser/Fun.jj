@@ -983,9 +983,9 @@ ExpreNode exp(RecoverySet g) throws ParseEOFException:
   Token t = null;
 }
 {
-	t = < NOT > e1 = comparexpression(g)
+(	t = < NOT > e1 = comparexpression(g)
 |
-	e1 = comparexpression(g)
+	e1 = comparexpression(g))
 	{ return e1; }
 }
 
