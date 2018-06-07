@@ -441,7 +441,7 @@ ClassBodyNode classbody(RecoverySet g) throws ParseEOFException :
   ListNode c = null,
   		   v = null,
   		   ct = null,
-  		   m = null,
+  		   m = null;
   VarDeclNode vd;
   ConstructDeclNode cd;
   MethodDeclNode md;
@@ -468,7 +468,7 @@ ClassBodyNode classbody(RecoverySet g) throws ParseEOFException :
     { if (ct == null)
     	ct = new ListNode(cd);
       else
-      	m.add(md) })
+      	m.add(md); })
    |
   (methoddecl(f3)
   	{ if (m == null)
@@ -496,7 +496,7 @@ VarDeclNode vardecl(RecoverySet g) throws ParseEOFException :
 	 (
     t1 = < INT >
   | t1 = < STRING >
-  | t2 = < tipo_Identificador >(< LBRACKET >(< tipo_Identificador >|< tipo_INT >)* < RBRACKET > { k++ })*
+  | t2 = < tipo_Identificador >(< LBRACKET >(< tipo_Identificador >|< tipo_INT >)* < RBRACKET > { k++; })*
   { l = new ListNode(new VarNode(t2, k)); }
   | t1 = < CHAR >
   | t1 = < FLOAT >
@@ -504,14 +504,17 @@ VarDeclNode vardecl(RecoverySet g) throws ParseEOFException :
   )
   (
    //t2 = < tipo_Identificador > (< LBRACKET >< RBRACKET > {  k++ })*)* // TODO test verificar comma
-   < COMMA > { k = 0; } t2 = < tipo_Identificador > (< LBRACKET > < RBRACKET > { k++; }
-   { l.add(new VarNode(t2, k)); })*
+	   < COMMA > { k = 0; } t2 = < tipo_Identificador >
+	   (< LBRACKET > < RBRACKET > { k++; }
+	   { l.add(new VarNode(t2, k)); })*
+   )*
    
   (
     assigndecl(g)
   )?
-  { return new VarDeclNode(t1, l) }
-  } catch(ParseException e) {
+  { return new VarDeclNode(t1, l); }
+
+  }catch(ParseException e){
     consomeTokenAteh(g, e, "vardecl");
     return new VarDeclNode(t1, l);
   }
@@ -571,6 +574,7 @@ ConstructDeclNode constructdecl(RecoverySet g) throws ParseEOFException :
     Token t = null;
     MethodBodyNode m = null;
 }
+{
 try {
     t = < CONSTRUCTOR > m = methodbody(g)
     { return new ConstructDeclNode(t, m); }
@@ -579,6 +583,7 @@ catch(ParseException e)
 {
     consomeTokenAteh(g, e, "constructdecl");
     { return new ConstructDeclNode(t, m); }
+}
 }
 
 // declaracao de metodo
@@ -629,7 +634,7 @@ MethodBodyNode methodbody(RecoverySet g) throws ParseEOFException :
 // lista de paramatros que podem ou nao ser inicializados TODO Verificar alterar pag 142 # 154
 ListNode paramlist(RecoverySet g) throws ParseEOFException :
 {
-  ListNode = = null, q = null;
+  ListNode p = null, q = null;
   int k = 0;
   Token t1 = null, t2 = null;
 }
@@ -845,7 +850,7 @@ ForNode forstat(RecoverySet g) throws ParseEOFException :
 // lista de declaracoes
 ListNode statlist(RecoverySet g) throws ParseEOFException :
 {
-  ListNode l - null;
+  ListNode l = null;
   StatementNode s = null;
   RecoverySet f = First.statlist.remove(tipo_Identificador).union(g);
 }
