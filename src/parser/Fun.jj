@@ -20,13 +20,14 @@ public class Fun
   boolean debug_recovery;
   Token ultimoErro = null;
 
-  final static String CaminhoDoArquivo = "C:/Users/Ronaldo/Downloads/entradasAceitas/programaaceito3.fun";
+  final static String CaminhoDoArquivo = "C:/Users/Vitor/Downloads/entradasAceitas/programaaceito3.fun";
 
   public static void main(String args []) throws ParseException
   {
     boolean debug = true;
     boolean debug_as = false;
     boolean debug_recovery = true;
+    boolean print_tree = false;
     String nomeArquivo = CaminhoDoArquivo;
     Fun analisador = leArquivo(nomeArquivo);
     System.out.println(Version);
@@ -41,9 +42,12 @@ public class Fun
         case "-debug_recovery" : 
         debug_recovery = true;
         break;
+        case "-print_tree" : 
+        print_tree = true;
+        break;
         default :
         {
-          System.out.println("Usage is" + "java Fun [-debug_AS] inputfile");
+          System.out.println("Usage is" + "java Fun [-debug_AS] " + " [-debug_recovery] [-print_tree] inputfile");
           System.exit(0);
         }
       }
@@ -68,6 +72,25 @@ public class Fun
     {
       System.out.println("Programa analisado com sucesso!");
     }
+    //verifica se pode imprimir a arvore sintatica
+    if (analisador.token_source.foundLexError() + analisador.contadorDeErrosSintaticos == 0)
+    {
+      if (print_tree)
+      { //exibir a arvore
+        PrintTree prt = new PrintTree();
+        prt.printRoot(root); //chama metodo pra imprimir a arvore
+      }
+      ClassCheck tc = new ClassCheck();
+      try
+      {
+        tc.ClassCheckRoot(root);
+        System.out.println("0 Semantic error found");
+      }
+      catch (SemanticException e)
+      {
+        System.out.println(e.getMessage());
+      }
+    }
   } //main
 
   public static void desabilitaVerboseDoAS(Fun analisador, boolean debug)
@@ -82,7 +105,7 @@ public class Fun
   {
     if (analisador.token_source.foundLexError() != 0)
     {
-      System.out.println(analisador.token_source.foundLexError() + " erros l\u00e9xicos encontrados");
+      System.out.println(analisador.token_source.foundLexError() + " erros lexicos encontrados");
     }
     return false;
   }
@@ -138,7 +161,7 @@ public class Fun
       {
         if (debug_recovery)
         {
-          System.out.println(" Encontrou token de sincroniza��o -> " + im(token.kind));
+          System.out.println(" Encontrou token de sincroniza\u00ef\u00bf\u00bd\u00ef\u00bf\u00bdo -> " + im(token.kind));
           break;
         }
       }
@@ -153,14 +176,12 @@ public class Fun
         isEndOfFile = true;
       }
     }
-    if(token != ultimoErro)
+    if (token != ultimoErro)
     {
-    	System.out.println(e.getMessage());
-    	ultimoErro = token;
-    	contadorDeErrosSintaticos++;
+      System.out.println(e.getMessage());
+      ultimoErro = token;
+      contadorDeErrosSintaticos++;
     }
-    
-    
     if (isEndOfFile)
     {
       throw new ParseEOFException("Final de arquivo encontrado prematuramente");
@@ -390,22 +411,27 @@ ListNode program() throws ParseEOFException :
   ListNode l = null, d = null;
 }
 {
-  <EOF>
-|
-	l = classlist(g)
+  < EOF >
+| 
+  l = classlist(g)
   try
   {
-     //[ classlist(g) ] < EOF >// Livro est� diferente.
-    <EOF> { return l; }
+    //[ classlist(g) ] < EOF >// Livro est� diferente.
+    < EOF >
+    {
+      return l;
+    }
   }
   catch (ParseException e)
   {
     consomeTokenAteh(g, e, "program");
   }
-  [ d= program() ]
-  { return l; }
-    
+  [ d = program() ]
+  {
+    return l;
+  }
 }
+
 /* Chama o classdecl passando como conjunto de sync o conjunto g, e todos terminais que est�o
 no FIRST(classlist). Isso porque depois do classdecl podemos ter um classlist ou
 o final da aplica��o dessa produ��o */
@@ -417,7 +443,9 @@ ListNode classlist(RecoverySet g) throws ParseEOFException :
 }
 {
   c = classdecl(f) [ l = classlist(g) ]
-  {  return new ListNode( c, l); } 
+  {
+    return new ListNode(c, l);
+  }
 }
 
 // declaracao de classe Ex : class nome extends nomePai
@@ -428,61 +456,78 @@ ClassDeclNode classdecl(RecoverySet g) throws ParseEOFException :
   ClassBodyNode c1 = null;
 }
 {
-  try {
-    	t1 = < CLASS > t2 = < tipo_Identificador > [ < EXTENDS > t3 = < tipo_Identificador > ] c1 = classbody(g)
-    	{ return new ClassDeclNode(t1, t2, t3, c1); }
-	} catch (ParseException e){
-	  consomeTokenAteh(g, e, "classcl");
-	  return new ClassDeclNode(t1, t2, t3, c1);
-	}
+  try
+  {
+    t1 = < CLASS > t2 = < tipo_Identificador > [ < EXTENDS > t3 = < tipo_Identificador > ] c1 = classbody(g)
+    {
+      return new ClassDeclNode(t1, t2, t3, c1);
+    }
+  }
+  catch (ParseException e)
+  {
+    consomeTokenAteh(g, e, "classcl");
+    return new ClassDeclNode(t1, t2, t3, c1);
+  }
 }
+
 //declaracao de corpo da classe, podendo criar variaveism, construtores, metodos dentro das chaves 
 ClassBodyNode classbody(RecoverySet g) throws ParseEOFException :
 {
-  ListNode c = null,
-  		   v = null,
-  		   ct = null,
-  		   m = null;
+  ListNode c = null, 
+  v = null, 
+  ct = null, 
+  m = null;
   VarDeclNode vd;
   ConstructDeclNode cd;
   MethodDeclNode md;
   Token t = null;
-
-  RecoverySet 	f2 = new RecoverySet(SEMICOLON).union(g).remove(tipo_Identificador),
-				f3 = First.methoddecl.union(g).remove(tipo_Identificador), //ao inv�s de union g, estava union f1
-				f4 = First.constructdecl.union(f3).remove(tipo_Identificador),
-				f5 = First.vardecl.union(f4).remove(tipo_Identificador);
+  RecoverySet 	f2 = new RecoverySet(SEMICOLON).union(g).remove(tipo_Identificador), 
+  f3 = First.methoddecl.union(g).remove(tipo_Identificador), //ao inv�s de union g, estava union f1
+  f4 = First.constructdecl.union(f3).remove(tipo_Identificador), 
+  f5 = First.vardecl.union(f4).remove(tipo_Identificador);
 }
 { //Essa parte t� diferente do livro, deixei como tava no livro. p�gina 100 (p�gina impressa).
-  try {  
-  t = < LBRACE > 
-  [ c = classlist(f5) ]
-  (LOOKAHEAD(3) vd = vardecl(f2) < SEMICOLON >
-	{	if (v == null)
-			v = new ListNode(vd);
-		else
-			v.add(vd);
-	}
-  )*  
-  (
+  try
+  {
+    t = < LBRACE > 
+    [ c = classlist(f5) ] 
+    (LOOKAHEAD(3)
+    vd = vardecl(f2) < SEMICOLON >
+    {	
+      if (v == null) 
+      v = new ListNode(vd);
+      else 
+      v.add(vd);
+    }
+    ) * 
+    (
     (cd = constructdecl(f4)
-    { if (ct == null)
-    	ct = new ListNode(cd);
-      else
-      	m.add(cd); })
-   |
-  (md = methoddecl(f3)
-  	{ if (m == null)
-  		m = new ListNode(md);
-  	  else
-  	  	m.add(md); }
-  ))*
-  < RBRACE >
-  { return new ClassBodyNode(t, c, v, ct, m); }
-} catch (ParseException e){
-		consomeTokenAteh(g, e, "classbody");
-		return new ClassBodyNode(t, c, v, ct, m);
-	}
+    {
+      if (ct == null) 
+      ct = new ListNode(cd);
+      else 
+      m.add(cd);
+    }
+    )
+  | 
+    (md = methoddecl(f3)
+    {
+      if (m == null) 
+      m = new ListNode(md);
+      else 
+      m.add(md);
+    }
+    )) * 
+    < RBRACE >
+    {
+      return new ClassBodyNode(t, c, v, ct, m);
+    }
+  }
+  catch (ParseException e)
+  {
+    consomeTokenAteh(g, e, "classbody");
+    return new ClassBodyNode(t, c, v, ct, m);
+  }
 }
 
 // declaracao de uma variavel com opcional de array e tambem a possibilidade de inicialzacao
@@ -494,30 +539,54 @@ VarDeclNode vardecl(RecoverySet g) throws ParseEOFException :
   ExpreNode e1 = null;
 }
 {
-  try { 
-	 (
+  try
+  {
+    (
     t1 = < INT >
   | t1 = < STRING >
-  | t2 = < tipo_Identificador >(< LBRACKET >(< tipo_Identificador >|< tipo_INT >)* < RBRACKET > { k++; })*
-  { l = new ListNode(new VarNode(t2, k)); }
+  | t2 = < tipo_Identificador > (< LBRACKET > (< tipo_Identificador >
+  | < tipo_INT >) * < RBRACKET >
+    {
+      k++;
+    }
+    ) *
+    {
+      l = new ListNode(new VarNode(t2, k));
+    }
   | t1 = < CHAR >
   | t1 = < FLOAT >
   | t1 = < BOOLEAN >
-  )
-  (
-   //t2 = < tipo_Identificador > (< LBRACKET >< RBRACKET > {  k++ })* // TODO test verificar comma
-	   { k = 0; } t2 = < tipo_Identificador >
-	   (< LBRACKET > < RBRACKET > { k++; }
-	   { l.add(new VarNode(t2, k)); })*
-   )*
-   
-  (
-    e1 = assigndecl(g) { k++; }
-     { l = new ListNode(e1); }
-  )?
-  { return new VarDeclNode(t1, l); }
-
-  }catch(ParseException e){
+    ) 
+    (
+    //t2 = < tipo_Identificador > (< LBRACKET >< RBRACKET > {  k++ })* // TODO test verificar comma
+    {
+      k = 0;
+    }
+    t2 = < tipo_Identificador > 
+    (< LBRACKET > < RBRACKET >
+    {
+      k++;
+    }
+    {
+      l.add(new VarNode(t2, k));
+    }
+    ) *
+    ) * 
+    (
+    e1 = assigndecl(g)
+    {
+      k++;
+    }
+    {
+      l = new ListNode(e1);
+    }
+    ) ?
+    {
+      return new VarDeclNode(t1, l);
+    }
+  }
+  catch (ParseException e)
+  {
     consomeTokenAteh(g, e, "vardecl");
     return new VarDeclNode(t1, l);
   }
@@ -530,104 +599,145 @@ ExpreNode assigndecl(RecoverySet g) throws ParseEOFException :
   ExpreNode e1 = null;
 }
 {
-  try 
+  try
   {
-	t1 = < ASSIGN >
-	(
-	 e1 = assignbody(g)
-	)
-	{ return new UnaryNode(t1, e1); }
-  } catch(ParseException e) {
-	consomeTokenAteh(g, e, "vardecl");
-	return  new UnaryNode(t1, e1);
+    t1 = < ASSIGN > 
+    (
+    e1 = assignbody(g)
+    )
+    {
+      return new UnaryNode(t1, e1);
+    }
+  }
+  catch (ParseException e)
+  {
+    consomeTokenAteh(g, e, "vardecl");
+    return new UnaryNode(t1, e1);
   }
 }
 
 // atribuicao podendo ser todos os tipos ou array
 ExpreNode assignbody(RecoverySet g) throws ParseEOFException :
 {
-  ExpreNode e1 =null;
+  ExpreNode e1 = null;
 }
 {
-  
-  (LOOKAHEAD(3)(
+  (
+    LOOKAHEAD(3)
     (
-	   e1 = alocexpression(g) | e1 = expression(g) 
-	  )?
-	| 
-	    (
-	   		e1 = tipobody() (< LBRACKET > < RBRACKET >)?
-	  	)
-	)
-	| < tipo_NULL >)
-	{ return e1; }
+      (
+        e1 = alocexpression(g)
+      | e1 = expression(g)
+      )?
+    |
+      (
+        e1 = tipobody() (< LBRACKET > < RBRACKET >)?
+      )
+    )
+  | < tipo_NULL >
+  )
+  {
+    return e1;
+  }
 }
 
 ExpreNode tipobody() :
 {
-    ExpreNode e = null;
+  ExpreNode e = null;
   Token t;
 }
 {
   (
-    t = < tipo_INT > { e = new IntConstNode(t); }
+    t = < tipo_INT >
+    {
+      e = new IntConstNode(t);
+    }
   | 
-    t = < tipo_STRING > { e = new StringConstNode(t); }
+    t = < tipo_STRING >
+    {
+      e = new StringConstNode(t);
+    }
   | 
-    t = < tipo_FLOAT > { e = new FloatConstNode(t); }
+    t = < tipo_FLOAT >
+    {
+      e = new FloatConstNode(t);
+    }
   | 
-    t = < tipo_Identificador > { e = new IdentConstNode(t); }
+    t = < tipo_Identificador >
+    {
+      e = new IdentConstNode(t);
+    }
   | 
-    t = < tipo_CHAR > { e = new CharConstNode(t); }
+    t = < tipo_CHAR >
+    {
+      e = new CharConstNode(t);
+    }
   | 
-    t = < tipo_BOOLEAN > { e = new BoolConstNode(t); }
- )
- { return e; }
+    t = < tipo_BOOLEAN >
+    {
+      e = new BoolConstNode(t);
+    }
+  )
+  {
+    return e;
+  }
 }
-
 
 // declaracao de construtor
 ConstructDeclNode constructdecl(RecoverySet g) throws ParseEOFException :
 {
-    Token t = null;
-    MethodBodyNode m = null;
+  Token t = null;
+  MethodBodyNode m = null;
 }
 {
-try {
+  try
+  {
     t = < CONSTRUCTOR > m = methodbody(g)
-    { return new ConstructDeclNode(t, m); }
-}
-catch(ParseException e)
-{
+    {
+      return new ConstructDeclNode(t, m);
+    }
+  }
+  catch (ParseException e)
+  {
     consomeTokenAteh(g, e, "constructdecl");
-    { return new ConstructDeclNode(t, m); }
-}
+    {
+      return new ConstructDeclNode(t, m);
+    }
+  }
 }
 
 // declaracao de metodo
 MethodDeclNode methoddecl(RecoverySet g) throws ParseEOFException :
 {
-    Token t1 = null, t2 = null;
-    int k = 0;
-    MethodBodyNode m = null;
+  Token t1 = null, t2 = null;
+  int k = 0;
+  MethodBodyNode m = null;
 }
 {
-  try {
+  try
+  {
     (
-        t1 = < INT >
-    | t1 = < STRING >
-    | t1 = < tipo_Identificador >
-    | t1 = < CHAR >
-    | t1 = < FLOAT >
-    | t1 = < BOOLEAN >
-    )
-    (< LBRACKET >< RBRACKET > { k++ ;} )* 
+    t1 = < INT >
+  | t1 = < STRING >
+  | t1 = < tipo_Identificador >
+  | t1 = < CHAR >
+  | t1 = < FLOAT >
+  | t1 = < BOOLEAN >
+    ) 
+    (< LBRACKET > < RBRACKET >
+    {
+      k++;
+    }
+    ) * 
     t2 = < tipo_Identificador > m = methodbody(g)
-        { return new MethodDeclNode(t2, k , t2, m); }
+    {
+      return new MethodDeclNode(t2, k, t2, m);
+    }
   }
-  catch(ParseException e) {
-      consomeTokenAteh(g, e, "methoddecl");
-      return new MethodDeclNode(t2, k , t2, m);
+  catch (ParseException e)
+  {
+    consomeTokenAteh(g, e, "methoddecl");
+    return new MethodDeclNode(t2, k, t2, m);
   }
 }
 
@@ -640,10 +750,15 @@ MethodBodyNode methodbody(RecoverySet g) throws ParseEOFException :
   RecoverySet f = new RecoverySet(RPAREN).union(g);
 }
 {
-  try {
-      t1 = < LPAREN > l = paramlist(f) < RPAREN > s = statement(g)
-      { return new MethodBodyNode(t1, l, s); }
-  } catch (ParseException e){
+  try
+  {
+    t1 = < LPAREN > l = paramlist(f) < RPAREN > s = statement(g)
+    {
+      return new MethodBodyNode(t1, l, s);
+    }
+  }
+  catch (ParseException e)
+  {
     consomeTokenAteh(g, e, "methodbody");
     return new MethodBodyNode(t1, l, s);
   }
@@ -657,29 +772,44 @@ ListNode paramlist(RecoverySet g) throws ParseEOFException :
   Token t1 = null, t2 = null;
   VarDeclNode v1 = null, v2 = null;
 }
-{//t3 101
-try {
-  [
-      v1 = vardecl(g) { k++; }
+{ //t3 101
+  try
+  {
+    [
+      v1 = vardecl(g)
       {
-		q = new ListNode(new VarNode(t2, k));
-		p = new ListNode(v1);
+        k++;
       }
-    (
-      < COMMA > { k = 0; }
+      {
+        q = new ListNode(new VarNode(t2, k));
+        p = new ListNode(v1);
+      }
       (
-       v2 = vardecl(g) { k++; }
-      )*
+      < COMMA >
+      {
+        k = 0;
+      }
+      (
+      v2 = vardecl(g)
+      {
+        k++;
+      }
+      ) *
       {
         q = new ListNode(new VarNode(t2, k));
         p.add(v1);
       }
-    )*
-  ] { return p; }
-} catch (ParseException e) {
-	consomeTokenAteh(g, e, "paramlist");
-	return null;
-}
+      ) *
+    ]
+    {
+      return p;
+    }
+  }
+  catch (ParseException e)
+  {
+    consomeTokenAteh(g, e, "paramlist");
+    return null;
+  }
 }
 
 // declaracao de corpo, usado em if, for, metodo:
@@ -692,37 +822,53 @@ StatementNode statement(RecoverySet g) throws ParseEOFException :
   RecoverySet f2 = new RecoverySet(RBRACE).union(g).remove(tipo_Identificador);
 }
 {
-  try {
- (  LOOKAHEAD(2) //livro diferente, antes estava: LOOKAHEAD(2) <tipo_Identificador> <tipo_Identificador>
-  s = vardecl(f1)
-| 
-  LOOKAHEAD(3) // livro diferente, antes estava: LOOKAHEAD(3) LOOKAHEAD(1)
-  s = atribstat(f1) < SEMICOLON >
-| 
-  s = expression(f1) < SEMICOLON >
-| 
-  s = printstat(f1) < SEMICOLON >
-| 
-  s = readstat(f1) < SEMICOLON >
-| 
-  s = returnstat(f1) < SEMICOLON >
-| 
-  s = superstat(f1) < SEMICOLON >
-| 
-  s = ifstat(g)
-| 
-  s = forstat(g)
-| 
-  t1 = < LBRACE > l = statlist(f2) < RBRACE > {  s = new BlockNode(t1, l); }
-| 
-  t1 = < BREAK > < SEMICOLON > {  s = new BreakNode(t1); }
-| 
-  t1 = < SEMICOLON > {  s = new NopNode(t1); }
-) { return s; }
-} catch (ParseException e) {
-	consomeTokenAteh(g, e, "statement");
-	return new NopNode(t1);
-}
+  try
+  {
+    (
+    LOOKAHEAD(2) //livro diferente, antes estava: LOOKAHEAD(2) <tipo_Identificador> <tipo_Identificador>
+    s = vardecl(f1)
+  | 
+    LOOKAHEAD(3) // livro diferente, antes estava: LOOKAHEAD(3) LOOKAHEAD(1)
+    s = atribstat(f1) < SEMICOLON >
+  | 
+    s = expression(f1) < SEMICOLON >
+  | 
+    s = printstat(f1) < SEMICOLON >
+  | 
+    s = readstat(f1) < SEMICOLON >
+  | 
+    s = returnstat(f1) < SEMICOLON >
+  | 
+    s = superstat(f1) < SEMICOLON >
+  | 
+    s = ifstat(g)
+  | 
+    s = forstat(g)
+  | 
+    t1 = < LBRACE > l = statlist(f2) < RBRACE >
+    {
+      s = new BlockNode(t1, l);
+    }
+  | 
+    t1 = < BREAK > < SEMICOLON >
+    {
+      s = new BreakNode(t1);
+    }
+  | 
+    t1 = < SEMICOLON >
+    {
+      s = new NopNode(t1);
+    }
+    )
+    {
+      return s;
+    }
+  }
+  catch (ParseException e)
+  {
+    consomeTokenAteh(g, e, "statement");
+    return new NopNode(t1);
+  }
 }
 
 // declaracao de atribuicao com operadores e expressoes
@@ -733,20 +879,24 @@ AtribNode atribstat(RecoverySet g) throws ParseEOFException :
   RecoverySet f1 = new RecoverySet(ASSIGN).union(g);
 }
 {
-  try {
-	e1 = lvalue(f1) t1 = < ASSIGN >
-  (
+  try
+  {
+    e1 = lvalue(f1) t1 = < ASSIGN > 
+    (
     e2 = alocexpression(g)
   | LOOKAHEAD(2) //no livro n�o tem esse lookahead
     e2 = expression(g)
-  | e2 = content(g)  //n�o sei se � g ou f1, no livro n�o tem esse content... colocando g, aqui pode dar pau
-  )
-  { return new AtribNode(t1, e1, e2); }
-  } catch (ParseException e) {
-	consomeTokenAteh(g, e, "atribstat");
-	return new AtribNode(t1, e1, e2);
+  | e2 = content(g) //n�o sei se � g ou f1, no livro n�o tem esse content... colocando g, aqui pode dar pau
+    )
+    {
+      return new AtribNode(t1, e1, e2);
+    }
   }
-  
+  catch (ParseException e)
+  {
+    consomeTokenAteh(g, e, "atribstat");
+    return new AtribNode(t1, e1, e2);
+  }
 }
 
 // funcao de conteudo criada para poder fazer atribuicao nas variaves TODO rever
@@ -757,14 +907,25 @@ ExpreNode content(RecoverySet g) throws ParseEOFException :
 }
 {
   (
-    t = < tipo_FLOAT > { e = new FloatConstNode(t); }
+    t = < tipo_FLOAT >
+    {
+      e = new FloatConstNode(t);
+    }
   | 
-    t = < tipo_CHAR > { e = new CharConstNode(t); }
+    t = < tipo_CHAR >
+    {
+      e = new CharConstNode(t);
+    }
   | 
-    t = < tipo_BOOLEAN > { e = new BoolConstNode(t); }
+    t = < tipo_BOOLEAN >
+    {
+      e = new BoolConstNode(t);
+    }
   )
   < SEMICOLON >
-  { return e; }
+  {
+    return e;
+  }
 }
 
 // palavra reservada print
@@ -774,13 +935,18 @@ PrintNode printstat(RecoverySet g) throws ParseEOFException :
   Token t = null;
 }
 {
-  try { 
-	  t= < PRINT > e1 = expression(g)
-	  { return new PrintNode(t, e1); }
-	} catch (ParseException e) {
-		consomeTokenAteh(g, e, "printstat");
-		return new PrintNode(t, e1);
-	}
+  try
+  {
+    t = < PRINT > e1 = expression(g)
+    {
+      return new PrintNode(t, e1);
+    }
+  }
+  catch (ParseException e)
+  {
+    consomeTokenAteh(g, e, "printstat");
+    return new PrintNode(t, e1);
+  }
 }
 
 // palavra reservada read
@@ -790,13 +956,18 @@ ReadNode readstat(RecoverySet g) throws ParseEOFException :
   Token t = null;
 }
 {
-  try { 
- 	 t = < READ > e1 = lvalue(g)
- 	 {  return new ReadNode(t, e1); }
-	} catch (ParseException e) {
-		consomeTokenAteh(g, e, "readstat");
-		return new ReadNode(t, e1);
-	}
+  try
+  {
+    t = < READ > e1 = lvalue(g)
+    {
+      return new ReadNode(t, e1);
+    }
+  }
+  catch (ParseException e)
+  {
+    consomeTokenAteh(g, e, "readstat");
+    return new ReadNode(t, e1);
+  }
 }
 
 ReturnNode returnstat(RecoverySet g) throws ParseEOFException :
@@ -805,13 +976,18 @@ ReturnNode returnstat(RecoverySet g) throws ParseEOFException :
   Token t = null;
 }
 {
-  try { 
-  	t = < RETURN > [ e1 = expression(g) ]
-  	{  return new ReturnNode(t, e1); }
-  } catch (ParseException e) {
-		consomeTokenAteh(g, e, "returnstat");
-		return new ReturnNode(t, e1);
-	}
+  try
+  {
+    t = < RETURN > [ e1 = expression(g) ]
+    {
+      return new ReturnNode(t, e1);
+    }
+  }
+  catch (ParseException e)
+  {
+    consomeTokenAteh(g, e, "returnstat");
+    return new ReturnNode(t, e1);
+  }
 }
 
 SuperNode superstat(RecoverySet g) throws ParseEOFException :
@@ -821,60 +997,74 @@ SuperNode superstat(RecoverySet g) throws ParseEOFException :
   RecoverySet f = new RecoverySet(RPAREN).union(g);
 }
 {
-  try { 
-  	t = < SUPER > < LPAREN > l = arglist(f) < RPAREN >
-  	{  return new SuperNode(t, l); }
-  } catch (ParseException e) {
-		consomeTokenAteh(g, e, "superstat");
-		return new SuperNode(t, l);
-	}
+  try
+  {
+    t = < SUPER > < LPAREN > l = arglist(f) < RPAREN >
+    {
+      return new SuperNode(t, l);
+    }
+  }
+  catch (ParseException e)
+  {
+    consomeTokenAteh(g, e, "superstat");
+    return new SuperNode(t, l);
+  }
 }
 
 IfNode ifstat(RecoverySet g) throws ParseEOFException :
 {
   ExpreNode e1 = null;
-  StatementNode s1 = null,
-  				s2 = null;
+  StatementNode s1 = null, 
+  s2 = null;
   Token t = null;
-  RecoverySet f1 = new RecoverySet(RPAREN).union(g),
-  			  f2 = new RecoverySet(ELSE).union(g);
+  RecoverySet f1 = new RecoverySet(RPAREN).union(g), 
+  f2 = new RecoverySet(ELSE).union(g);
 }
 {
-  try { 
-  	t = < IF > < LPAREN > e1 = expression(f1) < RPAREN > s1 = statement(f2)
-  [
-    LOOKAHEAD(3)
-    < ELSE > s2 = statement(g)
-  ]
-  { return new IfNode(t, e1, s1, s2); }
-  } catch (ParseException e) {
-		consomeTokenAteh(g, e, "ifstat");
-		return new IfNode(t, e1, s1, s2);
-	}
+  try
+  {
+    t = < IF > < LPAREN > e1 = expression(f1) < RPAREN > s1 = statement(f2)
+    [
+      LOOKAHEAD(3)
+      < ELSE > s2 = statement(g)
+    ]
+    {
+      return new IfNode(t, e1, s1, s2);
+    }
+  }
+  catch (ParseException e)
+  {
+    consomeTokenAteh(g, e, "ifstat");
+    return new IfNode(t, e1, s1, s2);
+  }
 }
 
 ForNode forstat(RecoverySet g) throws ParseEOFException :
 {
-  AtribNode s1 = null,
-  			s2 = null;
+  AtribNode s1 = null, 
+  s2 = null;
   StatementNode s3 = null;
   ExpreNode e1 = null;
   Token t = null;
-  
-  RecoverySet f1 = new RecoverySet(SEMICOLON).union(g),
-  			  f2 = new RecoverySet(RPAREN).union(g);
+  RecoverySet f1 = new RecoverySet(SEMICOLON).union(g), 
+  f2 = new RecoverySet(RPAREN).union(g);
 }
 {
-  try { 
-  	t = < FOR > < LPAREN > [ s1 = atribstat(f1) ] < SEMICOLON > 
-  [ e1 = expression(f1) ] < SEMICOLON > 
-  [ s2 = atribstat(f2) ] < RPAREN > 
-  s3 = statement(g)
-  { return new ForNode(t, e1, s1, s2, s3); }
-  } catch (ParseException e) {
-		consomeTokenAteh(g, e, "forstat");
-		return new ForNode(t, e1, s1, s2, s3);
-	}
+  try
+  {
+    t = < FOR > < LPAREN > [ s1 = atribstat(f1) ] < SEMICOLON > 
+    [ e1 = expression(f1) ] < SEMICOLON > 
+    [ s2 = atribstat(f2) ] < RPAREN > 
+    s3 = statement(g)
+    {
+      return new ForNode(t, e1, s1, s2, s3);
+    }
+  }
+  catch (ParseException e)
+  {
+    consomeTokenAteh(g, e, "forstat");
+    return new ForNode(t, e1, s1, s2, s3);
+  }
 }
 
 // lista de declaracoes
@@ -886,50 +1076,64 @@ ListNode statlist(RecoverySet g) throws ParseEOFException :
 }
 {
   s = statement(f) [ l = statlist(g) ]
-  { return new ListNode(s, l); }
+  {
+    return new ListNode(s, l);
+  }
 }
 
 // funcao de atribuicao a esquerda
 ExpreNode lvalue(RecoverySet g) throws ParseEOFException :
 {
-  ExpreNode e1 = null,
-  			e2 = null;
-  Token t1 = null,
-  		t2 = null;
+  ExpreNode e1 = null, 
+  e2 = null;
+  Token t1 = null, 
+  t2 = null;
   ListNode l = null;
 }
 {
-  try { 
-  t1 = < tipo_Identificador > {  e1 = new VarNode(t1); }
-  (
-   t1 = < LBRACKET > e2 = expression(null) < RBRACKET > //Porque null? P�gina impressa 105
-   { e1 = new IndexNode(t1, e1, e2); }
+  try
+  {
+    t1 = < tipo_Identificador >
+    {
+      e1 = new VarNode(t1);
+    }
+    (
+    t1 = < LBRACKET > e2 = expression(null) < RBRACKET > //Porque null? P�gina impressa 105
+    {
+      e1 = new IndexNode(t1, e1, e2);
+    }
   | 
     t1 = < DOT > t2 = < tipo_Identificador > [ < LPAREN > l = arglist(null) < RPAREN > ]
-  )*
-  { return e1; } 
-} catch (ParseException e){
-	consomeTokenAteh(g, e, "lvalue");
-	return new VarNode(t1);
-}
+    ) *
+    {
+      return e1;
+    }
+  }
+  catch (ParseException e)
+  {
+    consomeTokenAteh(g, e, "lvalue");
+    return new VarNode(t1);
+  }
 }
 
 // funcao para instanciar de novos tipoos
 ExpreNode alocexpression(RecoverySet g) throws ParseEOFException :
 {
-  	ExpreNode e1 = null,
-  			  e2 = null;
-  	ListNode l = null;
-  	Token t1, t2;
-    RecoverySet f1 = new RecoverySet(RPAREN).union(g),
-  			  	f2 = new RecoverySet(RBRACKET).union(g);
+  ExpreNode e1 = null, 
+  e2 = null;
+  ListNode l = null;
+  Token t1, t2;
+  RecoverySet f1 = new RecoverySet(RPAREN).union(g), 
+  f2 = new RecoverySet(RBRACKET).union(g);
 }
 {
   t1 = < NEW >
   (
     LOOKAHEAD(2)
     t2 = < tipo_Identificador > < LPAREN > l = arglist(f1) < RPAREN >
-    {  e1 = new NewObjectNode(t1, t2, l); }
+    {
+      e1 = new NewObjectNode(t1, t2, l);
+    }
   |
     (
       t2 = < INT >
@@ -938,16 +1142,22 @@ ExpreNode alocexpression(RecoverySet g) throws ParseEOFException :
     )
     (
       < LBRACKET > e2 = expression(f2) < RBRACKET >
-      { if (l == null)
-      		l = new ListNode(e2);
-      	else
-      		l.add(e2); }
-      		
+      {
+        if (l == null) 
+        l = new ListNode(e2);
+        else 
+        l.add(e2);
+      }
     )+
-    { e1 = new NewArrayNode(t1, t2, l); }
+    {
+      e1 = new NewArrayNode(t1, t2, l);
+    }
   )
-  { return e1; }
+  {
+    return e1;
+  }
 }
+
 //ele falou algo sobre nao terminais que aceitam null devem ter o union.(g).final da p�gina impressa 115
 // nivel mais alto de precedencia em expressoes
 ExpreNode expression(RecoverySet g) throws ParseEOFException :
@@ -956,37 +1166,53 @@ ExpreNode expression(RecoverySet g) throws ParseEOFException :
   Token t = null;
 }
 {
-    try {  
-  	e1 = expr(g) ((t = < OR > | t = < XOR >) e2 = expression(g))*
-  	{  e1 = new RelationalNode(t, e1, e2); }
-  	{  return e1; }
-  } catch (ParseException e) {
-	consomeTokenAteh(g, e, "expression");
-	return new RelationalNode(t, e1, e2);
-	
+  try
+  {
+    e1 = expr(g) ((t = < OR >
+  | t = < XOR >) e2 = expression(g)) *
+    {
+      e1 = new RelationalNode(t, e1, e2);
+    }
+    {
+      return e1;
+    }
   }
-  
+  catch (ParseException e)
+  {
+    consomeTokenAteh(g, e, "expression");
+    return new RelationalNode(t, e1, e2);
+  }
 }
-ExpreNode expr(RecoverySet g) throws ParseEOFException:
+
+ExpreNode expr(RecoverySet g) throws ParseEOFException :
 {
   ExpreNode e1 = null, e2;
   Token t = null;
 }
 {
-	e1 = exp(g) (t = <AND> e2 = expr(g))*
-	{ return e1; }
+  e1 = exp(g)
+  (
+    t = < AND > e2 = expr(g)
+  )*
+  {
+    return e1;
+  }
 }
 
-ExpreNode exp(RecoverySet g) throws ParseEOFException:
+ExpreNode exp(RecoverySet g) throws ParseEOFException :
 {
   ExpreNode e1 = null;
   Token t = null;
 }
 {
-(	t = < NOT > e1 = comparexpression(g)
-|
-	e1 = comparexpression(g))
-	{ return e1; }
+  (	
+    t = < NOT > e1 = comparexpression(g)
+  | 
+    e1 = comparexpression(g)
+  )
+  {
+    return e1;
+  }
 }
 
 ExpreNode comparexpression(RecoverySet g) throws ParseEOFException :
@@ -995,9 +1221,24 @@ ExpreNode comparexpression(RecoverySet g) throws ParseEOFException :
   Token t = null;
 }
 {
-	e1 = numexpr(g) [ ( t = <LT> | t = <GT> | t = <LE> | t = <GE> | t = <EQ> | t = <NEQ> ) e2 = numexpr(g) ]
-	{ e1 = new RelationalNode(t, e1, e2); }
-	{ return e1; }
+  e1 = numexpr(g)
+  [
+    (
+      t = < LT >
+    | t = < GT >
+    | t = < LE >
+    | t = < GE >
+    | t = < EQ >
+    | t = < NEQ >
+    )
+    e2 = numexpr(g)
+  ]
+  {
+    e1 = new RelationalNode(t, e1, e2);
+  }
+  {
+    return e1;
+  }
 }
 
 // nivel intermediario de precedencia
@@ -1009,10 +1250,18 @@ ExpreNode numexpr(RecoverySet g) throws ParseEOFException :
 {
   e1 = term(g)
   (
-    (t = < PLUS > | t = < MINUS >) e2 = term(g)
-    { e1 = new AddNode(t, e1, e2); }
+    (
+      t = < PLUS >
+    | t = < MINUS >
+    )
+    e2 = term(g)
+    {
+      e1 = new AddNode(t, e1, e2);
+    }
   )*
- { return e1; }
+  {
+    return e1;
+  }
 }
 
 // expressoes com prioridade de precedecia
@@ -1024,10 +1273,19 @@ ExpreNode term(RecoverySet g) throws ParseEOFException :
 {
   e1 = unaryexpr(g)
   (
-    (t = < MULTIPLY > | t = < DIVIDE > | t = < REM >) e2 = unaryexpr(g)
-    {  e1 = new MultNode(t, e1, e2); }
+    (
+      t = < MULTIPLY >
+    | t = < DIVIDE >
+    | t = < REM >
+    )
+    e2 = unaryexpr(g)
+    {
+      e1 = new MultNode(t, e1, e2);
+    }
   )*
-  { return e1; } 
+  {
+    return e1;
+  }
 }
 
 // expressoes unarias que te mais alta precedencia perante a gramatica
@@ -1037,8 +1295,16 @@ ExpreNode unaryexpr(RecoverySet g) throws ParseEOFException :
   Token t = null;
 }
 {
-  [(t = < PLUS > | t = < MINUS >)] e = factor(g)
-  { return ( (t == null) ? e : new UnaryNode(t, e)); }
+  [
+    (
+      t = < PLUS >
+    | t = < MINUS >
+    )
+  ]
+  e = factor(g)
+  {
+    return ((t == null) ? e : new UnaryNode(t, e));
+  }
 }
 
 // fator que pode ser valorada ou chamada em recursivo com expressoes para encadeamento
@@ -1049,23 +1315,43 @@ ExpreNode factor(RecoverySet g) throws ParseEOFException :
 }
 {
   (
-    t = < tipo_INT > { e = new IntConstNode(t); }
+    t = < tipo_INT >
+    {
+      e = new IntConstNode(t);
+    }
   | 
-    t = < tipo_STRING > { e = new StringConstNode(t); }
+    t = < tipo_STRING >
+    {
+      e = new StringConstNode(t);
+    }
   | 
-    t = < tipo_FLOAT > { e = new FloatConstNode(t); }
+    t = < tipo_FLOAT >
+    {
+      e = new FloatConstNode(t);
+    }
   | 
-    t = < tipo_NULL > { e = new NullConstNode(t); }
+    t = < tipo_NULL >
+    {
+      e = new NullConstNode(t);
+    }
   | 
-    t = < tipo_CHAR > { e = new CharConstNode(t); }
+    t = < tipo_CHAR >
+    {
+      e = new CharConstNode(t);
+    }
   | 
-    t = < tipo_BOOLEAN > { e = new BoolConstNode(t); }
+    t = < tipo_BOOLEAN >
+    {
+      e = new BoolConstNode(t);
+    }
   | 
     e = lvalue(g)
   | 
     < LPAREN > e = expression(g) < RPAREN >
   )
-  { return e; }
+  {
+    return e;
+  }
 }
 
 ListNode arglist(RecoverySet g) throws ParseEOFException :
@@ -1077,11 +1363,17 @@ ListNode arglist(RecoverySet g) throws ParseEOFException :
 {
   [
     e = expression(f)
-    {  l = new ListNode(e); }
+    {
+      l = new ListNode(e);
+    }
     (
       < COMMA > e = expression(f)
-      { l.add(e); }
+      {
+        l.add(e);
+      }
     )*
   ]
-  { return l; }
+  {
+    return l;
+  }
 }

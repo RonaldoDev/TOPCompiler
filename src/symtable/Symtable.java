@@ -39,5 +39,25 @@ public class Symtable {
 			scptr--; 		//finaliza aninhamento corrente
 		}
 	}
+	public EntryTable classFindUp(String x) {
+		EntryTable p = top;
+		
+		//para cada elemento da tabela corrente
+		while(p != null) {
+			//verifica se é uma entrada de classe ou tipo simples
+			//e então compara o nome
+			if(((p instanceof EntryClass) || (p instanceof EntrySimple)) 
+					&& p.name.equals(x)) {
+				return p;
+			}
+			p = p.next; //próxima entrada
+		}
+		if(levelup == null) { //se não achou e é o nível mais externo
+			return null; //retorna nulo			
+		}
+		
+		//procura no nível mais externo
+		return levelup.mytable.classFindUp(x);
+	}
 	
 }
