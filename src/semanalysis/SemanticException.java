@@ -1,5 +1,7 @@
 package semanalysis;
 
+import parser.Token;
+
 public class SemanticException extends Exception{
 	    /**
 	     * importante caso a exceção seja serializada
@@ -14,5 +16,9 @@ public class SemanticException extends Exception{
 	    // contrói um objeto SemanticException com mensagem e a causa dessa exceção, utilizado para encadear exceptions
 	    public SemanticException(String msg, Throwable cause){
 	        super(msg, cause);
+	    }
+	    
+	    public SemanticException(Token t, String msg){
+	        super("Line "+ t.beginLine + " coluna "+ t.beginColumn + ": "+ msg);
 	    }
 }
