@@ -53,8 +53,8 @@ public class ClassCheck {
 		
 		nc = (EntryClass) Curtable.classFindUp(x.name.image);
 		
-		if(nc != null) { // já declarada, ERRO. MUDEI, ESTAVA APENAS X.NAME, AO INVÉS DO X.NAME.IMAGE 206 #218
-			throw new SemanticException(x.name.image + " // Classe " + x.name.image + " já declarada");
+		if(nc != null) { // já declarada, ERRO. 206 #218
+			throw new SemanticException(x.name + " Classe " + x.name.image + " já declarada");
 		}else {
 			System.out.println("Classe Encontrada ==> " + x.name.image + " classe adicionada na tabela de símbolos");
 		}
