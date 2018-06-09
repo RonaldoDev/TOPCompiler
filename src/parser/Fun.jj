@@ -12,6 +12,7 @@ package parser;
 import java.io.*;
 import recovery.*;
 import syntaticTree.*;
+import semanalysis.*;
 
 public class Fun
 {
@@ -20,14 +21,14 @@ public class Fun
   boolean debug_recovery;
   Token ultimoErro = null;
 
-  final static String CaminhoDoArquivo = "C:/Users/Vitor/Downloads/entradasAceitas/programaaceito3.fun";
+  final static String CaminhoDoArquivo = "C:/Users/Ronaldo/Downloads/entradasAceitas/programaaceito3.fun";
 
   public static void main(String args []) throws ParseException
   {
-    boolean debug = true;
+    boolean debug = false;
     boolean debug_as = false;
     boolean debug_recovery = true;
-    boolean print_tree = false;
+    boolean print_tree = true;
     String nomeArquivo = CaminhoDoArquivo;
     Fun analisador = leArquivo(nomeArquivo);
     System.out.println(Version);
