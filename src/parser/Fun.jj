@@ -81,10 +81,10 @@ public class Fun
         PrintTree prt = new PrintTree();
         prt.printRoot(root); //chama metodo pra imprimir a arvore
       }
-      VarCheck tc = new VarCheck();
+      TypeCheck tc = new TypeCheck();
       try
       {
-        tc.VarCheckRoot(root);
+        tc.TypeCheckRoot(root);
         System.out.println("0 Semantic error found");
       }
       catch (SemanticException e)
