@@ -10,4 +10,10 @@ public class EntryClass extends EntryTable {
 		nested = new Symtable(this); // tabela onde inserir variáveis (métodos ou classes);
 		parent = null; //sua superclasse
 	}
+
+	@Override
+	public String dscJava() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
