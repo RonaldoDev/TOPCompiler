@@ -115,11 +115,9 @@ public class Symtable {
                 } else {
                 	if(r.opcional) { //Se os parâmetros são opcionais, ele não faz as verificações.
                 		return t;
-                	}else {
-                		if (t.param.equals(r)) { 
-                			return t;
-                		}
-                	}
+                	}else if (t.param.equals(r)) { 
+            			return t;
+            		}
                 }
             }
 
@@ -154,10 +152,12 @@ public class Symtable {
                         return t;
                     }
                 } else {
-                    if (t.param.equals(r)) {
-                        return t;
-                    }
-                }
+                	if(r.opcional) {
+                		return t;
+                	}else if (t.param.equals(r)) {
+                        return t;                		
+                	}
+                                    }
             }
 
             p = p.next; // próxima entrada
