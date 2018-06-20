@@ -11,11 +11,11 @@ public class Fun implements FunConstants {
   boolean debug_recovery;
   Token ultimoErro = null;
 
-  final static String CaminhoDoArquivo = "C:/Users/Ronaldo/Downloads/entradasAceitas/programaaceito3.fun";
+  final static String CaminhoDoArquivo = "/Users/ronaldostranger/Downloads/pa/programaaceito3.fun";
 
   public static void main(String args []) throws ParseException
   {
-    boolean debug = false;
+    boolean debug = true;
     boolean debug_as = false;
     boolean debug_recovery = true;
     boolean print_tree = true;
@@ -71,10 +71,10 @@ public class Fun implements FunConstants {
         PrintTree prt = new PrintTree();
         prt.printRoot(root); //chama metodo pra imprimir a arvore
       }
-      ClassCheck tc = new ClassCheck();
+      TypeCheck tc = new TypeCheck();
       try
       {
-        tc.ClassCheckRoot(root);
+        tc.TypeCheckRoot(root);
         System.out.println("0 Semantic error found");
       }
       catch (SemanticException e)
@@ -244,7 +244,7 @@ o final da aplica��o dessa produ��o */
     }
   }
 
-// declaracao de classe Ex : class nome extends nomePai
+// declaracao de classe Ex :  extends nomePai
 // alterado de acordo com o livro (Programa 5.8)
   final public ClassDeclNode classdecl(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("classdecl");
@@ -376,7 +376,6 @@ o final da aplica��o dessa produ��o */
   Token t1 = null, t2;
   int k = 0;
   ListNode l = null;
-  ExpreNode e1 = null;
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case INT:
@@ -386,46 +385,7 @@ o final da aplica��o dessa produ��o */
           t1 = jj_consume_token(STRING);
           break;
         case tipo_Identificador:
-          t2 = jj_consume_token(tipo_Identificador);
-          label_3:
-          while (true) {
-            switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-            case LBRACKET:
-              ;
-              break;
-            default:
-              jj_la1[7] = jj_gen;
-              break label_3;
-            }
-            jj_consume_token(LBRACKET);
-            label_4:
-            while (true) {
-              switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-              case tipo_INT:
-              case tipo_Identificador:
-                ;
-                break;
-              default:
-                jj_la1[8] = jj_gen;
-                break label_4;
-              }
-              switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-              case tipo_Identificador:
-                jj_consume_token(tipo_Identificador);
-                break;
-              case tipo_INT:
-                jj_consume_token(tipo_INT);
-                break;
-              default:
-                jj_la1[9] = jj_gen;
-                jj_consume_token(-1);
-                throw new ParseException();
-              }
-            }
-            jj_consume_token(RBRACKET);
-      k++;
-          }
-      l = new ListNode(new VarNode(t2, k));
+          t1 = jj_consume_token(tipo_Identificador);
           break;
         case CHAR:
           t1 = jj_consume_token(CHAR);
@@ -437,23 +397,69 @@ o final da aplica��o dessa produ��o */
           t1 = jj_consume_token(BOOLEAN);
           break;
         default:
-          jj_la1[10] = jj_gen;
+          jj_la1[7] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
-        label_5:
+        t2 = jj_consume_token(tipo_Identificador);
+        label_3:
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case LBRACKET:
+            ;
+            break;
+          default:
+            jj_la1[8] = jj_gen;
+            break label_3;
+          }
+          jj_consume_token(LBRACKET);
+          jj_consume_token(RBRACKET);
+      k++;
+        }
+      l = new ListNode(new VarNode(t2, k));
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case ASSIGN:
+          jj_consume_token(ASSIGN);
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case NEW:
+            alocexpression(g);
+            break;
+          case PLUS:
+          case MINUS:
+          case NOT:
+          case LPAREN:
+          case tipo_INT:
+          case tipo_FLOAT:
+          case tipo_STRING:
+          case tipo_NULL:
+          case tipo_CHAR:
+          case tipo_BOOLEAN:
           case tipo_Identificador:
+            expression(g);
+            break;
+          default:
+            jj_la1[9] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
+          }
+          break;
+        default:
+          jj_la1[10] = jj_gen;
+          ;
+        }
+        label_4:
+        while (true) {
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case COMMA:
             ;
             break;
           default:
             jj_la1[11] = jj_gen;
-            break label_5;
+            break label_4;
           }
-      k = 0;
+          jj_consume_token(COMMA);
           t2 = jj_consume_token(tipo_Identificador);
-          label_6:
+          label_5:
           while (true) {
             switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
             case LBRACKET:
@@ -461,22 +467,42 @@ o final da aplica��o dessa produ��o */
               break;
             default:
               jj_la1[12] = jj_gen;
-              break label_6;
+              break label_5;
             }
             jj_consume_token(LBRACKET);
             jj_consume_token(RBRACKET);
       k++;
-      l.add(new VarNode(t2, k));
           }
         }
+      l.add(new VarNode(t2, k));
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case ASSIGN:
-          e1 = assigndecl(g);
-      k++;
-      l = new ListNode(e1);
+          jj_consume_token(ASSIGN);
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case NEW:
+            alocexpression(g);
+            break;
+          case PLUS:
+          case MINUS:
+          case NOT:
+          case LPAREN:
+          case tipo_INT:
+          case tipo_FLOAT:
+          case tipo_STRING:
+          case tipo_NULL:
+          case tipo_CHAR:
+          case tipo_BOOLEAN:
+          case tipo_Identificador:
+            expression(g);
+            break;
+          default:
+            jj_la1[13] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
+          }
           break;
         default:
-          jj_la1[13] = jj_gen;
+          jj_la1[14] = jj_gen;
           ;
         }
       {if (true) return new VarDeclNode(t1, l);}
@@ -487,120 +513,6 @@ o final da aplica��o dessa produ��o */
     throw new Error("Missing return statement in function");
     } finally {
       trace_return("vardecl");
-    }
-  }
-
-// declacarao de atribuicao de variavel
-  final public ExpreNode assigndecl(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("assigndecl");
-    try {
-  Token t1 = null;
-  ExpreNode e1 = null;
-      try {
-        t1 = jj_consume_token(ASSIGN);
-        e1 = assignbody(g);
-      {if (true) return new UnaryNode(t1, e1);}
-      } catch (ParseException e) {
-    consomeTokenAteh(g, e, "vardecl");
-    {if (true) return new UnaryNode(t1, e1);}
-      }
-    throw new Error("Missing return statement in function");
-    } finally {
-      trace_return("assigndecl");
-    }
-  }
-
-// atribuicao podendo ser todos os tipos ou array
-  final public ExpreNode assignbody(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("assignbody");
-    try {
-  ExpreNode e1 = null;
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case PLUS:
-      case MINUS:
-      case NOT:
-      case NEW:
-      case LPAREN:
-      case tipo_INT:
-      case tipo_FLOAT:
-      case tipo_STRING:
-      case tipo_NULL:
-      case tipo_CHAR:
-      case tipo_BOOLEAN:
-      case tipo_Identificador:
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case NEW:
-          e1 = alocexpression(g);
-          break;
-        case PLUS:
-        case MINUS:
-        case NOT:
-        case LPAREN:
-        case tipo_INT:
-        case tipo_FLOAT:
-        case tipo_STRING:
-        case tipo_NULL:
-        case tipo_CHAR:
-        case tipo_BOOLEAN:
-        case tipo_Identificador:
-          e1 = expression(g);
-          break;
-        default:
-          jj_la1[14] = jj_gen;
-          jj_consume_token(-1);
-          throw new ParseException();
-        }
-        break;
-      default:
-        jj_la1[15] = jj_gen;
-        ;
-      }
-    {if (true) return e1;}
-    throw new Error("Missing return statement in function");
-    } finally {
-      trace_return("assignbody");
-    }
-  }
-
-  final public ExpreNode tipobody() throws ParseException {
-    trace_call("tipobody");
-    try {
-  ExpreNode e = null;
-  Token t;
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case tipo_INT:
-        t = jj_consume_token(tipo_INT);
-      e = new IntConstNode(t);
-        break;
-      case tipo_STRING:
-        t = jj_consume_token(tipo_STRING);
-      e = new StringConstNode(t);
-        break;
-      case tipo_FLOAT:
-        t = jj_consume_token(tipo_FLOAT);
-      e = new FloatConstNode(t);
-        break;
-      case tipo_Identificador:
-        t = jj_consume_token(tipo_Identificador);
-      e = new IdentConstNode(t);
-        break;
-      case tipo_CHAR:
-        t = jj_consume_token(tipo_CHAR);
-      e = new CharConstNode(t);
-        break;
-      case tipo_BOOLEAN:
-        t = jj_consume_token(tipo_BOOLEAN);
-      e = new BoolConstNode(t);
-        break;
-      default:
-        jj_la1[17] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
-    {if (true) return e;}
-    throw new Error("Missing return statement in function");
-    } finally {
-      trace_return("tipobody");
     }
   }
 
@@ -654,19 +566,19 @@ o final da aplica��o dessa produ��o */
           t1 = jj_consume_token(BOOLEAN);
           break;
         default:
-          jj_la1[18] = jj_gen;
+          jj_la1[15] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
-        label_7:
+        label_6:
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case LBRACKET:
             ;
             break;
           default:
-            jj_la1[19] = jj_gen;
-            break label_7;
+            jj_la1[16] = jj_gen;
+            break label_6;
           }
           jj_consume_token(LBRACKET);
           jj_consume_token(RBRACKET);
@@ -715,8 +627,7 @@ o final da aplica��o dessa produ��o */
     try {
   ListNode p = null, q = null;
   int k = 0;
-  Token t1 = null, t2 = null;
-  VarDeclNode v1 = null, v2 = null;
+  Token t1, t2, t3, t4, t5, t6;
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case INT:
@@ -725,10 +636,80 @@ o final da aplica��o dessa produ��o */
         case BOOLEAN:
         case CHAR:
         case tipo_Identificador:
-          v1 = vardecl(g);
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case INT:
+            t1 = jj_consume_token(INT);
+            break;
+          case STRING:
+            t1 = jj_consume_token(STRING);
+            break;
+          case tipo_Identificador:
+            t1 = jj_consume_token(tipo_Identificador);
+            break;
+          case CHAR:
+            t1 = jj_consume_token(CHAR);
+            break;
+          case FLOAT:
+            t1 = jj_consume_token(FLOAT);
+            break;
+          case BOOLEAN:
+            t1 = jj_consume_token(BOOLEAN);
+            break;
+          default:
+            jj_la1[17] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
+          }
+          label_7:
+          while (true) {
+            switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+            case LBRACKET:
+              ;
+              break;
+            default:
+              jj_la1[18] = jj_gen;
+              break label_7;
+            }
+            jj_consume_token(LBRACKET);
+            jj_consume_token(RBRACKET);
         k++;
+          }
+          t2 = jj_consume_token(tipo_Identificador);
         q = new ListNode(new VarNode(t2, k));
-        p = new ListNode(v1);
+        p = new ListNode(new VarDeclNode(t1, q));
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case ASSIGN:
+            jj_consume_token(ASSIGN);
+            switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+            case tipo_CHAR:
+              t3 = jj_consume_token(tipo_CHAR);
+              break;
+            case tipo_STRING:
+              t3 = jj_consume_token(tipo_STRING);
+              break;
+            case tipo_INT:
+              t3 = jj_consume_token(tipo_INT);
+              break;
+            case tipo_FLOAT:
+              t3 = jj_consume_token(tipo_FLOAT);
+              break;
+            case tipo_BOOLEAN:
+              t3 = jj_consume_token(tipo_BOOLEAN);
+              break;
+            case tipo_NULL:
+              t3 = jj_consume_token(tipo_NULL);
+              break;
+            default:
+              jj_la1[19] = jj_gen;
+              jj_consume_token(-1);
+              throw new ParseException();
+            }
+        p.add(new AssignConstNode(t3));
+            break;
+          default:
+            jj_la1[20] = jj_gen;
+            ;
+          }
           label_8:
           while (true) {
             switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -736,35 +717,89 @@ o final da aplica��o dessa produ��o */
               ;
               break;
             default:
-              jj_la1[20] = jj_gen;
+              jj_la1[21] = jj_gen;
               break label_8;
             }
             jj_consume_token(COMMA);
         k = 0;
+            switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+            case INT:
+              t4 = jj_consume_token(INT);
+              break;
+            case STRING:
+              t4 = jj_consume_token(STRING);
+              break;
+            case tipo_Identificador:
+              t4 = jj_consume_token(tipo_Identificador);
+              break;
+            case CHAR:
+              t4 = jj_consume_token(CHAR);
+              break;
+            case FLOAT:
+              t4 = jj_consume_token(FLOAT);
+              break;
+            case BOOLEAN:
+              t4 = jj_consume_token(BOOLEAN);
+              break;
+            default:
+              jj_la1[22] = jj_gen;
+              jj_consume_token(-1);
+              throw new ParseException();
+            }
             label_9:
             while (true) {
               switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-              case INT:
-              case STRING:
-              case FLOAT:
-              case BOOLEAN:
-              case CHAR:
-              case tipo_Identificador:
+              case LBRACKET:
                 ;
                 break;
               default:
-                jj_la1[21] = jj_gen;
+                jj_la1[23] = jj_gen;
                 break label_9;
               }
-              v2 = vardecl(g);
+              jj_consume_token(LBRACKET);
+              jj_consume_token(RBRACKET);
         k++;
             }
-        q = new ListNode(new VarNode(t2, k));
-        p.add(v1);
+            t5 = jj_consume_token(tipo_Identificador);
+        ListNode qx = new ListNode(new VarNode(t4, k));
+        p.add(new VarDeclNode(t5, qx));
+            switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+            case ASSIGN:
+              jj_consume_token(ASSIGN);
+              switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+              case tipo_CHAR:
+                t6 = jj_consume_token(tipo_CHAR);
+                break;
+              case tipo_STRING:
+                t6 = jj_consume_token(tipo_STRING);
+                break;
+              case tipo_INT:
+                t6 = jj_consume_token(tipo_INT);
+                break;
+              case tipo_FLOAT:
+                t6 = jj_consume_token(tipo_FLOAT);
+                break;
+              case tipo_BOOLEAN:
+                t6 = jj_consume_token(tipo_BOOLEAN);
+                break;
+              case tipo_NULL:
+                t6 = jj_consume_token(tipo_NULL);
+                break;
+              default:
+                jj_la1[24] = jj_gen;
+                jj_consume_token(-1);
+                throw new ParseException();
+              }
+        p.add(new AssignConstNode(t6));
+              break;
+            default:
+              jj_la1[25] = jj_gen;
+              ;
+            }
           }
           break;
         default:
-          jj_la1[22] = jj_gen;
+          jj_la1[26] = jj_gen;
           ;
         }
       {if (true) return p;}
@@ -849,7 +884,7 @@ o final da aplica��o dessa produ��o */
       s = new NopNode(t1);
             break;
           default:
-            jj_la1[23] = jj_gen;
+            jj_la1[27] = jj_gen;
             jj_consume_token(-1);
             throw new ParseException();
           }
@@ -874,30 +909,30 @@ o final da aplica��o dessa produ��o */
   RecoverySet f1 = new RecoverySet(ASSIGN).union(g);
       try {
         e1 = lvalue(f1);
-        t1 = jj_consume_token(ASSIGN);
+        jj_consume_token(ASSIGN);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case NEW:
           e2 = alocexpression(g);
           break;
+        case PLUS:
+        case MINUS:
+        case NOT:
+        case LPAREN:
+        case tipo_INT:
+        case tipo_FLOAT:
+        case tipo_STRING:
+        case tipo_NULL:
+        case tipo_CHAR:
+        case tipo_BOOLEAN:
+        case tipo_Identificador:
+          e2 = expression(g);
+          break;
         default:
-          jj_la1[24] = jj_gen;
-          if (jj_2_4(2)) {
-            //no livro n�o tem esse lookahead
-                e2 = expression(g);
-          } else {
-            switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-            case tipo_FLOAT:
-            case tipo_CHAR:
-            case tipo_BOOLEAN:
-              e2 = content(g);
-              break;
-            default:
-              jj_la1[25] = jj_gen;
-              jj_consume_token(-1);
-              throw new ParseException();
-            }
-          }
+          jj_la1[28] = jj_gen;
+          jj_consume_token(-1);
+          throw new ParseException();
         }
+      {if (true) return new AtribNode(t1, e1, e2);}
       {if (true) return new AtribNode(t1, e1, e2);}
       } catch (ParseException e) {
     consomeTokenAteh(g, e, "atribstat");
@@ -929,7 +964,7 @@ o final da aplica��o dessa produ��o */
       e = new BoolConstNode(t);
         break;
       default:
-        jj_la1[26] = jj_gen;
+        jj_la1[29] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1003,7 +1038,7 @@ o final da aplica��o dessa produ��o */
           e1 = expression(g);
           break;
         default:
-          jj_la1[27] = jj_gen;
+          jj_la1[30] = jj_gen;
           ;
         }
       {if (true) return new ReturnNode(t, e1);}
@@ -1054,7 +1089,7 @@ o final da aplica��o dessa produ��o */
         e1 = expression(f1);
         jj_consume_token(RPAREN);
         s1 = statement(f2);
-        if (jj_2_5(3)) {
+        if (jj_2_4(3)) {
           jj_consume_token(ELSE);
           s2 = statement(g);
         } else {
@@ -1089,7 +1124,7 @@ o final da aplica��o dessa produ��o */
           s1 = atribstat(f1);
           break;
         default:
-          jj_la1[28] = jj_gen;
+          jj_la1[31] = jj_gen;
           ;
         }
         jj_consume_token(SEMICOLON);
@@ -1108,7 +1143,7 @@ o final da aplica��o dessa produ��o */
           e1 = expression(f1);
           break;
         default:
-          jj_la1[29] = jj_gen;
+          jj_la1[32] = jj_gen;
           ;
         }
         jj_consume_token(SEMICOLON);
@@ -1117,7 +1152,7 @@ o final da aplica��o dessa produ��o */
           s2 = atribstat(f2);
           break;
         default:
-          jj_la1[30] = jj_gen;
+          jj_la1[33] = jj_gen;
           ;
         }
         jj_consume_token(RPAREN);
@@ -1170,7 +1205,7 @@ o final da aplica��o dessa produ��o */
         l = statlist(g);
         break;
       default:
-        jj_la1[31] = jj_gen;
+        jj_la1[34] = jj_gen;
         ;
       }
     {if (true) return new ListNode(s, l);}
@@ -1200,7 +1235,7 @@ o final da aplica��o dessa produ��o */
             ;
             break;
           default:
-            jj_la1[32] = jj_gen;
+            jj_la1[35] = jj_gen;
             break label_10;
           }
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1220,12 +1255,12 @@ o final da aplica��o dessa produ��o */
               jj_consume_token(RPAREN);
               break;
             default:
-              jj_la1[33] = jj_gen;
+              jj_la1[36] = jj_gen;
               ;
             }
             break;
           default:
-            jj_la1[34] = jj_gen;
+            jj_la1[37] = jj_gen;
             jj_consume_token(-1);
             throw new ParseException();
           }
@@ -1252,7 +1287,7 @@ o final da aplica��o dessa produ��o */
   RecoverySet f1 = new RecoverySet(RPAREN).union(g),
   f2 = new RecoverySet(RBRACKET).union(g);
       t1 = jj_consume_token(NEW);
-      if (jj_2_6(2)) {
+      if (jj_2_5(2)) {
         t2 = jj_consume_token(tipo_Identificador);
         jj_consume_token(LPAREN);
         l = arglist(f1);
@@ -1274,7 +1309,7 @@ o final da aplica��o dessa produ��o */
             t2 = jj_consume_token(tipo_Identificador);
             break;
           default:
-            jj_la1[35] = jj_gen;
+            jj_la1[38] = jj_gen;
             jj_consume_token(-1);
             throw new ParseException();
           }
@@ -1292,14 +1327,14 @@ o final da aplica��o dessa produ��o */
               ;
               break;
             default:
-              jj_la1[36] = jj_gen;
+              jj_la1[39] = jj_gen;
               break label_11;
             }
           }
       e1 = new NewArrayNode(t1, t2, l);
           break;
         default:
-          jj_la1[37] = jj_gen;
+          jj_la1[40] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
@@ -1328,7 +1363,7 @@ o final da aplica��o dessa produ��o */
             ;
             break;
           default:
-            jj_la1[38] = jj_gen;
+            jj_la1[41] = jj_gen;
             break label_12;
           }
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1339,17 +1374,19 @@ o final da aplica��o dessa produ��o */
             t = jj_consume_token(XOR);
             break;
           default:
-            jj_la1[39] = jj_gen;
+            jj_la1[42] = jj_gen;
             jj_consume_token(-1);
             throw new ParseException();
           }
           e2 = expression(g);
         }
-      e1 = new RelationalNode(t, e1, e2);
-      {if (true) return e1;}
+      {if (true) return (e2 != null) ? new RelationalNode(t, e1, e2) : e1;}
       } catch (ParseException e) {
     consomeTokenAteh(g, e, "expression");
+    if (e2 != null)
     {if (true) return new RelationalNode(t, e1, e2);}
+    else
+    {if (true) return e1;}
       }
     throw new Error("Missing return statement in function");
     } finally {
@@ -1360,7 +1397,7 @@ o final da aplica��o dessa produ��o */
   final public ExpreNode expr(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("expr");
     try {
-  ExpreNode e1 = null, e2;
+  ExpreNode e1 = null, e2 = null;
   Token t = null;
       e1 = exp(g);
       label_13:
@@ -1370,13 +1407,13 @@ o final da aplica��o dessa produ��o */
           ;
           break;
         default:
-          jj_la1[40] = jj_gen;
+          jj_la1[43] = jj_gen;
           break label_13;
         }
         t = jj_consume_token(AND);
         e2 = expr(g);
       }
-    {if (true) return e1;}
+    {if (true) return (e2 != null) ? new RelationalNode(t, e1, e2) : e1;}
     throw new Error("Missing return statement in function");
     } finally {
       trace_return("expr");
@@ -1392,6 +1429,7 @@ o final da aplica��o dessa produ��o */
       case NOT:
         t = jj_consume_token(NOT);
         e1 = comparexpression(g);
+      {if (true) return new RelationalNode(t, e1, null);}
         break;
       case PLUS:
       case MINUS:
@@ -1404,13 +1442,13 @@ o final da aplica��o dessa produ��o */
       case tipo_BOOLEAN:
       case tipo_Identificador:
         e1 = comparexpression(g);
+      {if (true) return e1;}
         break;
       default:
-        jj_la1[41] = jj_gen;
+        jj_la1[44] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
-    {if (true) return e1;}
     throw new Error("Missing return statement in function");
     } finally {
       trace_return("exp");
@@ -1422,7 +1460,7 @@ o final da aplica��o dessa produ��o */
     try {
   ExpreNode e1 = null, e2 = null;
   Token t = null;
-      e1 = numexpr(g);
+      e1 = numexpr();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case GT:
       case LT:
@@ -1450,18 +1488,17 @@ o final da aplica��o dessa produ��o */
           t = jj_consume_token(NEQ);
           break;
         default:
-          jj_la1[42] = jj_gen;
+          jj_la1[45] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
-        e2 = numexpr(g);
+        e2 = numexpr();
         break;
       default:
-        jj_la1[43] = jj_gen;
+        jj_la1[46] = jj_gen;
         ;
       }
-    e1 = new RelationalNode(t, e1, e2);
-    {if (true) return e1;}
+    {if (true) return (e2 != null) ? new RelationalNode(t, e1, e2) : e1;}
     throw new Error("Missing return statement in function");
     } finally {
       trace_return("comparexpression");
@@ -1469,12 +1506,12 @@ o final da aplica��o dessa produ��o */
   }
 
 // nivel intermediario de precedencia
-  final public ExpreNode numexpr(RecoverySet g) throws ParseException, ParseEOFException {
+  final public ExpreNode numexpr() throws ParseException, ParseEOFException {
     trace_call("numexpr");
     try {
-  ExpreNode e1 = null, e2;
-  Token t = null;
-      e1 = term(g);
+  ExpreNode e1 = null, e2 = null;
+  Token t;
+      e1 = term();
       label_14:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1483,7 +1520,7 @@ o final da aplica��o dessa produ��o */
           ;
           break;
         default:
-          jj_la1[44] = jj_gen;
+          jj_la1[47] = jj_gen;
           break label_14;
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1494,11 +1531,11 @@ o final da aplica��o dessa produ��o */
           t = jj_consume_token(MINUS);
           break;
         default:
-          jj_la1[45] = jj_gen;
+          jj_la1[48] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
-        e2 = term(g);
+        e2 = term();
       e1 = new AddNode(t, e1, e2);
       }
     {if (true) return e1;}
@@ -1509,12 +1546,12 @@ o final da aplica��o dessa produ��o */
   }
 
 // expressoes com prioridade de precedecia
-  final public ExpreNode term(RecoverySet g) throws ParseException, ParseEOFException {
+  final public ExpreNode term() throws ParseException, ParseEOFException {
     trace_call("term");
     try {
   ExpreNode e1 = null, e2;
   Token t = null;
-      e1 = unaryexpr(g);
+      e1 = unaryexpr();
       label_15:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1524,7 +1561,7 @@ o final da aplica��o dessa produ��o */
           ;
           break;
         default:
-          jj_la1[46] = jj_gen;
+          jj_la1[49] = jj_gen;
           break label_15;
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1538,11 +1575,11 @@ o final da aplica��o dessa produ��o */
           t = jj_consume_token(REM);
           break;
         default:
-          jj_la1[47] = jj_gen;
+          jj_la1[50] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
-        e2 = unaryexpr(g);
+        e2 = unaryexpr();
       e1 = new MultNode(t, e1, e2);
       }
     {if (true) return e1;}
@@ -1553,7 +1590,7 @@ o final da aplica��o dessa produ��o */
   }
 
 // expressoes unarias que te mais alta precedencia perante a gramatica
-  final public ExpreNode unaryexpr(RecoverySet g) throws ParseException, ParseEOFException {
+  final public ExpreNode unaryexpr() throws ParseException, ParseEOFException {
     trace_call("unaryexpr");
     try {
   ExpreNode e;
@@ -1569,16 +1606,16 @@ o final da aplica��o dessa produ��o */
           t = jj_consume_token(MINUS);
           break;
         default:
-          jj_la1[48] = jj_gen;
+          jj_la1[51] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
         break;
       default:
-        jj_la1[49] = jj_gen;
+        jj_la1[52] = jj_gen;
         ;
       }
-      e = factor(g);
+      e = factor();
     {if (true) return ((t == null) ? e : new UnaryNode(t, e));}
     throw new Error("Missing return statement in function");
     } finally {
@@ -1587,7 +1624,7 @@ o final da aplica��o dessa produ��o */
   }
 
 // fator que pode ser valorada ou chamada em recursivo com expressoes para encadeamento
-  final public ExpreNode factor(RecoverySet g) throws ParseException, ParseEOFException {
+  final public ExpreNode factor() throws ParseException, ParseEOFException {
     trace_call("factor");
     try {
   ExpreNode e = null;
@@ -1618,15 +1655,15 @@ o final da aplica��o dessa produ��o */
       e = new BoolConstNode(t);
         break;
       case tipo_Identificador:
-        e = lvalue(g);
+        e = lvalue(null);
         break;
       case LPAREN:
         jj_consume_token(LPAREN);
-        e = expression(g);
+        e = expression(null);
         jj_consume_token(RPAREN);
         break;
       default:
-        jj_la1[50] = jj_gen;
+        jj_la1[53] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1664,7 +1701,7 @@ o final da aplica��o dessa produ��o */
             ;
             break;
           default:
-            jj_la1[51] = jj_gen;
+            jj_la1[54] = jj_gen;
             break label_16;
           }
           jj_consume_token(COMMA);
@@ -1673,7 +1710,7 @@ o final da aplica��o dessa produ��o */
         }
         break;
       default:
-        jj_la1[52] = jj_gen;
+        jj_la1[55] = jj_gen;
         ;
       }
     {if (true) return l;}
@@ -1718,94 +1755,162 @@ o final da aplica��o dessa produ��o */
     finally { jj_save(4, xla); }
   }
 
-  private boolean jj_2_6(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_6(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(5, xla); }
+  private boolean jj_3_2() {
+    if (jj_3R_17()) return true;
+    return false;
   }
 
-  private boolean jj_3R_88() {
-    if (jj_scan_token(tipo_FLOAT)) return true;
+  private boolean jj_3R_54() {
+    if (jj_scan_token(NOT)) return true;
+    if (jj_3R_56()) return true;
     return false;
   }
 
   private boolean jj_3R_22() {
-    if (jj_scan_token(tipo_Identificador)) return true;
+    if (jj_scan_token(COMMA)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_52() {
+    if (!jj_rescan) trace_call("exp(LOOKING AHEAD...)");
     Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_40()) { jj_scanpos = xsp; break; }
+    xsp = jj_scanpos;
+    if (jj_3R_54()) {
+    jj_scanpos = xsp;
+    if (jj_3R_55()) { if (!jj_rescan) trace_return("exp(LOOKAHEAD FAILED)"); return true; }
+    }
+    { if (!jj_rescan) trace_return("exp(LOOKAHEAD SUCCEEDED)"); return false; }
+  }
+
+  private boolean jj_3R_21() {
+    if (jj_scan_token(ASSIGN)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_19() {
+    if (!jj_rescan) trace_call("statement(LOOKING AHEAD...)");
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_2()) {
+    jj_scanpos = xsp;
+    if (jj_3_3()) {
+    jj_scanpos = xsp;
+    if (jj_3R_27()) {
+    jj_scanpos = xsp;
+    if (jj_3R_28()) {
+    jj_scanpos = xsp;
+    if (jj_3R_29()) {
+    jj_scanpos = xsp;
+    if (jj_3R_30()) {
+    jj_scanpos = xsp;
+    if (jj_3R_31()) {
+    jj_scanpos = xsp;
+    if (jj_3R_32()) {
+    jj_scanpos = xsp;
+    if (jj_3R_33()) {
+    jj_scanpos = xsp;
+    if (jj_3R_34()) {
+    jj_scanpos = xsp;
+    if (jj_3R_35()) {
+    jj_scanpos = xsp;
+    if (jj_3R_36()) { if (!jj_rescan) trace_return("statement(LOOKAHEAD FAILED)"); return true; }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    { if (!jj_rescan) trace_return("statement(LOOKAHEAD SUCCEEDED)"); return false; }
+  }
+
+  private boolean jj_3R_63() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(6)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(7)) return true;
     }
     return false;
   }
 
-  private boolean jj_3R_87() {
-    if (jj_scan_token(tipo_STRING)) return true;
-    return false;
+  private boolean jj_3R_61() {
+    if (!jj_rescan) trace_call("unaryexpr(LOOKING AHEAD...)");
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_63()) jj_scanpos = xsp;
+    if (jj_3R_64()) { if (!jj_rescan) trace_return("unaryexpr(LOOKAHEAD FAILED)"); return true; }
+    { if (!jj_rescan) trace_return("unaryexpr(LOOKAHEAD SUCCEEDED)"); return false; }
   }
 
-  private boolean jj_3_6() {
+  private boolean jj_3R_48() {
+    if (jj_scan_token(DOT)) return true;
     if (jj_scan_token(tipo_Identificador)) return true;
-    if (jj_scan_token(LPAREN)) return true;
     return false;
   }
 
-  private boolean jj_3R_43() {
-    if (!jj_rescan) trace_call("alocexpression(LOOKING AHEAD...)");
-    if (jj_scan_token(NEW)) { if (!jj_rescan) trace_return("alocexpression(LOOKAHEAD FAILED)"); return true; }
-    { if (!jj_rescan) trace_return("alocexpression(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_86() {
-    if (jj_scan_token(tipo_INT)) return true;
+  private boolean jj_3R_25() {
+    if (jj_3R_38()) return true;
     return false;
   }
 
   private boolean jj_3R_47() {
-    if (!jj_rescan) trace_call("printstat(LOOKING AHEAD...)");
-    if (jj_scan_token(PRINT)) { if (!jj_rescan) trace_return("printstat(LOOKAHEAD FAILED)"); return true; }
-    if (jj_3R_19()) { if (!jj_rescan) trace_return("printstat(LOOKAHEAD FAILED)"); return true; }
-    { if (!jj_rescan) trace_return("printstat(LOOKAHEAD SUCCEEDED)"); return false; }
+    if (jj_scan_token(LBRACKET)) return true;
+    if (jj_3R_39()) return true;
+    return false;
   }
 
-  private boolean jj_3R_85() {
-    if (!jj_rescan) trace_call("factor(LOOKING AHEAD...)");
+  private boolean jj_3R_37() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_86()) {
+    if (jj_3R_47()) {
     jj_scanpos = xsp;
-    if (jj_3R_87()) {
-    jj_scanpos = xsp;
-    if (jj_3R_88()) {
-    jj_scanpos = xsp;
-    if (jj_3R_89()) {
-    jj_scanpos = xsp;
-    if (jj_3R_90()) {
-    jj_scanpos = xsp;
-    if (jj_3R_91()) {
-    jj_scanpos = xsp;
-    if (jj_3R_92()) {
-    jj_scanpos = xsp;
-    if (jj_3R_93()) { if (!jj_rescan) trace_return("factor(LOOKAHEAD FAILED)"); return true; }
+    if (jj_3R_48()) return true;
     }
-    }
-    }
-    }
-    }
-    }
-    }
-    { if (!jj_rescan) trace_return("factor(LOOKAHEAD SUCCEEDED)"); return false; }
+    return false;
   }
 
-  private boolean jj_3R_21() {
-    if (jj_scan_token(tipo_Identificador)) return true;
+  private boolean jj_3R_53() {
+    if (jj_scan_token(AND)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_49() {
+    if (!jj_rescan) trace_call("expr(LOOKING AHEAD...)");
+    if (jj_3R_52()) { if (!jj_rescan) trace_return("expr(LOOKAHEAD FAILED)"); return true; }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_39()) { jj_scanpos = xsp; break; }
+      if (jj_3R_53()) { jj_scanpos = xsp; break; }
     }
+    { if (!jj_rescan) trace_return("expr(LOOKAHEAD SUCCEEDED)"); return false; }
+  }
+
+  private boolean jj_3R_51() {
+    if (jj_3R_39()) return true;
     return false;
+  }
+
+  private boolean jj_3R_43() {
+    if (!jj_rescan) trace_call("superstat(LOOKING AHEAD...)");
+    if (jj_scan_token(SUPER)) { if (!jj_rescan) trace_return("superstat(LOOKAHEAD FAILED)"); return true; }
+    if (jj_scan_token(LPAREN)) { if (!jj_rescan) trace_return("superstat(LOOKAHEAD FAILED)"); return true; }
+    { if (!jj_rescan) trace_return("superstat(LOOKAHEAD SUCCEEDED)"); return false; }
+  }
+
+  private boolean jj_3R_24() {
+    if (!jj_rescan) trace_call("lvalue(LOOKING AHEAD...)");
+    if (jj_scan_token(tipo_Identificador)) { if (!jj_rescan) trace_return("lvalue(LOOKAHEAD FAILED)"); return true; }
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_37()) { jj_scanpos = xsp; break; }
+    }
+    { if (!jj_rescan) trace_return("lvalue(LOOKAHEAD SUCCEEDED)"); return false; }
   }
 
   private boolean jj_3R_17() {
@@ -1816,7 +1921,7 @@ o final da aplica��o dessa produ��o */
     jj_scanpos = xsp;
     if (jj_scan_token(35)) {
     jj_scanpos = xsp;
-    if (jj_3R_21()) {
+    if (jj_scan_token(55)) {
     jj_scanpos = xsp;
     if (jj_scan_token(39)) {
     jj_scanpos = xsp;
@@ -1828,6 +1933,13 @@ o final da aplica��o dessa produ��o */
     }
     }
     }
+    if (jj_scan_token(tipo_Identificador)) { if (!jj_rescan) trace_return("vardecl(LOOKAHEAD FAILED)"); return true; }
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_20()) { jj_scanpos = xsp; break; }
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_21()) jj_scanpos = xsp;
     while (true) {
       xsp = jj_scanpos;
       if (jj_3R_22()) { jj_scanpos = xsp; break; }
@@ -1837,88 +1949,17 @@ o final da aplica��o dessa produ��o */
     { if (!jj_rescan) trace_return("vardecl(LOOKAHEAD SUCCEEDED)"); return false; }
   }
 
-  private boolean jj_3R_60() {
-    if (jj_scan_token(tipo_BOOLEAN)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_84() {
+  private boolean jj_3R_50() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_scan_token(6)) {
+    if (jj_scan_token(20)) {
     jj_scanpos = xsp;
-    if (jj_scan_token(7)) return true;
+    if (jj_scan_token(21)) return true;
     }
     return false;
   }
 
-  private boolean jj_3R_59() {
-    if (jj_scan_token(tipo_CHAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_57() {
-    if (jj_scan_token(DOT)) return true;
-    if (jj_scan_token(tipo_Identificador)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_82() {
-    if (!jj_rescan) trace_call("unaryexpr(LOOKING AHEAD...)");
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_84()) jj_scanpos = xsp;
-    if (jj_3R_85()) { if (!jj_rescan) trace_return("unaryexpr(LOOKAHEAD FAILED)"); return true; }
-    { if (!jj_rescan) trace_return("unaryexpr(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_58() {
-    if (jj_scan_token(tipo_FLOAT)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_42() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_56()) {
-    jj_scanpos = xsp;
-    if (jj_3R_57()) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_56() {
-    if (jj_scan_token(LBRACKET)) return true;
-    if (jj_3R_19()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_44() {
-    if (!jj_rescan) trace_call("content(LOOKING AHEAD...)");
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_58()) {
-    jj_scanpos = xsp;
-    if (jj_3R_59()) {
-    jj_scanpos = xsp;
-    if (jj_3R_60()) { if (!jj_rescan) trace_return("content(LOOKAHEAD FAILED)"); return true; }
-    }
-    }
-    { if (!jj_rescan) trace_return("content(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_24() {
-    if (!jj_rescan) trace_call("lvalue(LOOKING AHEAD...)");
-    if (jj_scan_token(tipo_Identificador)) { if (!jj_rescan) trace_return("lvalue(LOOKAHEAD FAILED)"); return true; }
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_42()) { jj_scanpos = xsp; break; }
-    }
-    { if (!jj_rescan) trace_return("lvalue(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_83() {
+  private boolean jj_3R_62() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_scan_token(8)) {
@@ -1931,35 +1972,25 @@ o final da aplica��o dessa produ��o */
     return false;
   }
 
-  private boolean jj_3R_72() {
+  private boolean jj_3R_59() {
     if (!jj_rescan) trace_call("term(LOOKING AHEAD...)");
-    if (jj_3R_82()) { if (!jj_rescan) trace_return("term(LOOKAHEAD FAILED)"); return true; }
+    if (jj_3R_61()) { if (!jj_rescan) trace_return("term(LOOKAHEAD FAILED)"); return true; }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_83()) { jj_scanpos = xsp; break; }
+      if (jj_3R_62()) { jj_scanpos = xsp; break; }
     }
     { if (!jj_rescan) trace_return("term(LOOKAHEAD SUCCEEDED)"); return false; }
   }
 
   private boolean jj_3R_26() {
-    if (jj_3R_44()) return true;
+    if (jj_3R_39()) return true;
     return false;
   }
 
-  private boolean jj_3_4() {
-    if (jj_3R_19()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_25() {
-    if (jj_3R_43()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_53() {
+  private boolean jj_3R_46() {
     if (!jj_rescan) trace_call("statlist(LOOKING AHEAD...)");
-    if (jj_3R_20()) { if (!jj_rescan) trace_return("statlist(LOOKAHEAD FAILED)"); return true; }
+    if (jj_3R_19()) { if (!jj_rescan) trace_return("statlist(LOOKAHEAD FAILED)"); return true; }
     { if (!jj_rescan) trace_return("statlist(LOOKAHEAD SUCCEEDED)"); return false; }
   }
 
@@ -1971,21 +2002,43 @@ o final da aplica��o dessa produ��o */
     xsp = jj_scanpos;
     if (jj_3R_25()) {
     jj_scanpos = xsp;
-    if (jj_3_4()) {
-    jj_scanpos = xsp;
     if (jj_3R_26()) { if (!jj_rescan) trace_return("atribstat(LOOKAHEAD FAILED)"); return true; }
-    }
     }
     { if (!jj_rescan) trace_return("atribstat(LOOKAHEAD SUCCEEDED)"); return false; }
   }
 
-  private boolean jj_3_1() {
-    if (jj_3R_17()) return true;
-    if (jj_scan_token(SEMICOLON)) return true;
+  private boolean jj_3R_42() {
+    if (!jj_rescan) trace_call("returnstat(LOOKING AHEAD...)");
+    if (jj_scan_token(RETURN)) { if (!jj_rescan) trace_return("returnstat(LOOKAHEAD FAILED)"); return true; }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_51()) jj_scanpos = xsp;
+    { if (!jj_rescan) trace_return("returnstat(LOOKAHEAD SUCCEEDED)"); return false; }
+  }
+
+  private boolean jj_3R_39() {
+    if (!jj_rescan) trace_call("expression(LOOKING AHEAD...)");
+    if (jj_3R_49()) { if (!jj_rescan) trace_return("expression(LOOKAHEAD FAILED)"); return true; }
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_50()) { jj_scanpos = xsp; break; }
+    }
+    { if (!jj_rescan) trace_return("expression(LOOKAHEAD SUCCEEDED)"); return false; }
+  }
+
+  private boolean jj_3R_72() {
+    if (jj_scan_token(LPAREN)) return true;
+    if (jj_3R_39()) return true;
     return false;
   }
 
-  private boolean jj_3R_73() {
+  private boolean jj_3R_71() {
+    if (jj_3R_24()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_60() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_scan_token(6)) {
@@ -1995,77 +2048,75 @@ o final da aplica��o dessa produ��o */
     return false;
   }
 
-  private boolean jj_3R_81() {
-    if (jj_scan_token(tipo_BOOLEAN)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_68() {
+  private boolean jj_3R_57() {
     if (!jj_rescan) trace_call("numexpr(LOOKING AHEAD...)");
-    if (jj_3R_72()) { if (!jj_rescan) trace_return("numexpr(LOOKAHEAD FAILED)"); return true; }
+    if (jj_3R_59()) { if (!jj_rescan) trace_return("numexpr(LOOKAHEAD FAILED)"); return true; }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_73()) { jj_scanpos = xsp; break; }
+      if (jj_3R_60()) { jj_scanpos = xsp; break; }
     }
     { if (!jj_rescan) trace_return("numexpr(LOOKAHEAD SUCCEEDED)"); return false; }
   }
 
-  private boolean jj_3R_80() {
+  private boolean jj_3R_70() {
+    if (jj_scan_token(tipo_BOOLEAN)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_69() {
     if (jj_scan_token(tipo_CHAR)) return true;
     return false;
   }
 
-  private boolean jj_3R_52() {
+  private boolean jj_3R_41() {
+    if (!jj_rescan) trace_call("readstat(LOOKING AHEAD...)");
+    if (jj_scan_token(READ)) { if (!jj_rescan) trace_return("readstat(LOOKAHEAD FAILED)"); return true; }
+    if (jj_3R_24()) { if (!jj_rescan) trace_return("readstat(LOOKAHEAD FAILED)"); return true; }
+    { if (!jj_rescan) trace_return("readstat(LOOKAHEAD SUCCEEDED)"); return false; }
+  }
+
+  private boolean jj_3R_45() {
     if (!jj_rescan) trace_call("forstat(LOOKING AHEAD...)");
     if (jj_scan_token(FOR)) { if (!jj_rescan) trace_return("forstat(LOOKAHEAD FAILED)"); return true; }
     if (jj_scan_token(LPAREN)) { if (!jj_rescan) trace_return("forstat(LOOKAHEAD FAILED)"); return true; }
     { if (!jj_rescan) trace_return("forstat(LOOKAHEAD SUCCEEDED)"); return false; }
   }
 
-  private boolean jj_3R_38() {
+  private boolean jj_3R_36() {
     if (jj_scan_token(SEMICOLON)) return true;
     return false;
   }
 
-  private boolean jj_3R_79() {
-    if (jj_scan_token(tipo_Identificador)) return true;
+  private boolean jj_3R_68() {
+    if (jj_scan_token(tipo_NULL)) return true;
     return false;
   }
 
-  private boolean jj_3R_37() {
+  private boolean jj_3_1() {
+    if (jj_3R_17()) return true;
+    if (jj_scan_token(SEMICOLON)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_35() {
     if (jj_scan_token(BREAK)) return true;
     if (jj_scan_token(SEMICOLON)) return true;
     return false;
   }
 
-  private boolean jj_3R_78() {
+  private boolean jj_3R_67() {
     if (jj_scan_token(tipo_FLOAT)) return true;
     return false;
   }
 
-  private boolean jj_3R_36() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_3R_53()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_77() {
-    if (jj_scan_token(tipo_STRING)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_35() {
-    if (jj_3R_52()) return true;
-    return false;
-  }
-
   private boolean jj_3R_34() {
-    if (jj_3R_51()) return true;
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_3R_46()) return true;
     return false;
   }
 
-  private boolean jj_3R_69() {
+  private boolean jj_3R_58() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_scan_token(12)) {
@@ -2087,73 +2138,128 @@ o final da aplica��o dessa produ��o */
     return false;
   }
 
-  private boolean jj_3R_76() {
-    if (jj_scan_token(tipo_INT)) return true;
+  private boolean jj_3R_66() {
+    if (jj_scan_token(tipo_STRING)) return true;
     return false;
   }
 
   private boolean jj_3R_33() {
-    if (jj_3R_50()) return true;
+    if (jj_3R_45()) return true;
+    return false;
+  }
+
+  private boolean jj_3_5() {
+    if (jj_scan_token(tipo_Identificador)) return true;
+    if (jj_scan_token(LPAREN)) return true;
     return false;
   }
 
   private boolean jj_3R_32() {
-    if (jj_3R_49()) return true;
-    if (jj_scan_token(SEMICOLON)) return true;
+    if (jj_3R_44()) return true;
     return false;
   }
 
-  private boolean jj_3R_65() {
+  private boolean jj_3R_56() {
     if (!jj_rescan) trace_call("comparexpression(LOOKING AHEAD...)");
-    if (jj_3R_68()) { if (!jj_rescan) trace_return("comparexpression(LOOKAHEAD FAILED)"); return true; }
+    if (jj_3R_57()) { if (!jj_rescan) trace_return("comparexpression(LOOKAHEAD FAILED)"); return true; }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_69()) jj_scanpos = xsp;
+    if (jj_3R_58()) jj_scanpos = xsp;
     { if (!jj_rescan) trace_return("comparexpression(LOOKAHEAD SUCCEEDED)"); return false; }
   }
 
-  private boolean jj_3R_71() {
-    if (!jj_rescan) trace_call("tipobody(LOOKING AHEAD...)");
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_76()) {
-    jj_scanpos = xsp;
-    if (jj_3R_77()) {
-    jj_scanpos = xsp;
-    if (jj_3R_78()) {
-    jj_scanpos = xsp;
-    if (jj_3R_79()) {
-    jj_scanpos = xsp;
-    if (jj_3R_80()) {
-    jj_scanpos = xsp;
-    if (jj_3R_81()) { if (!jj_rescan) trace_return("tipobody(LOOKAHEAD FAILED)"); return true; }
-    }
-    }
-    }
-    }
-    }
-    { if (!jj_rescan) trace_return("tipobody(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3_5() {
-    if (jj_scan_token(ELSE)) return true;
-    if (jj_3R_20()) return true;
+  private boolean jj_3R_20() {
+    if (jj_scan_token(LBRACKET)) return true;
     return false;
   }
 
   private boolean jj_3R_31() {
-    if (jj_3R_48()) return true;
+    if (jj_3R_43()) return true;
     return false;
+  }
+
+  private boolean jj_3R_65() {
+    if (jj_scan_token(tipo_INT)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_38() {
+    if (!jj_rescan) trace_call("alocexpression(LOOKING AHEAD...)");
+    if (jj_scan_token(NEW)) { if (!jj_rescan) trace_return("alocexpression(LOOKAHEAD FAILED)"); return true; }
+    { if (!jj_rescan) trace_return("alocexpression(LOOKAHEAD SUCCEEDED)"); return false; }
   }
 
   private boolean jj_3R_30() {
-    if (jj_3R_47()) return true;
+    if (jj_3R_42()) return true;
+    if (jj_scan_token(SEMICOLON)) return true;
     return false;
   }
 
+  private boolean jj_3R_40() {
+    if (!jj_rescan) trace_call("printstat(LOOKING AHEAD...)");
+    if (jj_scan_token(PRINT)) { if (!jj_rescan) trace_return("printstat(LOOKAHEAD FAILED)"); return true; }
+    if (jj_3R_39()) { if (!jj_rescan) trace_return("printstat(LOOKAHEAD FAILED)"); return true; }
+    { if (!jj_rescan) trace_return("printstat(LOOKAHEAD SUCCEEDED)"); return false; }
+  }
+
+  private boolean jj_3R_64() {
+    if (!jj_rescan) trace_call("factor(LOOKING AHEAD...)");
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_65()) {
+    jj_scanpos = xsp;
+    if (jj_3R_66()) {
+    jj_scanpos = xsp;
+    if (jj_3R_67()) {
+    jj_scanpos = xsp;
+    if (jj_3R_68()) {
+    jj_scanpos = xsp;
+    if (jj_3R_69()) {
+    jj_scanpos = xsp;
+    if (jj_3R_70()) {
+    jj_scanpos = xsp;
+    if (jj_3R_71()) {
+    jj_scanpos = xsp;
+    if (jj_3R_72()) { if (!jj_rescan) trace_return("factor(LOOKAHEAD FAILED)"); return true; }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    { if (!jj_rescan) trace_return("factor(LOOKAHEAD SUCCEEDED)"); return false; }
+  }
+
   private boolean jj_3R_29() {
+    if (jj_3R_41()) return true;
+    return false;
+  }
+
+  private boolean jj_3_4() {
+    if (jj_scan_token(ELSE)) return true;
     if (jj_3R_19()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_28() {
+    if (jj_3R_40()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_27() {
+    if (jj_3R_39()) return true;
     if (jj_scan_token(SEMICOLON)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_23() {
+    if (jj_scan_token(ASSIGN)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_55() {
+    if (jj_3R_56()) return true;
     return false;
   }
 
@@ -2162,261 +2268,11 @@ o final da aplica��o dessa produ��o */
     return false;
   }
 
-  private boolean jj_3R_51() {
+  private boolean jj_3R_44() {
     if (!jj_rescan) trace_call("ifstat(LOOKING AHEAD...)");
     if (jj_scan_token(IF)) { if (!jj_rescan) trace_return("ifstat(LOOKAHEAD FAILED)"); return true; }
     if (jj_scan_token(LPAREN)) { if (!jj_rescan) trace_return("ifstat(LOOKAHEAD FAILED)"); return true; }
     { if (!jj_rescan) trace_return("ifstat(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_62() {
-    if (jj_3R_65()) return true;
-    return false;
-  }
-
-  private boolean jj_3_2() {
-    if (jj_3R_17()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_61() {
-    if (jj_scan_token(NOT)) return true;
-    if (jj_3R_65()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_67() {
-    if (jj_3R_71()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_75() {
-    if (jj_3R_19()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_70() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_74()) {
-    jj_scanpos = xsp;
-    if (jj_3R_75()) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_74() {
-    if (jj_3R_43()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_45() {
-    if (!jj_rescan) trace_call("exp(LOOKING AHEAD...)");
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_61()) {
-    jj_scanpos = xsp;
-    if (jj_3R_62()) { if (!jj_rescan) trace_return("exp(LOOKAHEAD FAILED)"); return true; }
-    }
-    { if (!jj_rescan) trace_return("exp(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_20() {
-    if (!jj_rescan) trace_call("statement(LOOKING AHEAD...)");
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_2()) {
-    jj_scanpos = xsp;
-    if (jj_3_3()) {
-    jj_scanpos = xsp;
-    if (jj_3R_29()) {
-    jj_scanpos = xsp;
-    if (jj_3R_30()) {
-    jj_scanpos = xsp;
-    if (jj_3R_31()) {
-    jj_scanpos = xsp;
-    if (jj_3R_32()) {
-    jj_scanpos = xsp;
-    if (jj_3R_33()) {
-    jj_scanpos = xsp;
-    if (jj_3R_34()) {
-    jj_scanpos = xsp;
-    if (jj_3R_35()) {
-    jj_scanpos = xsp;
-    if (jj_3R_36()) {
-    jj_scanpos = xsp;
-    if (jj_3R_37()) {
-    jj_scanpos = xsp;
-    if (jj_3R_38()) { if (!jj_rescan) trace_return("statement(LOOKAHEAD FAILED)"); return true; }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    { if (!jj_rescan) trace_return("statement(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_66() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_70()) jj_scanpos = xsp;
-    return false;
-  }
-
-  private boolean jj_3R_64() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_66()) {
-    jj_scanpos = xsp;
-    if (jj_3R_67()) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_55() {
-    if (!jj_rescan) trace_call("assignbody(LOOKING AHEAD...)");
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_64()) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(52)) { if (!jj_rescan) trace_return("assignbody(LOOKAHEAD FAILED)"); return true; }
-    }
-    { if (!jj_rescan) trace_return("assignbody(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_46() {
-    if (jj_scan_token(AND)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_27() {
-    if (!jj_rescan) trace_call("expr(LOOKING AHEAD...)");
-    if (jj_3R_45()) { if (!jj_rescan) trace_return("expr(LOOKAHEAD FAILED)"); return true; }
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_46()) { jj_scanpos = xsp; break; }
-    }
-    { if (!jj_rescan) trace_return("expr(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_50() {
-    if (!jj_rescan) trace_call("superstat(LOOKING AHEAD...)");
-    if (jj_scan_token(SUPER)) { if (!jj_rescan) trace_return("superstat(LOOKAHEAD FAILED)"); return true; }
-    if (jj_scan_token(LPAREN)) { if (!jj_rescan) trace_return("superstat(LOOKAHEAD FAILED)"); return true; }
-    { if (!jj_rescan) trace_return("superstat(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_63() {
-    if (jj_3R_19()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_28() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(20)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(21)) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_41() {
-    if (!jj_rescan) trace_call("assigndecl(LOOKING AHEAD...)");
-    if (jj_scan_token(ASSIGN)) { if (!jj_rescan) trace_return("assigndecl(LOOKAHEAD FAILED)"); return true; }
-    if (jj_3R_55()) { if (!jj_rescan) trace_return("assigndecl(LOOKAHEAD FAILED)"); return true; }
-    { if (!jj_rescan) trace_return("assigndecl(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_49() {
-    if (!jj_rescan) trace_call("returnstat(LOOKING AHEAD...)");
-    if (jj_scan_token(RETURN)) { if (!jj_rescan) trace_return("returnstat(LOOKAHEAD FAILED)"); return true; }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_63()) jj_scanpos = xsp;
-    { if (!jj_rescan) trace_return("returnstat(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_19() {
-    if (!jj_rescan) trace_call("expression(LOOKING AHEAD...)");
-    if (jj_3R_27()) { if (!jj_rescan) trace_return("expression(LOOKAHEAD FAILED)"); return true; }
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_28()) { jj_scanpos = xsp; break; }
-    }
-    { if (!jj_rescan) trace_return("expression(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_54() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(55)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(49)) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_93() {
-    if (jj_scan_token(LPAREN)) return true;
-    if (jj_3R_19()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_92() {
-    if (jj_3R_24()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_91() {
-    if (jj_scan_token(tipo_BOOLEAN)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_39() {
-    if (jj_scan_token(LBRACKET)) return true;
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_54()) { jj_scanpos = xsp; break; }
-    }
-    if (jj_scan_token(RBRACKET)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_23() {
-    if (jj_3R_41()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_48() {
-    if (!jj_rescan) trace_call("readstat(LOOKING AHEAD...)");
-    if (jj_scan_token(READ)) { if (!jj_rescan) trace_return("readstat(LOOKAHEAD FAILED)"); return true; }
-    if (jj_3R_24()) { if (!jj_rescan) trace_return("readstat(LOOKAHEAD FAILED)"); return true; }
-    { if (!jj_rescan) trace_return("readstat(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_90() {
-    if (jj_scan_token(tipo_CHAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_89() {
-    if (jj_scan_token(tipo_NULL)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_40() {
-    if (jj_scan_token(LBRACKET)) return true;
-    return false;
   }
 
   /** Generated Token Manager. */
@@ -2430,7 +2286,7 @@ o final da aplica��o dessa produ��o */
   private Token jj_scanpos, jj_lastpos;
   private int jj_la;
   private int jj_gen;
-  final private int[] jj_la1 = new int[53];
+  final private int[] jj_la1 = new int[56];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static private int[] jj_la1_2;
@@ -2440,15 +2296,15 @@ o final da aplica��o dessa produ��o */
       jj_la1_init_2();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x800001,0x800001,0x800000,0x4000000,0x800000,0x41000000,0x41000000,0x0,0x0,0x0,0x40000000,0x0,0x0,0x400,0x800400c0,0x800400c0,0x0,0x0,0x40000000,0x0,0x0,0x40000000,0x40000000,0x284400c0,0x80000000,0x0,0x0,0x400c0,0x0,0x400c0,0x0,0x684400c0,0x0,0x0,0x0,0x40000000,0x0,0x40000000,0x300000,0x300000,0x80000,0x400c0,0x1f800,0x1f800,0xc0,0xc0,0x20300,0x20300,0xc0,0xc0,0x0,0x0,0x400c0,};
+      jj_la1_0 = new int[] {0x800001,0x800001,0x800000,0x4000000,0x800000,0x41000000,0x41000000,0x40000000,0x0,0x800400c0,0x400,0x0,0x0,0x800400c0,0x400,0x40000000,0x0,0x40000000,0x0,0x0,0x400,0x0,0x40000000,0x0,0x0,0x400,0x40000000,0x284400c0,0x800400c0,0x0,0x400c0,0x0,0x400c0,0x0,0x684400c0,0x0,0x0,0x0,0x40000000,0x0,0x40000000,0x300000,0x300000,0x80000,0x400c0,0x1f800,0x1f800,0xc0,0xc0,0x20300,0x20300,0xc0,0xc0,0x0,0x0,0x400c0,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x8000e8,0x8000e8,0x1000,0x820000,0x820000,0x8000e8,0x800000,0x1000,0x0,0xfe0100,0xfe0100,0x1000,0xee0000,0x8000e8,0x1000,0x8000,0x8000e8,0x8000e8,0xfe4517,0x0,0x640000,0x640000,0xfe0100,0x800000,0xfe0100,0x800000,0xfe45ff,0x11000,0x100,0x11000,0x800008,0x1000,0x800008,0x0,0x0,0x0,0xfe0100,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xfe0100,0x8000,0xfe0100,};
+      jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x8000e8,0x8000e8,0x8000e8,0x1000,0xfe0100,0x0,0x8000,0x1000,0xfe0100,0x0,0x8000e8,0x1000,0x8000e8,0x1000,0x7e0000,0x0,0x8000,0x8000e8,0x1000,0x7e0000,0x0,0x8000e8,0xfe4517,0xfe0100,0x640000,0xfe0100,0x800000,0xfe0100,0x800000,0xfe45ff,0x11000,0x100,0x11000,0x800008,0x1000,0x800008,0x0,0x0,0x0,0xfe0100,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xfe0100,0x8000,0xfe0100,};
    }
    private static void jj_la1_init_2() {
-      jj_la1_2 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
+      jj_la1_2 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
    }
-  final private JJCalls[] jj_2_rtns = new JJCalls[6];
+  final private JJCalls[] jj_2_rtns = new JJCalls[5];
   private boolean jj_rescan = false;
   private int jj_gc = 0;
 
@@ -2463,7 +2319,7 @@ o final da aplica��o dessa produ��o */
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 53; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 56; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2478,7 +2334,7 @@ o final da aplica��o dessa produ��o */
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 53; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 56; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2489,7 +2345,7 @@ o final da aplica��o dessa produ��o */
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 53; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 56; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2500,7 +2356,7 @@ o final da aplica��o dessa produ��o */
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 53; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 56; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2510,7 +2366,7 @@ o final da aplica��o dessa produ��o */
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 53; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 56; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2520,7 +2376,7 @@ o final da aplica��o dessa produ��o */
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 53; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 56; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2641,7 +2497,7 @@ o final da aplica��o dessa produ��o */
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 53; i++) {
+    for (int i = 0; i < 56; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -2726,7 +2582,7 @@ o final da aplica��o dessa produ��o */
 
   private void jj_rescan_token() {
     jj_rescan = true;
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 5; i++) {
     try {
       JJCalls p = jj_2_rtns[i];
       do {
@@ -2738,7 +2594,6 @@ o final da aplica��o dessa produ��o */
             case 2: jj_3_3(); break;
             case 3: jj_3_4(); break;
             case 4: jj_3_5(); break;
-            case 5: jj_3_6(); break;
           }
         }
         p = p.next;
