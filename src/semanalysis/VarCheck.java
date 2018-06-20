@@ -176,7 +176,7 @@ public class VarCheck extends ClassCheck {
             }
 
             // constrói a lista com os parâmetros
-            r = new EntryRec(e, u.dim, n, r);
+            r = new EntryRec(e, u.dim, n, r, true);
             p = p.next;
         }
 
@@ -245,7 +245,7 @@ public class VarCheck extends ClassCheck {
             }
 
             // constrói lista de tipos dos parâmetros
-            r = new EntryRec(e, u.dim, n, r);
+            r = new EntryRec(e, u.dim, n, r, true);
             p = p.next;
         }
 
