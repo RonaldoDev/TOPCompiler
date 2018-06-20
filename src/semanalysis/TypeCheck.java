@@ -1,5 +1,7 @@
 package semanalysis;
 
+import java.util.Arrays;
+
 import parser.Fun;
 import symtable.EntryClass;
 import symtable.EntryMethod;
@@ -8,7 +10,42 @@ import symtable.EntrySimple;
 import symtable.EntryTable;
 import symtable.EntryVar;
 import symtable.Symtable;
-import syntaticTree.*;
+import syntaticTree.AddNode;
+import syntaticTree.AssignConstNode;
+import syntaticTree.AtribNode;
+import syntaticTree.BlockNode;
+import syntaticTree.BoolConstNode;
+import syntaticTree.BreakNode;
+import syntaticTree.CallNode;
+import syntaticTree.CharConstNode;
+import syntaticTree.ClassBodyNode;
+import syntaticTree.ClassDeclNode;
+import syntaticTree.ConstructDeclNode;
+import syntaticTree.DotNode;
+import syntaticTree.ExpreNode;
+import syntaticTree.FloatConstNode;
+import syntaticTree.ForNode;
+import syntaticTree.IfNode;
+import syntaticTree.IndexNode;
+import syntaticTree.IntConstNode;
+import syntaticTree.ListNode;
+import syntaticTree.MethodBodyNode;
+import syntaticTree.MethodDeclNode;
+import syntaticTree.MultNode;
+import syntaticTree.NewArrayNode;
+import syntaticTree.NewObjectNode;
+import syntaticTree.NopNode;
+import syntaticTree.NullConstNode;
+import syntaticTree.PrintNode;
+import syntaticTree.ReadNode;
+import syntaticTree.RelationalNode;
+import syntaticTree.ReturnNode;
+import syntaticTree.StatementNode;
+import syntaticTree.StringConstNode;
+import syntaticTree.SuperNode;
+import syntaticTree.UnaryNode;
+import syntaticTree.VarDeclNode;
+import syntaticTree.VarNode;
 
 
 
@@ -19,15 +56,23 @@ public class TypeCheck extends VarCheck {
     protected final EntrySimple STRING_TYPE;
     protected final EntrySimple INT_TYPE;
     protected final EntrySimple NULL_TYPE;
-    protected EntryMethod CurMethod; // mï¿½todo sendo analisado
     boolean cansuper; // indica se chamada super ï¿½ permitida
+    
+    protected final EntrySimple CHAR_TYPE;
+    protected final EntrySimple BOOLEAN_TYPE;
+    protected final EntrySimple FLOAT_TYPE;
 
+    protected EntryMethod CurMethod; // mï¿½todo sendo analisado
     public TypeCheck() {
         super();
         nesting = 0;
         Nlocals = 0;
         STRING_TYPE = (EntrySimple) Maintable.classFindUp("string");
         INT_TYPE = (EntrySimple) Maintable.classFindUp("int");
+        CHAR_TYPE = (EntrySimple) Maintable.classFindUp("char");
+        BOOLEAN_TYPE = (EntrySimple) Maintable.classFindUp("boolean");
+        FLOAT_TYPE = (EntrySimple) Maintable.classFindUp("float");
+
         NULL_TYPE = new EntrySimple("$NULL$");
         Maintable.add(NULL_TYPE);
     }
@@ -85,7 +130,7 @@ public class TypeCheck extends VarCheck {
 
         if (circularSuperclass(nc, nc.parent)) { // se existe declaracï¿½o circular, ERRO
             nc.parent = null;
-            throw new SemanticException(x.position, "Circular inheritance");
+            throw new SemanticException(x.position, "Herança circular");
         }
 
         Curtable = nc.nested; // tabela corrente = tabela da classe
@@ -182,6 +227,13 @@ public class TypeCheck extends VarCheck {
 
         // monta a lista com os tipos dos parï¿½metros
         while (p != null) {
+        	
+        	if (p.next != null) {
+                if (p.next.node instanceof AssignConstNode) {
+                    p.next = p.next.next;
+                }
+            }
+        	
             q = (VarDeclNode) p.node; // q = nï¿½ com a declaracï¿½o do parï¿½metro
             u = (VarNode) q.vars.node; // u = nï¿½ com o nome e dimensï¿½o
             n++;
@@ -256,6 +308,12 @@ public class TypeCheck extends VarCheck {
 
         // monta a lista com os tipos dos parï¿½metros
         while (p != null) {
+        	
+        	if (p.next != null) {
+                if (p.next.node instanceof AssignConstNode) {
+                    p.next = p.next.next;
+                }
+            }
             q = (VarDeclNode) p.node; // q = nï¿½ com a declaracï¿½o do parï¿½metro
             u = (VarNode) q.vars.node; // u = nï¿½ com o nome e dimensï¿½o
             n++;
@@ -634,10 +692,13 @@ public class TypeCheck extends VarCheck {
         try {
             t = TypeCheckExpreNode(x.expr);
 
-            if ((t.ty != INT_TYPE) || (t.dim != 0)) {
-                throw new SemanticException(x.expr.position,
-                    "Integer expression expected");
+            if ((t.ty == INT_TYPE) || (t.dim == 0) || (t.ty == BOOLEAN_TYPE) || (t.ty == FLOAT_TYPE)
+                    || (t.ty == CHAR_TYPE)) {
+            } else {
+            	throw new SemanticException(x.expr.position,
+                    "Integer, boolean, double or char expression expected");
             }
+                
         } catch (SemanticException e) {
             System.out.println(e.getMessage());
             foundSemanticError++;
@@ -678,9 +739,9 @@ public class TypeCheck extends VarCheck {
         try {
             t = TypeCheckExpreNode(x.expr);
 
-            if ((t.ty != INT_TYPE) || (t.dim != 0)) {
+            if ((t.ty != BOOLEAN_TYPE) || (t.dim != 0)) {
                 throw new SemanticException(x.expr.position,
-                    "Integer expression expected");
+                    "Boolean expression expected");
             }
         } catch (SemanticException e) {
             System.out.println(e.getMessage());
@@ -854,23 +915,48 @@ public class TypeCheck extends VarCheck {
         t2 = TypeCheckExpreNode(x.expr2);
 
         // se ambos sï¿½o int, retorna OK
-        if ((t1.ty == INT_TYPE) && (t2.ty == INT_TYPE)) {
-            return new type(INT_TYPE, 0);
+        if (op == Fun.NOT) {
+            if (t2 != null) {
+                throw new SemanticException(x.position, "Invalid types for " + x.position.image);
+            }
+
+            return new type(BOOLEAN_TYPE, 0);
         }
 
-        // se a dimensï¿½o ï¿½ diferente, ERRO
+        java.util.List<Integer> relationalOperators = Arrays.asList(Fun.GE, Fun.LE, Fun.GT, Fun.LT);
+        java.util.List<Integer> equalityOperators = Arrays.asList(Fun.EQ, Fun.NEQ);
+        
+        // se dimensï¿½o > 0 sï¿½ pode comparar igualdade
+        if (relationalOperators.contains(op)) {
+            java.util.List<EntrySimple> numericalTypes = Arrays.asList(INT_TYPE, FLOAT_TYPE);
+            boolean validRelation = numericalTypes.contains(t1.ty) && numericalTypes.contains(t2.ty);
+
+            if (validRelation) {
+                return new type(BOOLEAN_TYPE, 0);
+            } else {
+                throw new SemanticException(x.position, "Invalid types for a relational operator");
+            }
+        }
+        if (equalityOperators.contains(op)) {
+            boolean validEquality = t1.ty.equals(t2.ty);
+
+            if (validEquality) {
+                return new type(BOOLEAN_TYPE, 0);
+            } else {
+                throw new SemanticException(x.position, "Invalid types for a equality operator");
+            }
+        }
+        
+     // se a dimensï¿½o ï¿½ diferente, ERRO
         if (t1.dim != t2.dim) {
             throw new SemanticException(x.position,
                 "Can not compare objects with different dimensions");
         }
-
-        // se dimensï¿½o > 0 sï¿½ pode comparar igualdade
-        if ((op != Fun.EQ) && (op != Fun.NEQ) &&
-                (t1.dim > 0)) {
-            throw new SemanticException(x.position,
-                "Can not use " + x.position.image + " for arrays");
+        
+     // se dimensão > 0 só pode comparar igualdade
+        if ((op != Fun.EQ) && (op != Fun.NEQ) && (t1.dim > 0)) {
+            throw new SemanticException(x.position, "Can not use " + x.position.image + " for arrays");
         }
-
         // se dois sï¿½o objetos do mesmo tipo pode comparar igualdade
         // isso inclui 2 strings
         if ((isSubClass(t2.ty, t1.ty) || isSubClass(t1.ty, t2.ty)) &&
@@ -929,12 +1015,20 @@ public class TypeCheck extends VarCheck {
         if (i == 2) {
             return new type(INT_TYPE, 0);
         }
+        java.util.List<EntrySimple> validTypes = Arrays.asList(STRING_TYPE, INT_TYPE, FLOAT_TYPE, BOOLEAN_TYPE,
+                CHAR_TYPE);
+        if (t1.ty == STRING_TYPE && validTypes.contains(t2.ty) || t2.ty == STRING_TYPE && validTypes.contains(t1.ty)) {
+            return new type(STRING_TYPE, 0);
+        }
 
+        
         // um inteiro e um string sï¿½ pode somar
         if ((op == Fun.PLUS) && ((i + j) == 2)) {
             return new type(STRING_TYPE, 0);
         }
 
+        
+        
         throw new SemanticException(x.position,
             "Invalid types for " + x.position.image);
     }
@@ -966,7 +1060,11 @@ public class TypeCheck extends VarCheck {
             throw new SemanticException(x.position,
                 "Invalid types for " + x.position.image);
         }
-
+        // aceitar numericos
+        java.util.List<EntrySimple> validTypes = Arrays.asList(INT_TYPE, FLOAT_TYPE);
+        if (!validTypes.contains(t1.ty) || !validTypes.contains(t2.ty)) {
+            throw new SemanticException(x.position, "Invalid types for " + x.position.image);
+        }
         return new type(INT_TYPE, 0);
     }
 
@@ -1030,7 +1128,41 @@ public class TypeCheck extends VarCheck {
 
         return new type(NULL_TYPE, 0);
     }
+    // ------------------------------ Constante float --------------------------
 
+    public type typeCheckFloatConstNode(FloatConstNode x) {
+        if (x == null) {
+            return null;
+        }
+
+        return new type(FLOAT_TYPE, 0);
+    }
+
+    
+    /*
+ 	* Faz a análise da constante boolean
+ 	*
+ 	* @param BoolConstNode
+ 	*/
+    public type typeCheckBoolConstNode(BoolConstNode x) {
+        if (x == null) {
+            return null;
+        }
+
+        return new type(BOOLEAN_TYPE, 0);
+    }
+    /*
+ 	* Faz a análise da constante char
+ 	*
+ 	* @param CharConstNode
+ 	*/
+    public type typeCheckCharConstNode(CharConstNode x) {
+        if (x == null) {
+            return null;
+        }
+
+        return new type(CHAR_TYPE, 0);
+    }
     // -------------------------------- Nome de variï¿½vel ------------------
     public type TypeCheckVarNode(VarNode x) throws SemanticException {
         EntryVar p;
@@ -1190,6 +1322,12 @@ public class TypeCheck extends VarCheck {
             return TypeCheckDotNode((DotNode) x);
         } else if (x instanceof VarNode) {
             return TypeCheckVarNode((VarNode) x);
+        } else if (x instanceof BoolConstNode) {
+            return typeCheckBoolConstNode((BoolConstNode) x);
+        } else if (x instanceof CharConstNode) {
+            return typeCheckCharConstNode((CharConstNode) x);
+        } else if (x instanceof FloatConstNode) {
+            return typeCheckFloatConstNode((FloatConstNode) x);
         } else {
             return null;
         }

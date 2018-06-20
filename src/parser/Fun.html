@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<TITLE>BNF for Fun.jj</TITLE>
+</HEAD>
+<BODY>
+<H1 ALIGN=CENTER>BNF for Fun.jj</H1>
+<H2 ALIGN=CENTER>NON-TERMINALS</H2>
+<TABLE>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod1">program</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;EOF&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>|</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod2">classlist</A> &lt;EOF&gt; ( <A HREF="#prod1">program</A> )?</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod2">classlist</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod3">classdecl</A> ( <A HREF="#prod2">classlist</A> )?</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod3">classdecl</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;CLASS&gt; &lt;tipo_Identificador&gt; ( &lt;EXTENDS&gt; &lt;tipo_Identificador&gt; )? <A HREF="#prod4">classbody</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod4">classbody</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LBRACE&gt; ( <A HREF="#prod2">classlist</A> )? ( <A HREF="#prod5">vardecl</A> &lt;SEMICOLON&gt; )* ( ( <A HREF="#prod6">constructdecl</A> ) | ( <A HREF="#prod7">methoddecl</A> ) )* &lt;RBRACE&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod5">vardecl</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;INT&gt; | &lt;STRING&gt; | &lt;tipo_Identificador&gt; ( &lt;LBRACKET&gt; ( &lt;tipo_Identificador&gt; | &lt;tipo_INT&gt; )* &lt;RBRACKET&gt; )* | &lt;CHAR&gt; | &lt;FLOAT&gt; | &lt;BOOLEAN&gt; ) ( &lt;tipo_Identificador&gt; ( &lt;LBRACKET&gt; &lt;RBRACKET&gt; )* )* ( <A HREF="#prod8">assigndecl</A> )?</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod8">assigndecl</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;ASSIGN&gt; ( <A HREF="#prod9">assignbody</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod9">assignbody</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( ( ( <A HREF="#prod10">alocexpression</A> | <A HREF="#prod11">expression</A> )? | ( <A HREF="#prod12">tipobody</A> ( &lt;LBRACKET&gt; &lt;RBRACKET&gt; )? ) ) | &lt;tipo_NULL&gt; )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod12">tipobody</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;tipo_CHAR&gt; | &lt;tipo_STRING&gt; | &lt;tipo_INT&gt; | &lt;tipo_FLOAT&gt; | &lt;tipo_BOOLEAN&gt; | &lt;tipo_Identificador&gt; )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod6">constructdecl</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;CONSTRUCTOR&gt; <A HREF="#prod13">methodbody</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod7">methoddecl</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;INT&gt; | &lt;STRING&gt; | &lt;tipo_Identificador&gt; | &lt;CHAR&gt; | &lt;FLOAT&gt; | &lt;BOOLEAN&gt; ) ( &lt;LBRACKET&gt; &lt;RBRACKET&gt; )* &lt;tipo_Identificador&gt; <A HREF="#prod13">methodbody</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod13">methodbody</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LPAREN&gt; <A HREF="#prod14">paramlist</A> &lt;RPAREN&gt; <A HREF="#prod15">statement</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod14">paramlist</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod5">vardecl</A> ( &lt;COMMA&gt; ( <A HREF="#prod5">vardecl</A> )* )* )?</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod15">statement</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod5">vardecl</A> | <A HREF="#prod16">atribstat</A> &lt;SEMICOLON&gt; | <A HREF="#prod11">expression</A> &lt;SEMICOLON&gt; | <A HREF="#prod17">printstat</A> &lt;SEMICOLON&gt; | <A HREF="#prod18">readstat</A> &lt;SEMICOLON&gt; | <A HREF="#prod19">returnstat</A> &lt;SEMICOLON&gt; | <A HREF="#prod20">superstat</A> &lt;SEMICOLON&gt; | <A HREF="#prod21">ifstat</A> | <A HREF="#prod22">forstat</A> | &lt;LBRACE&gt; <A HREF="#prod23">statlist</A> &lt;RBRACE&gt; | &lt;BREAK&gt; &lt;SEMICOLON&gt; | &lt;SEMICOLON&gt; )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod16">atribstat</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod24">lvalue</A> &lt;ASSIGN&gt; ( <A HREF="#prod10">alocexpression</A> | <A HREF="#prod11">expression</A> | <A HREF="#prod25">content</A> )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod25">content</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;tipo_CHAR&gt; | &lt;tipo_FLOAT&gt; | &lt;tipo_BOOLEAN&gt; ) &lt;SEMICOLON&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod17">printstat</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;PRINT&gt; <A HREF="#prod11">expression</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod18">readstat</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;READ&gt; <A HREF="#prod24">lvalue</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod19">returnstat</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;RETURN&gt; ( <A HREF="#prod11">expression</A> )?</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod20">superstat</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;SUPER&gt; &lt;LPAREN&gt; <A HREF="#prod26">arglist</A> &lt;RPAREN&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod21">ifstat</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;IF&gt; &lt;LPAREN&gt; <A HREF="#prod11">expression</A> &lt;RPAREN&gt; <A HREF="#prod15">statement</A> ( &lt;ELSE&gt; <A HREF="#prod15">statement</A> )?</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod22">forstat</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;FOR&gt; &lt;LPAREN&gt; ( <A HREF="#prod16">atribstat</A> )? &lt;SEMICOLON&gt; ( <A HREF="#prod11">expression</A> )? &lt;SEMICOLON&gt; ( <A HREF="#prod16">atribstat</A> )? &lt;RPAREN&gt; <A HREF="#prod15">statement</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod23">statlist</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod15">statement</A> ( <A HREF="#prod23">statlist</A> )?</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod24">lvalue</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;tipo_Identificador&gt; ( &lt;LBRACKET&gt; <A HREF="#prod11">expression</A> &lt;RBRACKET&gt; | &lt;DOT&gt; &lt;tipo_Identificador&gt; ( &lt;LPAREN&gt; <A HREF="#prod26">arglist</A> &lt;RPAREN&gt; )? )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod10">alocexpression</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;NEW&gt; ( &lt;tipo_Identificador&gt; &lt;LPAREN&gt; <A HREF="#prod26">arglist</A> &lt;RPAREN&gt; | ( &lt;INT&gt; | &lt;STRING&gt; | &lt;tipo_Identificador&gt; ) ( &lt;LBRACKET&gt; <A HREF="#prod11">expression</A> &lt;RBRACKET&gt; )+ )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod11">expression</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod27">expr</A> ( ( &lt;OR&gt; | &lt;XOR&gt; ) <A HREF="#prod11">expression</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod27">expr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod28">exp</A> ( &lt;AND&gt; <A HREF="#prod27">expr</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod28">exp</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;NOT&gt; <A HREF="#prod29">comparexpression</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>|</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod29">comparexpression</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod29">comparexpression</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod30">numexpr</A> ( ( &lt;LT&gt; | &lt;GT&gt; | &lt;LE&gt; | &lt;GE&gt; | &lt;EQ&gt; | &lt;NEQ&gt; ) <A HREF="#prod30">numexpr</A> )?</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod30">numexpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod31">term</A> ( ( &lt;PLUS&gt; | &lt;MINUS&gt; ) <A HREF="#prod31">term</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod31">term</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod32">unaryexpr</A> ( ( &lt;MULTIPLY&gt; | &lt;DIVIDE&gt; | &lt;REM&gt; ) <A HREF="#prod32">unaryexpr</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod32">unaryexpr</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( ( &lt;PLUS&gt; | &lt;MINUS&gt; ) )? <A HREF="#prod33">factor</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod33">factor</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;tipo_INT&gt; | &lt;tipo_STRING&gt; | &lt;tipo_FLOAT&gt; | &lt;tipo_NULL&gt; | &lt;tipo_CHAR&gt; | &lt;tipo_BOOLEAN&gt; | <A HREF="#prod24">lvalue</A> | &lt;LPAREN&gt; <A HREF="#prod11">expression</A> &lt;RPAREN&gt; )</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod26">arglist</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod11">expression</A> ( &lt;COMMA&gt; <A HREF="#prod11">expression</A> )* )?</TD>
+</TR>
+</TABLE>
+</BODY>
+</HTML>
