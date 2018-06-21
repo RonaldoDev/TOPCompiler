@@ -156,7 +156,7 @@ public class VarCheck extends ClassCheck {
 			}
 
 			// constr�i a lista com os par�metros
-			r = new EntryRec(e, u.dim, n, r);
+			r = new EntryRec(e, u.dim, n, r, true);
 			p = p.next;
 		}
 
@@ -223,7 +223,7 @@ public class VarCheck extends ClassCheck {
 			}
 
 			// constroi a lista de nos com os parametros
-			r = new EntryRec(e, u.dim, n, r);
+			r = new EntryRec(e, u.dim, n, r, true);
 			p = p.next;
 		}
 

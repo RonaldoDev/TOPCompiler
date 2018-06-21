@@ -93,14 +93,10 @@ public class Symtable {
 			if (p instanceof EntryMethod && p.name.equals(x)) {
 				EntryMethod t = (EntryMethod) p;
 
-				if (t.param == null) {
-					if (r == null) {
-						return t;
-					}
-				} else {
-					if (t.param.equals(r)) {
-						return t;
-					}
+				if (r.optional) {
+					return t;
+				} else if (t.param.equals(r)) {
+					return t;
 				}
 			}
 
@@ -126,15 +122,12 @@ public class Symtable {
 				EntryMethod t = (EntryMethod) p;
 
 				// compara os parametros
-				if (t.param == null) {
-					if (r == null) {
-						return t;
-					} else {
-						if (t.param.equals(r)) {
-							return t;
-						}
-					}
+				if (r.optional) {
+					return t;
+				} else if (t.param.equals(r)) {
+					return t;
 				}
+
 			}
 			p = p.next; // proxima entrada
 		}

@@ -248,7 +248,7 @@ public class TypeCheck extends VarCheck {
 			e = curTable.classFindUp(q.position.image);
 
 			// constrói a lista com os tipos dos parâmetros
-			r = new EntryRec(e, u.dim, n, r);
+			r = new EntryRec(e, u.dim, n, r, true);
 			p = p.next;
 		}
 		
@@ -347,7 +347,7 @@ public class TypeCheck extends VarCheck {
 			e = curTable.classFindUp(q.position.image);
 
 			// constrói a lista com os tipos dos parâmetros
-			r = new EntryRec(e, u.dim, n, r);
+			r = new EntryRec(e, u.dim, n, r, true);
 
 			p = p.next;
 		}
@@ -984,7 +984,7 @@ public class TypeCheck extends VarCheck {
 		n = (t1.ty == null) ? 0 : ((EntryRec) t1.ty).count;
 
 		// cria novo EntryRec com t.ty como 1.o elemento
-		r = new EntryRec(t.ty, t.dim, n + 1, (EntryRec) t1.ty);
+		r = new EntryRec(t.ty, t.dim, n + 1, (EntryRec) t1.ty, true);
 
 		// cria type com r como variável ty
 		t = new type(r, 0);
