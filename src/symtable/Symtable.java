@@ -98,11 +98,11 @@ public class Symtable {
 						return t;
 					}
 				}
-				if (r.optional == true) {
+				if (r != null && r.optional == true) {
 					return t;
-				} else if (t.param.equals(r)) {
+				} else if (r != null && t.param.equals(r)) {
 					return t;
-				}
+				} if(r == null) return t;
 			}
 
 			p = p.next;
@@ -127,16 +127,14 @@ public class Symtable {
 				EntryMethod t = (EntryMethod) p;
 
 				if (t.param == null) {
-					if (r == null) {
-						return t;
-					}
+					if(r == null) return t;
 				}
 				// compara os parametros
-				 if (t.param.equals(r)) {
+				if (t.param.equals(r)) {
 					return t;
-				} else if (r.optional == true) {
+				} else if (r != null && r.optional) {
 					return t;
-				}
+				} if(r == null) return t;
 
 			}
 			p = p.next; // proxima entrada

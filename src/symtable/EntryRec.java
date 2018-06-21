@@ -51,11 +51,11 @@ public class EntryRec extends EntryTable {
 	/**
 	 * Cria elemento e p�e no in�cio da lista
 	 */
-	public EntryRec(EntryTable p, int d, int c, boolean o, EntryRec t) {
+	public EntryRec(EntryTable p, int d, int c, EntryRec t) {
 		type = p;
 		count = c;
 		dim = d;
-		optional = o;
+		optional = true;
 		next = t;
 	}
 
