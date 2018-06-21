@@ -31,7 +31,7 @@ public class EntryRec extends EntryTable {
 	/**
 	 * Define se um par�metro � opcional
 	 */
-	public boolean optional;
+	public boolean optional = false;
 
 	/**
 	 * Cria elemento

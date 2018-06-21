@@ -25,9 +25,9 @@ public class Fun
 
   public static void main(String args []) throws ParseException
   {
-    boolean debug = true;
+    boolean debug = false;
     boolean debug_as = false;
-    boolean debug_recovery = true;
+    boolean debug_recovery = false;
     boolean print_tree = true;
     String nomeArquivo = CaminhoDoArquivo;
     Fun analisador = leArquivo(nomeArquivo);
