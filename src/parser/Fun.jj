@@ -21,7 +21,8 @@ public class Fun
   boolean debug_recovery;
   Token ultimoErro = null;
 
-  final static String CaminhoDoArquivo = "C:/Users/Matheus/Desktop/Universidade/6ª Fase/Compila/programaaceito/programa5.fun";
+  //final static String CaminhoDoArquivo = "C:/Users/Matheus/Desktop/Universidade/6ª Fase/Compila/programaaceito/programa5.fun";
+  final static String CaminhoDoArquivo = "/Users/ronaldostranger/Downloads/drive/programasvalidos/programa1.fun";
 
   public static void main(String args []) throws ParseException
   {
