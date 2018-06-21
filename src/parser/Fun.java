@@ -11,13 +11,13 @@ public class Fun implements FunConstants {
   boolean debug_recovery;
   Token ultimoErro = null;
 
-  final static String CaminhoDoArquivo = "C:/Users/Matheus/Desktop/Universidade/6\u00aa Fase/Compila/programaaceito/programa1.fun";
+  final static String CaminhoDoArquivo = "C:/Users/Matheus/Desktop/Universidade/6\u00aa Fase/Compila/programaaceito/programa4.fun";
 
   public static void main(String args []) throws ParseException
   {
-    boolean debug = true;
+    boolean debug = false;
     boolean debug_as = false;
-    boolean debug_recovery = true;
+    boolean debug_recovery = false;
     boolean print_tree = true;
     String nomeArquivo = CaminhoDoArquivo;
     Fun analisador = leArquivo(nomeArquivo);
