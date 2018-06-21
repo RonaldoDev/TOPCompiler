@@ -1,28 +1,47 @@
 package symtable;
 
-
-// classe que abriga uma declaracão de variável na tabela de símbolos
+/**
+ * Abriga umade claraÃ§Ã£o de vari;avel na tabela de sÃ­mbolos 
+ * 
+ * @author jean
+ */
 public class EntryVar extends EntryTable {
-    public EntryTable type; // apontador para o tipo da variável
-    public int dim; // número de dimensões da variável
-    public int localcount; // numeração seqüencial para as vars. locais
 
-    // cria uma entrada para var. de classe
-    public EntryVar(String n, EntryTable p, int d) {
-        name = n; // nome da variável
-        type = p; // apontador para a classe
-        dim = d; // número de dimensões
-        localcount = -1; // número seqüencial é sempre -1 (var. não local)
-    }
-
-    // cria uma entrada para var.local
-    public EntryVar(String n, EntryTable p, int d, int k) {
-        name = n; // nome da variável
-        type = p; // apontador para a classe
-        dim = d; // número de dimensões
-        localcount = k; // inclui tbem o número seqüencial 
-    }
-
+	/**
+	 * Apontador para o tipo de variÃ¡vel
+	 */
+	public EntryTable type;
+	
+	/**
+	 * NÃºmero de dimenÃµes da variÃ¡vel
+	 */
+	public int dim;
+	
+	/**
+	 * NumeraÃ§Ã£o sequencial para as vari;aveis locais
+	 */
+	public int localcount;
+	
+	/**
+	 * Cria uma entrada para variÃ¡vel de classe
+	 */
+	public EntryVar(String n, EntryTable p, int d) {
+		name 		= n;
+		type 		= p;
+		dim 			= d;
+		localcount 	= -1;
+	}
+	
+	/**
+	 * Cria uma entrada para variÃ¡vel local
+	 */
+	public EntryVar(String n, EntryTable p, int d, int k) {
+		name 		= n;
+		type 		= p;
+		dim 			= d;
+		localcount 	= k;
+	}
+	
     public String dscJava() {
         String s = strDim(dim);
         s += type.dscJava();

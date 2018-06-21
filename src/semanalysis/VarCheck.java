@@ -6,271 +6,246 @@ import symtable.EntryRec;
 import symtable.EntryTable;
 import symtable.EntryVar;
 import symtable.Symtable;
-import syntaticTree.ClassBodyNode;
-import syntaticTree.ClassDeclNode;
-import syntaticTree.ConstructDeclNode;
-import syntaticTree.ListNode;
-import syntaticTree.MethodDeclNode;
-import syntaticTree.VarDeclNode;
-import syntaticTree.VarNode;
-
+import syntaticTree.*;
 
 public class VarCheck extends ClassCheck {
-    public VarCheck() {
-        super();
-    }
 
-    public void VarCheckRoot(ListNode x) throws SemanticException {
-        ClassCheckRoot(x); // faz análise das classes
-        VarCheckClassDeclListNode(x);
+	public VarCheck() {
+		super();
+	}
 
-        if (foundSemanticError != 0) { // se houve erro, lança exceção
-            throw new SemanticException(foundSemanticError +
-                " Semantic Errors found (phase 2)");
-        }
-    }
+	public void varCheckRoot(ListNode x) throws SemanticException {
+		classCheckRoot(x);
+		varCheckClassDeclListNode(x);
+		if (foundSemanticError != 0) {
+			throw new SemanticException(foundSemanticError + " Semantic Erros found (phase 2)");
+		}
+	}
 
-    public void VarCheckClassDeclListNode(ListNode x) {
-        if (x == null) {
-            return;
-        }
+	public void varCheckClassDeclListNode(ListNode x) {
+		if (x == null)
+			return;
 
-        try {
-            VarCheckClassDeclNode((ClassDeclNode) x.node);
-        } catch (SemanticException e) { // se um erro ocorreu na classe, da a msg mas faz a análise p/ próxima
-            System.out.println(e.getMessage());
-            foundSemanticError++;
-        }
+		try {
+			varCheckClassDeclNode((ClassDeclNode) x.node);
+		} catch (SemanticException e) {
+			// se um erro ocorreu na analise da classe,
+			// lanca erro, mas faz a analise para a proxima classe
+			System.out.println(e.getMessage());
+			foundSemanticError++;
+		}
+		varCheckClassDeclListNode(x.next);
+	}
 
-        VarCheckClassDeclListNode(x.next);
-    }
+	public void varCheckClassDeclNode(ClassDeclNode x) throws SemanticException {
+		Symtable temphold = curTable; // salva tabela corrente
+		EntryClass c = null;
+		EntryClass nc = null;
 
-    public void VarCheckClassDeclNode(ClassDeclNode x)
-        throws SemanticException {
-        Symtable temphold = Curtable; // salva tabela corrente
-        EntryClass c = null;
-        EntryClass nc;
+		if (x == null)
+			return;
 
-        if (x == null) {
-            return;
-        }
+		if (x.supername != null) {
+			c = (EntryClass) curTable.classFindUp(x.supername.image);
+			if (c == null) { // se nao achou superclasse, ERRO
+				throw new SemanticException(x.position, "Superclass " + x.supername.image + " not found");
+			}
+		}
 
-        if (x.supername != null) { // verifica se superclasse foi definida
-            c = (EntryClass) Curtable.classFindUp(x.supername.image);
+		nc = (EntryClass) curTable.classFindUp(x.name.image);
+		nc.parent = c; // coloca na tabela o apontador p/ super classe
+		curTable = nc.nested; // tabela corrente = tabela da classe
+		varCheckClassBodyNode(x.body);
+		curTable = temphold; // recupera tabela corrente
+	}
 
-            if (c == null) // Se não achou superclasse, ERRO
-             {
-                throw new SemanticException(x.position,
-                    "Superclass " + x.supername.image + " not found");
-            }
-        }
+	public void varCheckClassBodyNode(ClassBodyNode x) {
+		if (x == null)
+			return;
 
-        nc = (EntryClass) Curtable.classFindUp(x.name.image);
-        nc.parent = c; // coloca na tabela o apontador p/ superclasse
-        Curtable = nc.nested; // tabela corrente = tabela da classe
-        VarCheckClassBodyNode(x.body);
-        Curtable = temphold; // recupera tabela corrente
-    }
+		varCheckClassDeclListNode(x.clist);
+		varCheckVarDeclListNode(x.vlist);
+		varCheckConstructDeclListNode(x.ctlist);
 
-    public void VarCheckClassBodyNode(ClassBodyNode x) {
-        if (x == null) {
-            return;
-        }
+		// se nao existe construtor, insere um falso
+		if (curTable.methodFindInclass("constructor", null) == null) {
+			curTable.add(new EntryMethod("constructor", curTable.levelup, true));
+		}
+		varCheckMethodDeclListNode(x.mlist);
+	}
 
-        VarCheckClassDeclListNode(x.clist);
-        VarCheckVarDeclListNode(x.vlist);
-        VarCheckConstructDeclListNode(x.ctlist);
+	public void varCheckVarDeclListNode(ListNode x) {
+		if (x == null)
+			return;
 
-        // se não existe constructor(), insere um falso
-        if (Curtable.methodFindInclass("constructor", null) == null) {
-            Curtable.add(new EntryMethod("constructor", Curtable.levelup, true));
-        }
+		try {
+			varCheckVarDeclNode((VarDeclNode) x.node);
+		} catch (SemanticException e) {
+			System.out.println(e.getMessage());
+			foundSemanticError++;
+		}
+		varCheckVarDeclListNode(x.next);
+	}
 
-        VarCheckMethodDeclListNode(x.mlist);
-    }
+	public void varCheckVarDeclNode(VarDeclNode x) throws SemanticException {
+		EntryTable c;
+		ListNode p;
 
-    public void VarCheckVarDeclListNode(ListNode x) {
-        if (x == null) {
-            return;
-        }
+		if (x == null)
+			return;
 
-        try {
-            VarCheckVarDeclNode((VarDeclNode) x.node);
-        } catch (SemanticException e) {
-            System.out.println(e.getMessage());
-            foundSemanticError++;
-        }
+		// acha entrada do tipo da variavel
+		c = curTable.classFindUp(x.position.image);
+		// se nao achou, ERRO
+		if (c == null) {
+			throw new SemanticException(x.position, "Class " + x.position.image + " not found");
+		}
 
-        VarCheckVarDeclListNode(x.next);
-    }
+		// para cada variavel da declaraï¿½ï¿½o, cria uma entrada na tabela
+		for (p = x.vars; p != null; p = p.next) {
+			VarNode q = (VarNode) p.node;
+			curTable.add(new EntryVar(q.position.image, c, q.dim));
+		}
+	}
 
-    public void VarCheckVarDeclNode(VarDeclNode x) throws SemanticException {
-        EntryTable c;
-        ListNode p;
+	public void varCheckConstructDeclListNode(ListNode x) {
+		if (x == null)
+			return;
 
-        if (x == null) {
-            return;
-        }
+		try {
+			varCheckConstructDeclNode((ConstructDeclNode) x.node);
+		} catch (SemanticException e) {
+			System.out.println(e.getMessage());
+			foundSemanticError++;
+		}
+		varCheckConstructDeclListNode(x.next);
+	}
 
-        // acha entrada do tipo da variável
-        c = Curtable.classFindUp(x.position.image);
+	public void varCheckConstructDeclNode(ConstructDeclNode x) throws SemanticException {
+		EntryMethod c;
+		EntryRec r = null;
+		EntryTable e;
+		ListNode p;
+		VarDeclNode q;
+		VarNode u;
+		int n;
 
-        // se não achou, ERRO
-        if (c == null) {
-            throw new SemanticException(x.position,
-                "Class " + x.position.image + " not found");
-        }
+		if (x == null) {
+			return;
+		}
 
-        // para cada variável da declaracão, cria uma entrada na tabela
-        for (p = x.vars; p != null; p = p.next) {
-            VarNode q = (VarNode) p.node;
-            Curtable.add(new EntryVar(q.position.image, c, q.dim));
-        }
-    }
+		p = x.body.param;
+		n = 0;
 
-    public void VarCheckConstructDeclListNode(ListNode x) {
-        if (x == null) {
-            return;
-        }
+		while (p != null) { // para cada parï¿½metro do construtor
+			if (p.node instanceof AssignConstNode) {
+				p = p.next;
+				continue;
+			}
 
-        try {
-            VarCheckConstructDeclNode((ConstructDeclNode) x.node);
-        } catch (SemanticException e) {
-            System.out.println(e.getMessage());
-            foundSemanticError++;
-        }
+			q = (VarDeclNode) p.node; // q = nï¿½ com a declaracï¿½o do parï¿½metro
+			u = (VarNode) q.vars.node; // u = nï¿½ com o nome e dimensï¿½o
+			n++;
 
-        VarCheckConstructDeclListNode(x.next);
-    }
+			// acha a entrada do tipo na tabela
+			e = curTable.classFindUp(q.position.image);
 
-    public void VarCheckConstructDeclNode(ConstructDeclNode x)
-        throws SemanticException {
-        EntryMethod c;
-        EntryRec r = null;
-        EntryTable e;
-        ListNode p;
-        VarDeclNode q;
-        VarNode u;
-        int n;
+			// se nï¿½o achou: ERRO
+			if (e == null) {
+				throw new SemanticException(q.position, "Class " + q.position.image + " not found");
+			}
 
-        if (x == null) {
-            return;
-        }
+			// constrï¿½i a lista com os parï¿½metros
+			r = new EntryRec(e, u.dim, n, r);
+			p = p.next;
+		}
 
-        p = x.body.param;
-        n = 0;
+		if (r != null) {
+			r = r.inverte(); // inverte a lista
+		}
 
-        while (p != null) // para cada parâmetro do construtor
-         {
-            q = (VarDeclNode) p.node; // q = nó com a declaracão do parâmetro
-            u = (VarNode) q.vars.node; // u = nó com o nome e dimensão
-            n++;
+		// procura construtor com essa assinatura dentro da mesma classe
+		c = curTable.methodFindInclass("constructor", r);
 
-            // acha a entrada do tipo na tabela
-            e = Curtable.classFindUp(q.position.image);
+		if (c == null) { // se nï¿½o achou, insere
+			c = new EntryMethod("constructor", curTable.levelup, 0, r);
+			curTable.add(c);
+		} else { // construtor jï¿½ definido na mesma classe: ERRO
+			throw new SemanticException(x.position, "Constructor " + curTable.levelup.name + "("
+					+ ((r == null) ? "" : r.toStr()) + ")" + " already declared");
+		}
+	}
 
-            // se não achou: ERRO
-            if (e == null) {
-                throw new SemanticException(q.position,
-                    "Class " + q.position.image + " not found");
-            }
+	public void varCheckMethodDeclListNode(ListNode x) {
+		if (x == null)
+			return;
 
-            // constrói a lista com os parâmetros
-            r = new EntryRec(e, u.dim, n, r, true);
-            p = p.next;
-        }
+		try {
+			varCheckMethodDeclNode((MethodDeclNode) x.node);
+		} catch (SemanticException e) {
+			System.out.println(e.getMessage());
+			foundSemanticError++;
+		}
 
-        if (r != null) {
-            r = r.inverte(); // inverte a lista
-        }
+		varCheckMethodDeclListNode(x.next);
+	}
 
-        // procura construtor com essa assinatura dentro da mesma classe
-        c = Curtable.methodFindInclass("constructor", r);
+	public void varCheckMethodDeclNode(MethodDeclNode x) throws SemanticException {
+		EntryMethod c = null;
+		EntryRec r = null;
+		EntryTable e = null;
+		ListNode p = null;
+		VarDeclNode q = null;
+		VarNode u = null;
+		int n;
 
-        if (c == null) { // se não achou, insere
-            c = new EntryMethod("constructor", Curtable.levelup, 0, r);
-            Curtable.add(c);
-        } else { // construtor já definido na mesma classe: ERRO
-            throw new SemanticException(x.position,
-                "Constructor " + Curtable.levelup.name + "(" +
-                ((r == null) ? "" : r.toStr()) + ")" + " already declared");
-        }
-    }
+		if (x == null)
+			return;
 
-    public void VarCheckMethodDeclListNode(ListNode x) {
-        if (x == null) {
-            return;
-        }
+		p = x.body.param;
+		n = 0;
 
-        try {
-            VarCheckMethodDeclNode((MethodDeclNode) x.node);
-        } catch (SemanticException e) {
-            System.out.println(e.getMessage());
-            foundSemanticError++;
-        }
+		while (p != null) { // para cada parametro do construtor
+			if (p.node instanceof AssignConstNode) {
+				p = p.next;
+				continue;
+			}
 
-        VarCheckMethodDeclListNode(x.next);
-    }
+			q = (VarDeclNode) p.node; // q = no com a declaracao do parametro
+			u = (VarNode) q.vars.node; // u = no com o nome e dimensao
+			n++;
+			// acha a entrada do tipo na tabela
+			e = curTable.classFindUp(q.position.image);
 
-    public void VarCheckMethodDeclNode(MethodDeclNode x)
-        throws SemanticException {
-        EntryMethod c;
-        EntryRec r = null;
-        EntryTable e;
-        ListNode p;
-        VarDeclNode q;
-        VarNode u;
-        int n;
+			// se nao achou, ERRO
+			if (e == null) {
+				throw new SemanticException(q.position, "Class " + q.position.image + " not found");
+			}
 
-        if (x == null) {
-            return;
-        }
+			// constroi a lista de nos com os parametros
+			r = new EntryRec(e, u.dim, n, r);
+			p = p.next;
+		}
 
-        p = x.body.param;
-        n = 0;
+		if (r != null) {
+			r = r.inverte(); // inverte a lista
+		}
 
-        while (p != null) // para cada parâmetro do método
-         {
-            n++;
-            q = (VarDeclNode) p.node; // q = nó da declaracão do parâmetro
-            u = (VarNode) q.vars.node; // u = nó com o nome e dimensão
+		e = curTable.classFindUp(x.position.image);
 
-            // acha a entrada na tabela do tipo
-            e = Curtable.classFindUp(q.position.image);
+		if (e == null) {
+			throw new SemanticException(x.position, "Class " + x.position.image + " not found");
+		}
 
-            // se não achou, ERRO
-            if (e == null) {
-                throw new SemanticException(q.position,
-                    "Class " + q.position.image + " not found");
-            }
+		// procura metodo na tabela, dentro da mesma classe
+		c = curTable.methodFindInclass(x.name.image, r);
 
-            // constrói lista de tipos dos parâmetros
-            r = new EntryRec(e, u.dim, n, r, true);
-            p = p.next;
-        }
-
-        if (r != null) {
-            r = r.inverte(); // inverte a lista
-        }
-
-        // procura na tabela o tipo de retorno do método
-        e = Curtable.classFindUp(x.position.image);
-
-        if (e == null) {
-            throw new SemanticException(x.position,
-                "Class " + x.position.image + " not found");
-        }
-
-        // procura método na tabela, dentro da mesma classe
-        c = Curtable.methodFindInclass(x.name.image, r);
-
-        if (c == null) { // se não achou, insere
-            c = new EntryMethod(x.name.image, e, x.dim, r);
-            Curtable.add(c);
-        } else { // metodo já definido na mesma classe, ERRO
-            throw new SemanticException(x.position,
-                "Method " + x.name.image + "(" + ((r == null) ? "" : r.toStr()) +
-                ")" + " already declared");
-        }
-    }
+		if (c == null) {
+			c = new EntryMethod(x.name.image, e, x.dim, r);
+			curTable.add(c);
+		} else { // metodo ja definido na mesma classe, ERRO
+			String msg = "Method " + x.name.image + "(" + ((r == null) ? "" : r.toStr()) + ")" + " already declared";
+			throw new SemanticException(x.position, msg);
+		}
+	}
 }

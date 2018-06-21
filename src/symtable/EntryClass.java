@@ -1,14 +1,32 @@
 package symtable;
 
-//classe correspondente a uma declaração de classe na tabela de símbolos
+/**
+ * Corresponde a uma declaraÃƒÂ§ÃƒÂ£o de classe na tabela de sÃƒÂ­mbolos
+ * 
+ * @author jean
+ */
 public class EntryClass extends EntryTable {
-	public Symtable nested; //tabela para declaração de elementos aninhados
-	public EntryClass parent; //entrada correspondete a superclasse
+
+	/**
+	 * Tabela para declaraÃƒÂ§ÃƒÂ£o de elemtentos aninhados
+	 */
+	public Symtable nested;
 	
+	/**
+	 * Entrada correspondenta Ãƒ  superclasse
+	 */
+	public EntryClass parent;
+	
+	/**
+	 * Construtor da classe
+	 * 
+	 * @param n
+	 * @param t
+	 */
 	public EntryClass(String n, Symtable t) {
-		name = n; // nome da classe declarada
-		nested = new Symtable(this); // tabela onde inserir variáveis (métodos ou classes);
-		parent = null; //sua superclasse
+		name 	= n;
+		nested 	= new Symtable(this);
+		parent 	= null;
 	}
 
 	@Override

@@ -1,168 +1,170 @@
 package symtable;
 
+/**
+ * @author jean
+ *
+ */
 public class Symtable {
-    public EntryTable top; // apontador para o topo da tabela (mais recente)
-    public int scptr; // número que controla o escopo (aninhamento) corrente
-    public EntryClass levelup; // apontador para a entrada EntryClass de nível sup.
 
-    public Symtable() // cria uma tabela vazia
-     {
-        top = null;
-        scptr = 0;
-        levelup = null;
-    }
+	/**
+	 * Apontador para o topo da tabela (mais recente)
+	 */
+	public EntryTable top;
 
-    public Symtable(EntryClass up) // cria tabela vazia apontando para nível sup.
-     {
-        top = null;
-        scptr = 0;
-        levelup = up;
-    }
+	/**
+	 * NÃºmero que controla o escopo
+	 */
+	public int scptr;
 
-    public void add(EntryTable x) // adiciona uma entrada à tabela
-     {
-        x.next = top; // inclui nova entrada no topo
-        top = x;
-        x.scope = scptr; // atribui para a entrada o número do escopo
-        x.mytable = this; // faz a entrada apontar para a tabela à qual pertence
-    }
+	/**
+	 * Apontador para a entrada EntryClass de nÃ­vel superior
+	 */
+	public EntryClass levelup;
 
-    public void beginScope() {
-        scptr++; // inicia novo aninhamento de variáveis
-    }
+	/**
+	 * Cria uma tabela vazia
+	 */
+	public Symtable() {
+		top = null;
+		scptr = 0;
+		levelup = null;
+	}
 
-    public void endScope() {
-        while ((top != null) && (top.scope == scptr))
-            top = top.next; // retira todas as variáveis do aninhamento corrente
+	/**
+	 * Cria uma tabela contendo apontador para nÃ­vel superior
+	 */
+	public Symtable(EntryClass up) {
+		top = null;
+		scptr = 0;
+		levelup = up;
+	}
 
-        scptr--; // finaliza aninhamento corrente
-    }
+	/**
+	 * Adiciona uma entrada Ã  tabela
+	 */
+	public void add(EntryTable x) {
+		x.next = top;
+		top = x;
+		x.scope = scptr;
+		x.mytable = this;
+	}
 
-    /* Esse metodo procura o simbolo x na tabela e tambem na(s) tabela(s) de
-    nivel superior, apontada por levelup. Procura por uma entrada do
-    tipo EntryClass ou EntrySimple */
-    public EntryTable classFindUp(String x) {
-        EntryTable p = top;
+	/**
+	 * Inicia novo aninhamento de variÃ¡veis
+	 */
+	public void beginScope() {
+		scptr++;
+	}
 
-        // para cada elemento da tabela corrente
-        while (p != null) {
-            // verifica se é uma entrada de classe ou tipo simples e compara o nome
-            if (((p instanceof EntryClass) || (p instanceof EntrySimple)) &&
-                    p.name.equals(x)) {
-                return p;
-            }
+	/**
+	 * Finaliza aninhamento corrente
+	 */
+	public void endScope() {
+		while (top != null && top.scope == scptr) {
+			top = top.next;
+		}
+		scptr--;
+	}
 
-            p = p.next; // próxima entrada
-        }
+	/**
+	 * Busca por uma classe jÃ¡ declarada
+	 */
+	public EntryTable classFindUp(String x) {
+		EntryTable p = top;
+		// Para cada elemento da tabela corrento
+		while (p != null) {
+			// Verifica se Ã© uma entrada de classe ou tipo simples e entÃ£o compara o nome
+			if (((p instanceof EntryClass) || (p instanceof EntrySimple)) && p.name.equals(x)) {
+				return p;
+			}
+			p = p.next; // PrÃ³xima entrada
+		}
+		if (levelup == null) { // Se nÃ£o achou e Ã© o nÃ­vel mais externo retorna null
+			return null;
+		}
+		return levelup.mytable.classFindUp(x);
+	}
 
-        if (levelup == null) { // se não achou e é o nível mais externo 
+	public EntryMethod methodFind(String x, EntryRec r) {
+		EntryTable p = top;
+		EntryClass q;
 
-            return null; // retorna null
-        }
+		while (p != null) {
+			if (p instanceof EntryMethod && p.name.equals(x)) {
+				EntryMethod t = (EntryMethod) p;
 
-        // procura no nível mais externo 
-        return levelup.mytable.classFindUp(x);
-    }
+				if (t.param == null) {
+					if (r == null) {
+						return t;
+					}
+				} else {
+					if (t.param.equals(r)) {
+						return t;
+					}
+				}
+			}
 
-    /* Esse metodo procura o simbolo x na tabela e tambem na(s) tabela(s) da(s)
-    superclasse(s), apontada por levelup.parent. Procura por uma entrada do
-    tipo EntryVar */
-    public EntryVar varFind(String x) {
-        return varFind(x, 1);
-    }
+			p = p.next;
+		}
 
-    /* Esse metodo procura a n-esima ocorrencia do simbolo x na tabela e tambem
-    na(s) tabela(s) da(s)  superclasse(s), apontada por levelup.parent. Procura
-    por uma entrada do  tipo EntryVar */
-    public EntryVar varFind(String x, int n) {
-        EntryTable p = top;
-        EntryClass q;
+		q = levelup;
 
-        while (p != null) {
-            if (p instanceof EntryVar && p.name.equals(x)) {
-                if (--n == 0) {
-                    return (EntryVar) p;
-                }
-            }
+		if (q.parent == null) {
+			return null;
+		}
 
-            p = p.next;
-        }
+		return q.parent.nested.methodFind(x, r);
+	}
 
-        q = levelup;
+	public EntryMethod methodFindInclass(String x, EntryRec r) {
+		EntryTable p = top;
 
-        if (q.parent == null) {
-            return null;
-        }
+		// para cada entrada da tabela
+		while (p != null) {
+			// verifica se e EntryMethod e compara o nome
+			if (p instanceof EntryMethod && p.name.equals(x)) {
+				EntryMethod t = (EntryMethod) p;
 
-        return q.parent.nested.varFind(x, n);
-    }
+				// compara os parametros
+				if (t.param == null) {
+					if (r == null) {
+						return t;
+					} else {
+						if (t.param.equals(r)) {
+							return t;
+						}
+					}
+				}
+			}
+			p = p.next; // proxima entrada
+		}
+		return null; // nao achou
+	}
 
-    /* Esse metodo procura o simbolo x com uma lista de parametros igual a r na
-    tabela e tambem na(s) tabela(s) da(s)  superclasse(s), apontada por
-    levelup.parent. Procura por uma entrada do  tipo EntryMethod */
-    public EntryMethod methodFind(String x, EntryRec r) {
-        EntryTable p = top;
-        EntryClass q;
+	public EntryVar varFind(String x) {
+		return varFind(x, 1);
+	}
 
-        while (p != null) {
-            if (p instanceof EntryMethod && p.name.equals(x)) {
-                EntryMethod t = (EntryMethod) p;
+	public EntryVar varFind(String x, int n) {
+		EntryTable p = top;
+		EntryClass q;
 
-                if (t.param == null) {
-                    if (r == null) {
-                        return t;
-                    }
-                } else {
-                	if(r.opcional) { //Se os parâmetros são opcionais, ele não faz as verificações.
-                		return t;
-                	}else if (t.param.equals(r)) { 
-            			return t;
-            		}
-                }
-            }
+		while (p != null) {
+			if (p instanceof EntryVar && p.name.equals(x)) {
+				if (--n == 0) {
+					return (EntryVar) p;
+				}
+			}
 
-            p = p.next;
-        }
+			p = p.next;
+		}
 
-        q = levelup;
+		q = levelup;
 
-        if (q.parent == null) {
-            return null;
-        }
+		if (q.parent == null) {
+			return null;
+		}
 
-        return q.parent.nested.methodFind(x, r);
-    }
-
-    /* Esse metodo procura o simbolo x com uma lista de parametros igual a r
-    apenas na tabela, nao na(s) tabela(s) da(s)  superclasse(s),
-    apontada por levelup.parent. Procura por uma entrada do  tipo EntryMethod */
-    public EntryMethod methodFindInclass(String x, EntryRec r) {
-        EntryTable p = top;
-        EntryClass q;
-
-        // para cada entrada da tabela
-        while (p != null) {
-            // verifica se tipo é EntryMethod e compara o nome
-            if (p instanceof EntryMethod && p.name.equals(x)) {
-                EntryMethod t = (EntryMethod) p;
-
-                // compara os parâmetros
-                if (t.param == null) {
-                    if (r == null) {
-                        return t;
-                    }
-                } else {
-                	if(r.opcional) {
-                		return t;
-                	}else if (t.param.equals(r)) {
-                        return t;                		
-                	}
-                                    }
-            }
-
-            p = p.next; // próxima entrada
-        }
-
-        return null; // não achou
-    }
+		return q.parent.nested.varFind(x, n);
+	}
 }

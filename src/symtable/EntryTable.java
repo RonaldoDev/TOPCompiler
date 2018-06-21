@@ -1,15 +1,34 @@
 package symtable;
 
+/**
+ * Classe geral para as possíveis entradas na tabela de símbolo
+ * 
+ * @author jean
+ */
+public abstract class EntryTable {
 
-// classe geral para as poss�veis entradas na tabela de s�mbolos
-abstract public class EntryTable {
-    public String name; // nome do s�mbolo (var., m�todo ou classe)
-    public EntryTable next; // apontador para pr�ximo dentro da tabela 
-    public int scope; // n�mero do aninhamento corrente
-    public Symtable mytable; // entrada aponta para a tabela da qual ela � parte
-
-    abstract public String dscJava();
-
+	/**
+	 * Nome do símbolo (variável, método ou classe)
+	 */
+	public String name;
+	
+	/**
+	 * Apontador para próximo dentro da tabela
+	 */
+	public EntryTable next;
+	
+	/**
+	 * Número do aninhamento corrente
+	 */
+	public int scope;
+	
+	/**
+	 * Aponta para tabela da qual ela faz parte
+	 */
+	public Symtable mytable;
+	
+	abstract public String dscJava();
+	
     static public String strDim(int n) {
         String p = "";
 

@@ -1,43 +1,79 @@
 package symtable;
 
-
-// corresponde a uma declarac„o de mÈtodo na tabela de sÌmbolos
+/**
+ * Corresponde a uma declara√ß√£o de m√©todo na tabela de s√≠mbolos
+ * 
+ * @author jean
+ */
 public class EntryMethod extends EntryTable {
-    public EntryTable type; // tipo de retorno do mÈtodo
-    public int dim; // n˙mero de dimensıes do retorno
-    public EntryRec param; // tipo dos par‚metros
-    public int totallocals; // n˙mero de vari·veis locais
-    public int totalstack; // tamanho da pilha necess·ria
-    public boolean fake; // true se È um falso construtor
-    public boolean hassuper; // true se mÈtodo possui chamada super
 
-    // cria elemento para inserir na tabela 
-    public EntryMethod(String n, EntryTable p, int d, EntryRec r) {
-        name = n;
-        type = p;
-        dim = d;
-        param = r;
-        totallocals = 0;
-        totalstack = 0;
-        fake = false;
-        hassuper = false;
-    }
+	/**
+	 * Tipo de retorno do m√°todo
+	 */
+	public EntryTable type;
 
-    public EntryMethod(String n, EntryTable p, boolean b) {
-        name = n;
-        type = p;
-        dim = 0;
-        param = null;
-        totallocals = 0;
-        totalstack = 0;
-        fake = b;
-        hassuper = false;
-    }
+	/**
+	 * N√∫mero de dimens√µes do retorno
+	 */
+	public int dim;
 
-    public String dscJava() {
-        String s = strDim(dim);
-        s += type.dscJava();
+	/**
+	 * Tipos dos par√¢metros
+	 */
+	public EntryRec param;
 
-        return s;
-    }
+	/**
+	 * N√∫mero de vari√°veis locais
+	 */
+	public int totallocals;
+
+	/**
+	 * Tamanho da pilha necess√°ria
+	 */
+	public int totalStack;
+
+	/**
+	 * Define se o construtor √© false
+	 */
+	public boolean fake;
+
+	/**
+	 * Define se m√©todo possui chamada super
+	 */
+	public boolean hassuper;
+
+	/**
+	 * Cria elemento para inserir na tabela
+	 */
+	public EntryMethod(String n, EntryTable p, int d, EntryRec r) {
+		name = n;
+		type = p;
+		dim = d;
+		param = r;
+		totallocals = 0;
+		totalStack = 0;
+		fake = false;
+		hassuper = false;
+	}
+
+	/**
+	 * Cria elemento para inserir na tabela
+	 */
+	public EntryMethod(String n, EntryTable p, boolean b) {
+		name = n;
+		type = p;
+		dim = 0;
+		param = null;
+		totallocals = 0;
+		totalStack = 0;
+		fake = b;
+		hassuper = false;
+	}
+
+	public String dscJava() {
+		String s = strDim(dim);
+		s += type.dscJava();
+
+		return s;
+	}
 }

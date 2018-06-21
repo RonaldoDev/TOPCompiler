@@ -1,80 +1,116 @@
 package symtable;
 
-
-// lista de EntryClass, usada para representar os tipos de uma lista
-// de parâmetros
+/**
+ * Lista de EntryClass usada para representar os tipos de uma lista de
+ * parï¿½metros
+ * 
+ * @author jean
+ */
 public class EntryRec extends EntryTable {
-    public EntryTable type; // tipo de um objeto
-    public int dim; // dimensão
-    public EntryRec next; // apontador para o resto da lista
-    public int cont; // número de elementos a partir daquele elemento
 
-  //pedido para o T4
-  	boolean opcional; //identifica se o parâmetro é opcional ou não.
-    
-    // cria elemento
-    public EntryRec(EntryTable p, int d, int c, boolean o) {
-        type = p;
-        cont = c;
-        dim = d;
-        next = null;
-        opcional = o;
-    }
+	/**
+	 * Tipo de um objeto
+	 */
+	public EntryTable type;
 
-    // cria elemento e põe no início da lista
-    public EntryRec(EntryTable p, int d, int c, EntryRec t, boolean o) {
-        type = p;
-        cont = c;
-        dim = d;
-        next = t;
-        opcional = o;
-    }
+	/**
+	 * Dimensï¿½o
+	 */
+	public int dim;
 
-    // inverte a lista de EntryRec
-    public EntryRec inverte(EntryRec ant) {
-        EntryRec r = this;
+	/**
+	 * Apontador para o resto da lista
+	 */
+	public EntryRec next;
 
-        if (next != null) {
-            r = next.inverte(this);
-        }
+	/**
+	 * NÃºmero de elemetnos a partir daquele elemento
+	 */
+	public int count;
 
-        cont = ant.cont + 1;
-        next = ant;
+	/**
+	 * Define se um parï¿½metro ï¿½ opcional
+	 */
+	public boolean isOptional;
 
-        return r;
-    }
+	/**
+	 * Cria elemento
+	 * 
+	 * @param p
+	 * @param d
+	 * @param c
+	 */
+	public EntryRec(EntryTable p, int d, int c, boolean o) {
+		type = p;
+		count = c;
+		dim = d;
+		isOptional = o;
+		next = null;
+	}
 
-    public EntryRec inverte() {
-        EntryRec r = this;
+	/**
+	 * Cria elemento e pï¿½e no inï¿½cio da lista
+	 */
+	public EntryRec(EntryTable p, int d, int c, boolean o, EntryRec t) {
+		type = p;
+		count = c;
+		dim = d;
+		isOptional = o;
+		next = t;
+	}
 
-        cont = 1;
+	/**
+	 * Cria elemento e pÃµe no inï¿½cio da lista
+	 */
+	public EntryRec(EntryTable p, int d, int c, EntryRec t) {
+		type = p;
+		count = c;
+		dim = d;
+		next = t;
+	}
 
-        if (next != null) {
-            r = next.inverte(this);
-        }
+	public EntryRec inverte(EntryRec ant) {
+		EntryRec r = this;
 
-        next = null;
+		if (next != null) {
+			r = next.inverte(this);
+		}
 
-        return r;
-    }
+		count = ant.count + 1;
+		next = ant;
 
-    // devolve a representação da EntryRec na forma de string
-    public String toStr() {
-        String s;
+		return r;
+	}
 
-        s = type.name;
+	public EntryRec inverte() {
+		EntryRec r = this;
 
-        for (int i = 0; i < dim; i++)
-            s += "[]";
+		count = 1;
 
-        if (next != null) {
-            s += (", " + next.toStr());
-        }
+		if (next != null) {
+			r = next.inverte(this);
+		}
 
-        return s;
-    }
+		next = null;
 
-    // devolve descritor da EntryRec
+		return r;
+	}
+
+	public String toStr() {
+		String s;
+
+		s = type.name;
+
+		for (int i = 0; i < dim; i++)
+			s += "[]";
+
+		if (next != null) {
+			s += (", " + next.toStr());
+		}
+
+		return s;
+	}
+	
     public String dscJava() {
         String s;
 
@@ -87,13 +123,12 @@ public class EntryRec extends EntryTable {
 
         return s;
     }
-
-    // verifica a igualdade de dois objetos do tipo EntryRec
+    
     public boolean equals(EntryRec x) {
         EntryRec p;
         EntryRec q;
 
-        if ((x == null) || (cont != x.cont)) {
+        if ((x == null) || (count != x.count)) {
             return false;
         }
 
