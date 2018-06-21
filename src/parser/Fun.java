@@ -11,7 +11,7 @@ public class Fun implements FunConstants {
   boolean debug_recovery;
   Token ultimoErro = null;
 
-  final static String CaminhoDoArquivo = "/Users/ronaldostranger/Downloads/pa/programaaceito2.fun";
+  final static String CaminhoDoArquivo = "C:/Users/Matheus/Desktop/Universidade/6\u00aa Fase/Compila/programaaceito/programa1.fun";
 
   public static void main(String args []) throws ParseException
   {

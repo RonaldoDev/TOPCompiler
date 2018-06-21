@@ -31,7 +31,7 @@ public class EntryRec extends EntryTable {
 	/**
 	 * Define se um par�metro � opcional
 	 */
-	public boolean isOptional;
+	public boolean optional;
 
 	/**
 	 * Cria elemento
@@ -44,7 +44,7 @@ public class EntryRec extends EntryTable {
 		type = p;
 		count = c;
 		dim = d;
-		isOptional = o;
+		optional = o;
 		next = null;
 	}
 
@@ -55,18 +55,19 @@ public class EntryRec extends EntryTable {
 		type = p;
 		count = c;
 		dim = d;
-		isOptional = o;
+		optional = o;
 		next = t;
 	}
 
 	/**
 	 * Cria elemento e põe no in�cio da lista
 	 */
-	public EntryRec(EntryTable p, int d, int c, EntryRec t) {
+	public EntryRec(EntryTable p, int d, int c, EntryRec t, boolean o) {
 		type = p;
 		count = c;
 		dim = d;
 		next = t;
+		optional = o;
 	}
 
 	public EntryRec inverte(EntryRec ant) {
